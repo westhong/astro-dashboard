@@ -35,8 +35,13 @@ def location_ids():
     return list(json.loads(LOCATIONS_JSON.read_text()).keys())
 
 
-async def run_one(loc_id: str, date_str: str) -> dict:
+async def run_one(loc_id: str, date_str: str, sem: asyncio.Semaphore) -> dict:
     """跑一個機位；失敗回傳誠實嘅 error object，唔會 throw"""
+    async with sem:
+        return await _run_one_inner(loc_id, date_str)
+
+
+async def _run_one_inner(loc_id: str, date_str: str) -> dict:
     try:
         proc = await asyncio.create_subprocess_exec(
             sys.executable, str(SKILL_SCRIPT),
@@ -45,18 +50,19 @@ async def run_one(loc_id: str, date_str: str) -> dict:
         )
         stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=LOCATION_TIMEOUT)
         if proc.returncode != 0:
-            return {
-                "location_id": loc_id, "error": True,
-                "message": f"分析程式回傳錯誤（exit {proc.returncode}）",
-                "detail": stderr.decode()[-500:],
-            }
+            detail = stderr.decode()[-500:]
+            if "429" in detail or "Too Many Requests" in detail:
+                msg = "天氣數據商暫時限流（請求太密），稍後撳更新通常會好"
+            else:
+                msg = f"分析程式回傳錯誤（exit {proc.returncode}）"
+            return {"location_id": loc_id, "error": True, "message": msg, "detail": detail}
         return json.loads(stdout.decode())
     except asyncio.TimeoutError:
         return {"location_id": loc_id, "error": True,
-                "message": f"分析超時（>{LOCATION_TIMEOUT}s）——可能天氣 API 冇回應"}
+                "message": f"分析超時（>{LOCATION_TIMEOUT}s）——天氣數據服務可能冇回應"}
     except json.JSONDecodeError as e:
         return {"location_id": loc_id, "error": True,
-                "message": f"分析輸出無法解析：{e}"}
+                "message": "分析輸出無法解析（程式輸出異常）"}
     except Exception as e:
         return {"location_id": loc_id, "error": True, "message": f"未預期錯誤：{e}"}
 
@@ -64,7 +70,17 @@ async def run_one(loc_id: str, date_str: str) -> dict:
 async def build_report(date_str: str) -> dict:
     t0 = time.time()
     ids = location_ids()
-    results = await asyncio.gather(*(run_one(i, date_str) for i in ids))
+    sem = asyncio.Semaphore(2)  # 唔好一次過轰 12 個 API call（Open-Meteo 免費額會 429）
+    results = list(await asyncio.gather(*(run_one(i, date_str, sem) for i in ids)))
+    # 失敗嘅機位等 15 秒後順序重試一次
+    failed_ids = [r["location_id"] for r in results if r.get("error")]
+    if failed_ids:
+        await asyncio.sleep(15)
+        for r in results:
+            if r.get("error") and r["location_id"] in failed_ids:
+                retry = await _run_one_inner(r["location_id"], date_str)
+                if not retry.get("error"):
+                    results[results.index(r)] = retry
     ok = [r for r in results if not r.get("error")]
     failed = [r for r in results if r.get("error")]
     best = None

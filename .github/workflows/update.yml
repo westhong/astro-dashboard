@@ -1,0 +1,38 @@
+name: update-report
+
+on:
+  schedule:
+    # 每小時 :07 同 :37（MDT 傍晚/深夜都覆蓋到）
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install skyfield requests
+
+      - name: Build report JSON
+        run: python backend/build_report.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "astro-dashboard-bot"
+          git config user.email "astro-dashboard-bot@users.noreply.github.com"
+          git add docs/
+          if git diff --cached --quiet; then
+            echo "冇變化，唔 commit"
+          else
+            git commit -m "data: report update $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
