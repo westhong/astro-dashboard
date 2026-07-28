@@ -25,20 +25,22 @@ West 嘅落磯山銀河拍攝條件手機儀表板。
 ## 架構
 
 ```
-app.py              FastAPI backend — 並行跑 6 機位分析（subprocess），10 分鐘 cache
-static/index.html   Mobile-first frontend（無外部依賴，暗色星空主題）
+app.py                     FastAPI backend（LAN 即時模式）— 限流並行 + 失敗自動重試
+static/index.html          Mobile-first frontend（無外部依賴，暗色星空主題）
+                           雙模式：LAN 試 /api/report，失敗自動轉靜態 report-N.json
+backend/scripts/           Self-contained 分析（night_report.py，內建 429 retry）
+backend/references/        locations.json（機位座標單一來源嘅 copy）
+backend/build_report.py    Actions 用：產生 docs/report-{0,1,2}.json
+docs/                      GitHub Pages 輸出（index.html + report JSON）
+.github/workflows/         每小時自動更新數據
 ```
 
-- `GET /api/report?date=YYYY-MM-DD` — 即時分析（6 機位並行，約 7 秒）
-- `GET /api/health`
-- 分析失敗嘅機位會誠實回傳 `error: true` + 原因，frontend 顯示道歉卡，**絕不顯示假數據**
+**Public 模式（GitHub Pages）**：Actions 每小時跑分析 → commit `docs/report-*.json` → Pages 靜態 hosting。
+**全條鏈零 credential**：Open-Meteo / CAMS / skyfield 全部唔使 key，repo 入面冇任何秘密。
 
-## 行
+**LAN 模式**：`python3 app.py` → http://\<LAN IP\>:8788（即時按掣重跑）
 
-```bash
-python3 app.py   # 需要 fastapi + uvicorn + skyfield + requests
-# 開 http://<LAN IP>:8788
-```
+分析失敗嘅機位會誠實顯示道歉卡 + 原因，**絕不顯示假數據**。
 
 ## 機位
 
