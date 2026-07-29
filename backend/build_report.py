@@ -116,9 +116,17 @@ def main():
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
         print(f"[{date_str}] ok={len(ok)} failed={len(results)-len(ok)} best={payload['best_location_id']} → {out}")
 
-    # 同步最新 frontend 去 docs/
+    # 同步最新 frontend 去 docs/（index.html + manifest + icons）
+    import shutil
     (DOCS / "index.html").write_text(STATIC.read_text())
-    print("docs/index.html updated")
+    for extra in ["manifest.webmanifest"]:
+        src = HERE.parent / "static" / extra
+        if src.exists():
+            shutil.copy2(src, DOCS / extra)
+    icons_src = HERE.parent / "static" / "icons"
+    if icons_src.exists():
+        shutil.copytree(icons_src, DOCS / "icons", dirs_exist_ok=True)
+    print("docs/ static assets updated")
 
 
 if __name__ == "__main__":
