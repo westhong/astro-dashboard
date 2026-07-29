@@ -60,6 +60,7 @@ def main():
         if scored:
             best = max(scored, key=lambda r: r["night"]["score"])
         payload = {
+            "version": (HERE.parent / "VERSION").read_text().strip(),
             "night_date": date_str,
             "generated_at": __import__("datetime").datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S MDT"),
             "elapsed_seconds": round(time.time() - t0, 1),

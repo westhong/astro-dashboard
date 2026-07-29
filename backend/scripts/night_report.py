@@ -175,7 +175,7 @@ def fetch_weather(lat, lon):
         "hourly": ",".join([
             "temperature_2m", "relative_humidity_2m", "dew_point_2m",
             "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
-            "wind_speed_10m", "wind_gusts_10m", "visibility", "freezing_level_height",
+            "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m", "visibility", "freezing_level_height",
         ]),
         "timezone": "America/Edmonton",
         "wind_speed_unit": "kmh",
@@ -246,6 +246,17 @@ def fmt(d):
 def cardinal(az):
     dirs = ["北", "東北", "東", "東南", "南", "西南", "西", "西北"]
     return dirs[int((az + 22.5) // 45) % 8]
+
+
+def vertical_mw_note(month):
+    """垂直銀河季節提示（51°N 落磯山）"""
+    if month in (8, 9, 10):
+        return "現在是傍晚垂直銀河季節——天文黑夜初段銀河直立在南方至西南"
+    if month in (3, 4, 5):
+        return "黎明前垂直銀河季節——天文黑夜尾段銀河直立在東南至南"
+    if month in (6, 7):
+        return "夏季銀河橫躺在南方低空；垂直銀河要等 8 月中後的黃昏"
+    return "銀河季休整中；下一個垂直銀河時段：3–5 月黎明前"
 
 
 # ---------- 主分析 ----------
@@ -331,6 +342,21 @@ def analyze(loc_id, loc, date_str):
         moon_free_periods.append((run_start, dark_end))
     moon_free_min = sum((b - a).total_seconds() / 60 for a, b in moon_free_periods)
 
+    # 全晚（18:00→10:00）月亮在地平線上嘅時段（畀 timeline 著色用）
+    moon_up_periods = []
+    run_start = None
+    for t, a in samples:
+        malt, _ = astro.moon_alt_az(t)
+        if malt > 0:
+            if run_start is None:
+                run_start = t
+        else:
+            if run_start is not None:
+                moon_up_periods.append((run_start, t))
+                run_start = None
+    if run_start is not None:
+        moon_up_periods.append((run_start, samples[-1][0]))
+
     # --- 銀心 ---
     gc_best = None
     gc_visible_hours = []
@@ -357,6 +383,7 @@ def analyze(loc_id, loc, date_str):
         rh = hourly["relative_humidity_2m"][i]
         dew = hourly["dew_point_2m"][i]
         wind = hourly["wind_speed_10m"][i] or 0
+        wind_dir = hourly["wind_direction_10m"][i]
         gust = hourly["wind_gusts_10m"][i] or 0
         pm = aqi_val = None
         j = aq_by_time.get(key)
@@ -371,7 +398,7 @@ def analyze(loc_id, loc, date_str):
         astro_score = cs * 0.45 + moon_s * 0.25 + ss * 0.20 + ws * 0.10
         rows.append({
             "hour": h, "total_cloud": total, "low": low, "mid": mid, "high": high,
-            "temp": temp, "rh": rh, "dew": dew, "wind": wind, "gust": gust,
+            "temp": temp, "rh": rh, "dew": dew, "wind": wind, "wind_dir": wind_dir, "gust": gust,
             "pm": pm, "aqi": aqi_val, "moon_alt": malt,
             "cloud_score": cs, "cloud_label": label(cs),
             "moon_score": moon_s, "moon_label": label(moon_s),
@@ -501,8 +528,11 @@ def analyze(loc_id, loc, date_str):
             "overlap_ratio": round(overlap_ratio, 2),
             "moon_free_minutes_in_window": round(moon_free_min),
             "moon_free_periods": [[fmt(a), fmt(b)] for a, b in moon_free_periods],
+            "up_periods_night": [[fmt(a), fmt(b)] for a, b in moon_up_periods],
             "verdict": "月亮唔阻" if overlap_min == 0 else f"重疊 {overlap_min} 分鐘，無月時段 {moon_free_min:.0f} 分鐘",
         },
+        "sun_curve": [[fmt(t), round(a, 1)] for t, a in samples[::3]],
+        "vertical_mw": vertical_mw_note(night_date.month),
         "galactic_center": {
             "max_altitude_in_window": round(gc_best[1], 1) if gc_best else None,
             "max_altitude_time": fmt(gc_best[0]) if gc_best else None,
@@ -533,7 +563,8 @@ def analyze(loc_id, loc, date_str):
             "smoke_score": r["smoke_score"], "smoke_label": r["smoke_label"],
             "moon_altitude": round(r["moon_alt"], 1),
             "moon_score": r["moon_score"], "moon_label": r["moon_label"],
-            "wind_kmh": r["wind"], "gust_kmh": r["gust"],
+            "wind_kmh": r["wind"], "wind_dir": (cardinal(r["wind_dir"]) if r["wind_dir"] is not None else None),
+            "gust_kmh": r["gust"],
             "wind_score": r["wind_score"], "wind_label": r["wind_label"],
             "temp_c": r["temp"], "rh_pct": r["rh"], "dew_point_c": r["dew"],
             "astro_score": round(r["score"], 1),

@@ -23,6 +23,7 @@ from fastapi.staticfiles import StaticFiles
 SKILL_SCRIPT = Path("/home/jarvis/.hermes/skills/photography/rockies-milkyway-scout/scripts/night_report.py")
 LOCATIONS_JSON = SKILL_SCRIPT.parent.parent / "references" / "locations.json"
 STATIC_DIR = Path(__file__).parent / "static"
+VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 
 CACHE_TTL = 600  # 10 分鐘
 LOCATION_TIMEOUT = 120  # 每機位 subprocess 上限
@@ -89,6 +90,7 @@ async def build_report(date_str: str) -> dict:
         if scored:
             best = max(scored, key=lambda r: r["night"]["score"])
     return {
+        "version": VERSION,
         "night_date": date_str,
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "elapsed_seconds": round(time.time() - t0, 1),
