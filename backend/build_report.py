@@ -2,7 +2,9 @@
 """
 build_report.py — GitHub Actions 用：跑 6 機位分析，寫 docs/report-{0,1,2}.json
 順序執行（避免 Open-Meteo 429），失敗嘅機位誠實記錄 error，絕不造假。
+v2.1.0：加入 alpenglow（金山機位）+ 各點日出日落時間。
 """
+import datetime as dt
 import json
 import subprocess
 import sys
@@ -37,10 +39,49 @@ def run_one(loc_id, date_str):
         return {"location_id": loc_id, "error": True, "message": f"未預期錯誤：{e}"}
 
 
+def sun_events_for(lat, lon, elev, y, m, d):
+    """當地日期 d 嘅日出/日落時間（skyfield almanac，Edmonton 時區）"""
+    sys.path.insert(0, str(HERE / "scripts"))
+    from night_report import Astro
+    from skyfield import almanac
+    a = Astro(lat, lon, elev)
+    f = almanac.sunrise_sunset(a.eph, a.topos_ll)
+    nxt = date(y, m, d) + timedelta(days=1)
+    t0 = a.ts.utc(y, m, d, 0)
+    t1 = a.ts.utc(nxt.year, nxt.month, nxt.day, 12)
+    times, events = almanac.find_discrete(t0, t1, f)
+    sr = ss = None
+    for t, e in zip(times, events):
+        lt = t.utc_datetime().replace(tzinfo=dt.timezone.utc).astimezone(TZ)
+        if lt.date() != date(y, m, d):
+            continue
+        if e == 1 and sr is None:
+            sr = lt
+        if e == 0:
+            ss = lt
+    return (sr.strftime("%H:%M") if sr else None, ss.strftime("%H:%M") if ss else None)
+
+
+def build_spots(date_str):
+    y, m, d = map(int, date_str.split("-"))
+    data = json.loads((HERE / "spots.json").read_text(encoding="utf-8"))
+    points = []
+    for p in data["points"]:
+        try:
+            sr, ss = sun_events_for(p["lat"], p["lon"], p.get("elev_m", 1500), y, m, d)
+        except Exception:
+            sr = ss = None
+        q = dict(p)
+        q["sunrise"] = sr
+        q["sunset"] = ss
+        q["gmaps"] = f"https://www.google.com/maps/dir/?api=1&destination={p['lat']},{p['lon']}"
+        points.append(q)
+    return points
+
+
 def main():
     locs = json.loads((HERE / "references" / "locations.json").read_text())
-    today = date.today()  # Actions runner 用 UTC 都冇所謂，date 以 Edmonton 為準：
-    today = __import__("datetime").datetime.now(TZ).date()
+    today = dt.datetime.now(TZ).date()
     DOCS.mkdir(exist_ok=True)
 
     for offset in range(3):
@@ -59,14 +100,17 @@ def main():
         scored = [r for r in ok if r.get("night", {}).get("grade_code") != "NO_DATA"]
         if scored:
             best = max(scored, key=lambda r: r["night"]["score"])
+        spots = build_spots(date_str)
         payload = {
             "version": (HERE.parent / "VERSION").read_text().strip(),
             "night_date": date_str,
-            "generated_at": __import__("datetime").datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S MDT"),
+            "generated_at": dt.datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S %Z"),
+            "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
             "elapsed_seconds": round(time.time() - t0, 1),
             "locations": results,
             "best_location_id": best["location_id"] if best else None,
             "failed_count": len(results) - len(ok),
+            "spots": spots,
         }
         out = DOCS / f"report-{offset}.json"
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
