@@ -188,7 +188,14 @@ function zh(s){
     .replace('月亮唔阻','月亮不影響')
     .replace('冇完整天文黑夜','無完整天文黑夜')
     .replace('唔夠','未達')
-    .replace('唔准','不准');
+    .replace('唔准','不准')
+    .replace('放喺袋','放在袋裡')
+    .replace('隨時上','隨時取用')
+    .replace('入暖車前装密實袋','進入溫暖車內前裝入密實袋')
+    .replace('必帶','必備')
+    .replace('唔使','不用')
+    .replace('冇','沒有')
+    .replace('唔','不');
 }
 function labelOf(s){ return s>=78?'好':(s>=48?'中':'差'); }
 function colorOfScore(s){ for(const [t,c] of [[85,'#34d399'],[70,'#a3e635'],[55,'#fbbf24'],[40,'#fb923c']]) if(s>=t) return c; return '#f87171'; }
@@ -369,7 +376,7 @@ function gcRow(loc){
 function gearWarn(loc){
   const warns=(loc.gear_advice||[]).filter(g=>/[🔴🟡❄️🔋]/u.test(g));
   if(!warns.length) return '';
-  return `<div class="gearwarn">${warns.map(g=>`<div>${esc(g)}</div>`).join('')}</div>`;
+  return `<div class="gearwarn">${warns.map(g=>`<div>${esc(zh(g))}</div>`).join('')}</div>`;
 }
 
 function cardHTML(loc, isBest){
@@ -401,7 +408,7 @@ function cardHTML(loc, isBest){
         <tr><th>時間</th><th>雲</th><th>PM2.5</th><th>AQI</th><th>風</th><th>月</th><th>分</th><th>雲/月/煙/風</th></tr>${rows}
       </table></div>`:'<p class="gear">沒有逐小時數據（可能超出預報範圍）</p>'}
       <h3>器材保護（整晚）</h3>
-      <div class="gear">${(loc.gear_advice||[]).map(g=>`<div>${esc(g)}</div>`).join('')}</div>
+      <div class="gear">${(loc.gear_advice||[]).map(g=>`<div>${esc(zh(g))}</div>`).join('')}</div>
       <div class="src">座標 ${loc.lat}, ${loc.lon} · ${esc(loc.coord_source)}<br>${esc(loc.sources?.weather||'')}<br>${esc(loc.sources?.air_quality||'')}<br>${esc(loc.sources?.astronomy||'')}</div>
     </div>
   </div>`;
