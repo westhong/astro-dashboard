@@ -8,21 +8,15 @@
 <style>
   :root {
     --bg: #0a0e1a;
-    --bg2: #111830;
     --card: rgba(255,255,255,0.045);
     --card-border: rgba(255,255,255,0.09);
     --text: #e8ecf4;
     --text-dim: #8b93a7;
-    --go: #34d399;
-    --good: #a3e635;
-    --marginal: #fbbf24;
-    --risky: #fb923c;
-    --stay: #f87171;
-    --nodata: #9ca3af;
+    --go: #34d399; --good: #a3e635; --marginal: #fbbf24;
+    --risky: #fb923c; --stay: #f87171; --nodata: #9ca3af;
     --accent: #7dd3fc;
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html { font-size:16px; }
   body {
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang TC","PingFang HK","Noto Sans TC",sans-serif;
     background:
@@ -35,105 +29,106 @@
       radial-gradient(1px 1px at 78% 70%, rgba(255,255,255,.4)  50%, transparent 51%),
       linear-gradient(180deg, #070b14 0%, var(--bg) 40%, #0d1330 100%);
     background-attachment: fixed;
-    color: var(--text);
-    min-height: 100vh;
+    color: var(--text); min-height: 100vh;
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
   }
   .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
 
-  /* ── Header ── */
   header {
     position: sticky; top: 0; z-index: 50;
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     background: rgba(10,14,26,.78);
     border-bottom: 1px solid var(--card-border);
-    padding: calc(10px + env(safe-area-inset-top)) 0 10px;
-    margin-bottom: 14px;
+    padding: calc(10px + env(safe-area-inset-top)) 0 10px; margin-bottom: 14px;
   }
-  .header-inner { display:flex; align-items:center; justify-content:space-between; max-width:560px; margin:0 auto; padding:0 16px; }
-  h1 { font-size:1.15rem; font-weight:700; letter-spacing:.02em; }
-  h1 .sub { display:block; font-size:.68rem; font-weight:400; color:var(--text-dim); margin-top:1px; }
+  .header-inner { display:flex; align-items:center; max-width:560px; margin:0 auto; padding:0 16px; }
+  h1 { font-size:1.1rem; font-weight:700; flex:1; }
+  h1 .sub { display:block; font-size:.66rem; font-weight:400; color:var(--text-dim); margin-top:1px; }
+  .ver {
+    font-size:.72rem; font-weight:700; color:var(--accent);
+    background:rgba(125,211,252,.12); border:1px solid rgba(125,211,252,.3);
+    border-radius:99px; padding:3px 10px; letter-spacing:.03em;
+  }
   .refresh-btn {
-    background: var(--card); border:1px solid var(--card-border); color:var(--text);
-    border-radius: 12px; padding: 8px 14px; font-size:.85rem; cursor:pointer;
-    display:flex; align-items:center; gap:6px; transition: transform .1s;
+    flex:1; text-align:right; background:none; border:none; color:var(--text);
+    font-size:.85rem; cursor:pointer;
   }
-  .refresh-btn:active { transform: scale(.95); }
+  .refresh-btn span { display:inline-block; background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:8px 14px; }
   .refresh-btn.spinning .ico { animation: spin 1s linear infinite; display:inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Segmented date ── */
-  .seg { display:flex; gap:6px; margin: 2px 0 14px; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:4px; }
-  .seg button {
-    flex:1; border:none; background:transparent; color:var(--text-dim);
-    padding:9px 0; border-radius:11px; font-size:.88rem; font-weight:600; cursor:pointer;
-  }
+  .seg { display:flex; gap:6px; margin: 2px 0 12px; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:4px; }
+  .seg button { flex:1; border:none; background:transparent; color:var(--text-dim); padding:9px 0; border-radius:11px; font-size:.88rem; font-weight:600; cursor:pointer; }
   .seg button.on { background:rgba(125,211,252,.16); color:var(--accent); }
+  .stamp { font-size:.7rem; color:var(--text-dim); text-align:right; margin:0 2px 10px; }
 
-  /* ── Hero verdict ── */
-  .hero {
-    border-radius:20px; padding:18px; margin-bottom:14px;
-    border:1px solid var(--card-border);
-    background: linear-gradient(135deg, rgba(125,211,252,.09), rgba(167,139,250,.07));
-  }
-  .hero .k { font-size:.72rem; color:var(--text-dim); letter-spacing:.12em; text-transform:uppercase; }
-  .hero .v { font-size:1.28rem; font-weight:700; margin-top:5px; line-height:1.35; }
+  .hero { border-radius:20px; padding:18px; margin-bottom:14px; border:1px solid var(--card-border);
+    background: linear-gradient(135deg, rgba(125,211,252,.09), rgba(167,139,250,.07)); }
+  .hero .k { font-size:.72rem; color:var(--text-dim); letter-spacing:.12em; }
+  .hero .v { font-size:1.24rem; font-weight:700; margin-top:5px; line-height:1.35; }
   .hero .why { font-size:.85rem; color:var(--text-dim); margin-top:6px; line-height:1.5; }
 
-  /* ── Location card ── */
-  .card {
-    background: var(--card); border:1px solid var(--card-border);
-    border-radius:20px; padding:16px; margin-bottom:12px;
-    animation: rise .35s ease both;
-  }
+  .card { background: var(--card); border:1px solid var(--card-border); border-radius:20px; padding:16px; margin-bottom:12px; animation: rise .35s ease both; }
   @keyframes rise { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:none;} }
-  .card-top { display:flex; align-items:center; gap:14px; }
-  .ring { position:relative; width:74px; height:74px; flex:none; }
+  .card-top { display:flex; align-items:center; gap:13px; }
+  .ring { position:relative; width:66px; height:66px; flex:none; }
   .ring svg { transform: rotate(-90deg); }
   .ring .num { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .ring .num b { font-size:1.35rem; line-height:1; }
-  .ring .num span { font-size:.58rem; color:var(--text-dim); margin-top:2px; }
+  .ring .num b { font-size:1.25rem; line-height:1; }
+  .ring .num span { font-size:.55rem; color:var(--text-dim); margin-top:2px; }
   .card-title { flex:1; min-width:0; }
   .card-title h2 { font-size:1.02rem; font-weight:700; }
   .card-title .mtn { font-size:.8rem; color:var(--text-dim); margin-top:2px; }
-  .badge {
-    font-size:.68rem; font-weight:700; padding:4px 10px; border-radius:99px;
-    letter-spacing:.04em; white-space:nowrap;
-  }
-  .b-GO        { background:rgba(52,211,153,.16); color:var(--go); }
-  .b-GOOD      { background:rgba(163,230,53,.14); color:var(--good); }
-  .b-MARGINAL  { background:rgba(251,191,36,.14); color:var(--marginal); }
-  .b-RISKY     { background:rgba(251,146,60,.14); color:var(--risky); }
+  .badge { font-size:.68rem; font-weight:700; padding:4px 10px; border-radius:99px; white-space:nowrap; }
+  .b-GO { background:rgba(52,211,153,.16); color:var(--go); }
+  .b-GOOD { background:rgba(163,230,53,.14); color:var(--good); }
+  .b-MARGINAL { background:rgba(251,191,36,.14); color:var(--marginal); }
+  .b-RISKY { background:rgba(251,146,60,.14); color:var(--risky); }
   .b-STAY_HOME { background:rgba(248,113,113,.14); color:var(--stay); }
-  .b-NO_DATA   { background:rgba(156,163,175,.14); color:var(--nodata); }
-
-  .facts { margin-top:12px; display:flex; flex-direction:column; gap:7px; }
-  .fact { display:flex; gap:9px; font-size:.85rem; align-items:baseline; }
-  .fact .ico { width:18px; text-align:center; flex:none; }
-  .fact .lbl { color:var(--text-dim); flex:none; width:3.2em; }
-  .fact .val { flex:1; line-height:1.45; }
-  .fact .warn { color:var(--marginal); }
-
-  .chips { display:flex; gap:6px; margin-top:12px; }
-  .chip {
-    flex:1; text-align:center; border-radius:12px; padding:7px 2px 6px;
-    font-size:.7rem; border:1px solid transparent;
-  }
-  .chip b { display:block; font-size:.82rem; margin-top:1px; }
-  .c-好 { background:rgba(52,211,153,.10); color:var(--go); border-color:rgba(52,211,153,.22); }
-  .c-中 { background:rgba(251,191,36,.10); color:var(--marginal); border-color:rgba(251,191,36,.22); }
-  .c-差 { background:rgba(248,113,113,.10); color:var(--stay); border-color:rgba(248,113,113,.22); }
-  .c-無資料 { background:rgba(156,163,175,.08); color:var(--nodata); border-color:rgba(156,163,175,.2); }
+  .b-NO_DATA { background:rgba(156,163,175,.14); color:var(--nodata); }
 
   .flags { margin-top:10px; display:flex; flex-direction:column; gap:5px; }
   .flag { font-size:.78rem; padding:7px 10px; border-radius:10px; line-height:1.45; }
   .flag.veto { background:rgba(248,113,113,.10); color:#fca5a5; }
   .flag.cap  { background:rgba(251,191,36,.08); color:#fcd34d; }
 
-  .expand-btn {
-    width:100%; margin-top:12px; background:none; border:none; color:var(--accent);
-    font-size:.8rem; padding:7px; cursor:pointer; border-top:1px solid var(--card-border);
+  /* ── Timeline ── */
+  .tl { margin-top:12px; }
+  .tl svg { width:100%; height:auto; display:block; touch-action:none; user-select:none; }
+  .tl .readout {
+    margin-top:6px; text-align:center; font-size:.8rem; font-weight:600; color:var(--accent);
+    background:rgba(125,211,252,.07); border-radius:10px; padding:6px 8px;
   }
+  .tl .hint { text-align:center; font-size:.64rem; color:var(--text-dim); margin-top:4px; }
+
+  /* ── 三張指標小卡 ── */
+  .mini3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:12px; }
+  .mini { background:rgba(255,255,255,.035); border:1px solid var(--card-border); border-radius:14px; padding:10px 8px; text-align:center; }
+  .mini .mt { display:flex; align-items:center; justify-content:center; gap:5px; font-size:.78rem; font-weight:700; }
+  .mini .ml { font-size:.62rem; font-weight:700; padding:1px 7px; border-radius:99px; }
+  .l-好 { background:rgba(52,211,153,.14); color:var(--go); }
+  .l-中 { background:rgba(251,191,36,.14); color:var(--marginal); }
+  .l-差 { background:rgba(248,113,113,.14); color:var(--stay); }
+  .l-無資料 { background:rgba(156,163,175,.12); color:var(--nodata); }
+  .mini .graphic { margin:8px auto 6px; display:flex; align-items:center; justify-content:center; min-height:34px; }
+  .mini .ms { font-size:1.05rem; font-weight:700; }
+  .mini .md { font-size:.64rem; color:var(--text-dim); margin-top:4px; line-height:1.55; }
+  .mini .md a { color:var(--accent); text-decoration:none; }
+  .cloudbar { width:100%; height:10px; border-radius:99px; overflow:hidden; display:flex; background:rgba(255,255,255,.06); }
+  .cloudbar span { display:block; height:100%; }
+
+  /* ── bonus 行 ── */
+  .bonus { margin-top:11px; display:flex; flex-direction:column; gap:7px; }
+  .brow { display:flex; gap:9px; font-size:.82rem; align-items:baseline; }
+  .brow .ico { width:18px; text-align:center; flex:none; }
+  .brow .txt { flex:1; line-height:1.5; }
+  .brow .dim { color:var(--text-dim); }
+
+  .gearwarn { margin-top:10px; background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.2);
+    border-radius:12px; padding:9px 11px; font-size:.78rem; line-height:1.65; }
+
+  .expand-btn { width:100%; margin-top:12px; background:none; border:none; color:var(--accent);
+    font-size:.8rem; padding:7px; cursor:pointer; border-top:1px solid var(--card-border); }
   .detail { display:none; margin-top:10px; }
   .detail.open { display:block; }
   .detail h3 { font-size:.75rem; color:var(--text-dim); margin:10px 0 6px; letter-spacing:.08em; }
@@ -143,41 +138,33 @@
   th { color:var(--text-dim); font-weight:600; background:rgba(255,255,255,.03); }
   td { border-top:1px solid rgba(255,255,255,.05); }
   td:first-child, th:first-child { text-align:left; }
-  tr.best td { background:rgba(125,211,252,.06); }
-  .gear { font-size:.8rem; line-height:1.7; color:var(--text); }
-  .gear div { padding:2px 0; }
+  .gear { font-size:.8rem; line-height:1.7; }
   .src { font-size:.68rem; color:var(--text-dim); margin-top:10px; line-height:1.6; }
 
-  /* ── Error / apology card ── */
-  .sorry {
-    border:1px solid rgba(248,113,113,.25); background:rgba(248,113,113,.06);
-    border-radius:20px; padding:18px; margin-bottom:12px;
-  }
+  .sorry { border:1px solid rgba(248,113,113,.25); background:rgba(248,113,113,.06); border-radius:20px; padding:18px; margin-bottom:12px; }
   .sorry h2 { font-size:.95rem; color:#fca5a5; }
   .sorry p { font-size:.82rem; color:var(--text-dim); margin-top:6px; line-height:1.55; }
 
-  /* ── Skeleton ── */
-  .skel { border-radius:20px; height:150px; margin-bottom:12px;
+  .skel { border-radius:20px; height:230px; margin-bottom:12px;
     background:linear-gradient(90deg, var(--card) 25%, rgba(255,255,255,.09) 50%, var(--card) 75%);
     background-size:200% 100%; animation: shimmer 1.3s infinite; }
   @keyframes shimmer { to { background-position:-200% 0; } }
-
   .foot { text-align:center; font-size:.68rem; color:var(--text-dim); margin-top:18px; line-height:1.8; }
-  .stamp { font-size:.7rem; color:var(--text-dim); text-align:right; margin:-6px 2px 10px; }
 </style>
 </head>
 <body>
 <header>
   <div class="header-inner">
     <h1>🌌 銀河儀表板<span class="sub">Rockies Milky Way Scout</span></h1>
-    <button class="refresh-btn" id="refreshBtn"><span class="ico">↻</span>更新</button>
+    <span class="ver" id="ver">v—</span>
+    <button class="refresh-btn" id="refreshBtn"><span><span class="ico">↻</span> 更新</span></button>
   </div>
 </header>
 
 <div class="wrap">
   <div class="seg" id="seg">
     <button data-offset="0" class="on">今晚</button>
-    <button data-offset="1">聽晚</button>
+    <button data-offset="1">明晚</button>
     <button data-offset="2">後晚</button>
   </div>
   <div class="stamp" id="stamp"></div>
@@ -188,90 +175,232 @@
 
 <script>
 const GRADE_COLOR = { GO:'#34d399', GOOD:'#a3e635', MARGINAL:'#fbbf24', RISKY:'#fb923c', STAY_HOME:'#f87171', NO_DATA:'#9ca3af' };
-const GRADE_ZH = { GO:'立即出發', GOOD:'值得去', MARGINAL:'可試有風險', RISKY:'唔太建議', STAY_HOME:'留喺屋企', NO_DATA:'無法評估' };
-const LABELS = ['雲','月','煙','風'];
-let currentOffset = 0, lastData = null, expanded = new Set();
+const GRADE_ZH = { GO:'立即出發', GOOD:'值得前往', MARGINAL:'可嘗試但有風險', RISKY:'不太建議', STAY_HOME:'留在家中', NO_DATA:'無法評估' };
+let currentOffset = 0, lastData = null, expanded = new Set(), scrubState = {};
 
-function dateFor(offset){
-  const d = new Date(); d.setDate(d.getDate()+offset);
-  return d.toISOString().slice(0,10);
+function dateFor(offset){ const d=new Date(); d.setDate(d.getDate()+offset); return d.toISOString().slice(0,10); }
+function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+/* 後端字串 → 書面中文 */
+function zh(s){
+  return String(s??'')
+    .replace('成晚月光晒住','整夜受月光照射')
+    .replace('基本冚唪唥','幾乎滿天雲')
+    .replace('月亮唔阻','月亮不影響')
+    .replace('冇完整天文黑夜','無完整天文黑夜')
+    .replace('唔夠','未達')
+    .replace('唔准','不准');
 }
 function labelOf(s){ return s>=78?'好':(s>=48?'中':'差'); }
-function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function colorOfScore(s){ for(const [t,c] of [[85,'#34d399'],[70,'#a3e635'],[55,'#fbbf24'],[40,'#fb923c']]) if(s>=t) return c; return '#f87171'; }
+
+/* 時間 → 分鐘（18:00 = 0，跨午夜 +1440） */
+function t2m(hhmm){ const [h,m]=hhmm.split(':').map(Number); let t=h*60+m; if(h<18) t+=1440; return t-1080; }
+function m2t(min){ let t=(min+1080)%1440; return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'); }
 
 function ringSVG(score, color){
-  const r=31, c=2*Math.PI*r, off=c*(1-Math.max(0,Math.min(100,score||0))/100);
-  return `<svg width="74" height="74" viewBox="0 0 74 74">
-    <circle cx="37" cy="37" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>
-    <circle cx="37" cy="37" r="${r}" fill="none" stroke="${color}" stroke-width="7"
-      stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
-  </svg>`;
+  const r=27, c=2*Math.PI*r, off=c*(1-Math.max(0,Math.min(100,score||0))/100);
+  return `<svg width="66" height="66" viewBox="0 0 66 66">
+    <circle cx="33" cy="33" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>
+    <circle cx="33" cy="33" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`;
 }
 
-function chipData(loc){
-  // 用建議窗口內嘅小時平均四項指標
-  const bw = loc.best_window, hrs = loc.hourly||[];
-  let inWin = hrs;
-  if (bw) inWin = hrs.filter(h => h.time >= bw.start && h.time < bw.end);
-  if (!inWin.length) inWin = hrs;
-  const avg = k => inWin.length ? inWin.reduce((a,h)=>a+(h[k]??0),0)/inWin.length : 0;
-  const smokeLbl = inWin.some(h=>h.smoke_label==='無資料') ? '無資料' : labelOf(avg('smoke_score'));
-  return [
-    {n:'雲', l:labelOf(avg('cloud_score')), s:Math.round(avg('cloud_score'))},
-    {n:'月', l:labelOf(avg('moon_score')),  s:Math.round(avg('moon_score'))},
-    {n:'煙', l:smokeLbl, s:smokeLbl==='無資料'?'—':Math.round(avg('smoke_score'))},
-    {n:'風', l:labelOf(avg('wind_score')),  s:Math.round(avg('wind_score'))},
-  ];
+/* ── Timeline（可拖曳）── */
+const TL = { W:340, H:118, L:10, R:10, TOP:12, BOT:30 };
+function tlX(min){ return TL.L + (min/960)*(TL.W-TL.L-TL.R); }
+function tlY(alt){ const a=Math.max(-25,Math.min(15,alt)); return TL.TOP + (1-(a+25)/40)*(TL.H-TL.BOT-TL.TOP); }
+
+function timelineSVG(loc){
+  const id = loc.location_id;
+  const dw = loc.darkness_window;
+  const curve = loc.sun_curve || [];
+  const pts = curve.map(p=>`${tlX(t2m(p[0])).toFixed(1)},${tlY(p[1]).toFixed(1)}`).join(' ');
+  const w0 = tlX(t2m(dw.start)), w1 = tlX(t2m(dw.end));
+  const moonRects = (loc.moon.up_periods_night||[]).map(p=>{
+    const x0=tlX(t2m(p[0])), x1=tlX(t2m(p[1]));
+    return `<rect x="${x0}" y="${TL.TOP}" width="${Math.max(1,x1-x0)}" height="${TL.H-TL.BOT-TL.TOP}" fill="rgba(251,191,36,.09)"/>`;
+  }).join('');
+  const strip = (loc.hourly||[]).map(h=>{
+    const x=tlX(t2m(h.time));
+    return `<rect x="${x}" y="${TL.H-22}" width="${(TL.W-TL.L-TL.R)/960*60-1}" height="8" rx="2" fill="${colorOfScore(h.astro_score)}" opacity=".85"/>`;
+  }).join('');
+  const ticks = [0,180,360,540,720,900].map(m=>
+    `<text x="${tlX(m)}" y="${TL.H-4}" font-size="8" fill="#8b93a7" text-anchor="middle">${m2t(m).replace(':00','')}</text>` +
+    `<line x1="${tlX(m)}" y1="${TL.H-26}" x2="${tlX(m)}" y2="${TL.H-14}" stroke="rgba(255,255,255,.12)"/>`
+  ).join('');
+  const initMin = t2m(dw.min_sun_altitude_time);
+  scrubState[id] = initMin;
+  return `<div class="tl" data-loc="${id}">
+    <svg viewBox="0 0 ${TL.W} ${TL.H}" id="tl-${id}">
+      ${moonRects}
+      <rect x="${w0}" y="${TL.TOP}" width="${Math.max(1,w1-w0)}" height="${TL.H-TL.BOT-TL.TOP}" fill="rgba(125,211,252,.08)" stroke="rgba(125,211,252,.35)" stroke-dasharray="3 2" rx="3"/>
+      <line x1="${TL.L}" y1="${tlY(0)}" x2="${TL.W-TL.R}" y2="${tlY(0)}" stroke="rgba(255,255,255,.25)" stroke-dasharray="4 3"/>
+      <line x1="${TL.L}" y1="${tlY(-18)}" x2="${TL.W-TL.R}" y2="${tlY(-18)}" stroke="rgba(125,211,252,.4)" stroke-dasharray="2 3"/>
+      <text x="${TL.W-TL.R}" y="${tlY(-18)-3}" font-size="7" fill="rgba(125,211,252,.7)" text-anchor="end">-18°</text>
+      <text x="${TL.L+2}" y="${tlY(0)-3}" font-size="7" fill="rgba(255,255,255,.4)">地平線</text>
+      <polyline points="${pts}" fill="none" stroke="#7dd3fc" stroke-width="1.6"/>
+      ${strip}${ticks}
+      <g class="scrub" style="pointer-events:none">
+        <line class="sline" x1="${tlX(initMin)}" y1="${TL.TOP-2}" x2="${tlX(initMin)}" y2="${TL.H-26}" stroke="#fff" stroke-width="1.4"/>
+        <circle class="sdot" cx="${tlX(initMin)}" cy="${TL.TOP-2}" r="6" fill="#fff" stroke="#0a0e1a" stroke-width="2"/>
+      </g>
+    </svg>
+    <div class="readout" id="ro-${id}"></div>
+    <div class="hint">拖曳檢視任意時間的太陽角度 · 色帶 = 天文黑夜窗口 · 黃色 = 月亮在地平線上 · 底部色塊 = 每小時評分</div>
+  </div>`;
+}
+
+function sunAltAt(loc, min){
+  const c = loc.sun_curve||[]; if(!c.length) return null;
+  let best=c[0], bd=1e9;
+  for(const p of c){ const d=Math.abs(t2m(p[0])-min); if(d<bd){bd=d;best=p;} }
+  return best[1];
+}
+function moonUpAt(loc, min){
+  return (loc.moon.up_periods_night||[]).some(p=>t2m(p[0])<=min && min<=t2m(p[1]));
+}
+function updateScrub(loc, min){
+  const id=loc.location_id;
+  min=Math.max(0,Math.min(960,Math.round(min/10)*10));
+  scrubState[id]=min;
+  const svg=document.getElementById('tl-'+id); if(!svg) return;
+  const x=tlX(min);
+  svg.querySelector('.sline').setAttribute('x1',x); svg.querySelector('.sline').setAttribute('x2',x);
+  svg.querySelector('.sdot').setAttribute('cx',x);
+  const alt=sunAltAt(loc,min), up=moonUpAt(loc,min);
+  document.getElementById('ro-'+id).textContent =
+    `${m2t(min)} · 太陽 ${alt!=null?alt+'°':'—'} · ${up?'🌕 月亮在地平線上':'🌑 月亮在地平線下'}`;
+}
+function attachScrub(loc){
+  const svg=document.getElementById('tl-'+loc.location_id); if(!svg) return;
+  let dragging=false;
+  const go=e=>{
+    const r=svg.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width*TL.W;
+    updateScrub(loc, Math.round((px-TL.L)/(TL.W-TL.L-TL.R)*960));
+  };
+  svg.addEventListener('pointerdown', e=>{dragging=true; svg.setPointerCapture(e.pointerId); go(e);});
+  svg.addEventListener('pointermove', e=>{ if(dragging) go(e); });
+  svg.addEventListener('pointerup', ()=>dragging=false);
+  svg.addEventListener('pointercancel', ()=>dragging=false);
+  updateScrub(loc, scrubState[loc.location_id] ?? t2m(loc.darkness_window.min_sun_altitude_time));
+}
+
+/* ── 指標小卡資料 ── */
+function windowHours(loc){
+  const bw=loc.best_window, hrs=loc.hourly||[];
+  let inWin = bw ? hrs.filter(h=>h.time>=bw.start && h.time<bw.end) : hrs;
+  return inWin.length?inWin:hrs;
+}
+const avg=(arr,k)=>arr.length?arr.reduce((a,h)=>a+(h[k]??0),0)/arr.length:0;
+
+function cloudMini(loc){
+  const hrs=windowHours(loc);
+  const low=avg(hrs,'cloud_low_pct'), mid=avg(hrs,'cloud_mid_pct'), high=avg(hrs,'cloud_high_pct');
+  const s=Math.round(avg(hrs,'cloud_score')), l=labelOf(s);
+  const sum=low+mid+high;
+  const bar = sum<1 ? `<div style="font-size:.72rem;color:var(--go)">☀️ 幾乎無雲</div>` :
+    `<div class="cloudbar"><span style="width:${low/sum*100}%;background:#f87171"></span><span style="width:${mid/sum*100}%;background:#fbbf24"></span><span style="width:${high/sum*100}%;background:#7dd3fc"></span></div>`;
+  return `<div class="mini"><div class="mt">雲 <span class="ml l-${l}">${l}</span></div>
+    <div class="graphic" style="width:100%">${bar}</div>
+    <div class="ms">${s}</div>
+    <div class="md">低雲 ${Math.round(low)}%<br>中雲 ${Math.round(mid)}% · 高雲 ${Math.round(high)}%</div></div>`;
+}
+
+function moonSVG(illum, uid){
+  const w=13*illum/100;
+  return `<svg width="32" height="32" viewBox="0 0 30 30">
+    <circle cx="15" cy="15" r="13" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.25)"/>
+    <clipPath id="mc${uid}"><circle cx="15" cy="15" r="12.4"/></clipPath>
+    <ellipse cx="15" cy="15" rx="${w.toFixed(1)}" ry="12.4" fill="#f3e9c8" clip-path="url(#mc${uid})"/></svg>`;
+}
+function moonMini(loc){
+  const hrs=windowHours(loc), m=loc.moon;
+  const s=Math.round(avg(hrs,'moon_score')), l=labelOf(s);
+  const detail = m.overlap_minutes_in_window===0
+    ? '月亮在地平線下<br>不影響拍攝'
+    : `重疊 ${m.overlap_minutes_in_window} 分鐘` + (m.moon_free_periods&&m.moon_free_periods.length?`<br>無月 ${m.moon_free_periods.map(p=>p[0]+'–'+p[1]).join('、')}`:'<br>整個窗口有月光');
+  return `<div class="mini"><div class="mt">月 <span class="ml l-${l}">${l}</span></div>
+    <div class="graphic">${moonSVG(m.illumination_pct, loc.location_id)}</div>
+    <div class="ms">${s}</div>
+    <div class="md">照明 ${Math.round(m.illumination_pct)}%<br>${detail}</div></div>`;
+}
+
+function aqiSVG(aqi){
+  const color = aqi==null?'#9ca3af':aqi<=50?'#34d399':aqi<=100?'#fbbf24':aqi<=150?'#fb923c':'#f87171';
+  const r=13, c=2*Math.PI*r, frac=Math.min(aqi||0,200)/200;
+  return `<svg width="32" height="32" viewBox="0 0 32 32" style="transform:rotate(-90deg)">
+    <circle cx="16" cy="16" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
+    <circle cx="16" cy="16" r="${r}" fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-frac)}"/></svg>`;
+}
+function smokeMini(loc){
+  const hrs=windowHours(loc);
+  const s=Math.round(avg(hrs,'smoke_score'));
+  const noData = hrs.some(h=>h.smoke_label==='無資料') || hrs.every(h=>h.pm2_5==null);
+  const l = noData?'無資料':labelOf(s);
+  const pm = hrs.length?avg(hrs,'pm2_5'):null;
+  const aqi = hrs.length?avg(hrs,'us_aqi'):null;
+  const dir = hrs.find(h=>h.wind_dir)?.wind_dir;
+  let infer;
+  if (noData) infer='無煙塵數據';
+  else if (pm<=10) infer='空氣大致乾淨';
+  else infer=`盛行${dir||'—'}風——煙或來自上風方向山火（推測）`;
+  return `<div class="mini"><div class="mt">煙 <span class="ml l-${l}">${l}</span></div>
+    <div class="graphic">${aqiSVG(aqi)}</div>
+    <div class="ms">${noData?'—':s}</div>
+    <div class="md">${noData?'稍後再更新':`PM2.5 ${pm.toFixed(0)} · AQI ${Math.round(aqi)}<br>${infer}<br><a href="https://firesmoke.ca" target="_blank" rel="noopener">煙霧預報圖 ↗</a>`}</div></div>`;
+}
+
+function windRow(loc){
+  const hrs=windowHours(loc); if(!hrs.length) return '';
+  const w=Math.round(avg(hrs,'wind_kmh')), g=Math.round(Math.max(...hrs.map(h=>h.gust_kmh||0)));
+  const dir=hrs.find(h=>h.wind_dir)?.wind_dir||'';
+  const refl = w<=6?'鏡面倒影':w<=10?'接近鏡面':w<=15?'微波':w<=20?'明顯波紋':'倒影無望';
+  return `<div class="brow"><span class="ico">💨</span><span class="txt">${dir}風 ${w} km/h · 陣風 ${g} <span class="dim">· 倒影：${refl}</span></span></div>`;
+}
+
+function gcRow(loc){
+  const gc=loc.galactic_center;
+  const main = gc.max_altitude_in_window!=null&&gc.max_altitude_in_window>0
+    ? `銀心最高 ${gc.max_altitude_in_window}° @ ${gc.max_altitude_time}（${gc.direction}）${gc.above_10deg_period?'':' · 太貼地平線'}`
+    : '窗口內銀心在地平線下';
+  return `<div class="brow"><span class="ico">🌌</span><span class="txt">${main}<br><span class="dim">${esc(loc.vertical_mw||'')}</span></span></div>`;
+}
+
+function gearWarn(loc){
+  const warns=(loc.gear_advice||[]).filter(g=>/[🔴🟡❄️🔋]/u.test(g));
+  if(!warns.length) return '';
+  return `<div class="gearwarn">${warns.map(g=>`<div>${esc(g)}</div>`).join('')}</div>`;
 }
 
 function cardHTML(loc, isBest){
-  const g = loc.night.grade_code, color = GRADE_COLOR[g];
-  const dw = loc.darkness_window, m = loc.moon, gc = loc.galactic_center;
-  const chips = chipData(loc);
-  const flags = [
-    ...loc.night.vetoes.map(v=>`<div class="flag veto">⛔ ${esc(v)}</div>`),
-    ...loc.night.caps.map(c=>`<div class="flag cap">🔒 ${esc(c)}</div>`),
-  ].join('');
-  const open = expanded.has(loc.location_id);
-  const bw = loc.best_window;
-
-  const rows = (loc.hourly||[]).map(h=>{
-    const best = bw && h.time>=bw.start && h.time<bw.end;
-    return `<tr class="${best?'best':''}">
-      <td>${h.time}</td><td>${h.cloud_total_pct}%</td>
-      <td>${h.pm2_5??'—'}</td><td>${h.us_aqi??'—'}</td>
-      <td>${h.wind_kmh}</td><td>${h.moon_altitude>0?h.moon_altitude+'°':'下'}</td>
-      <td><b>${Math.round(h.astro_score)}</b></td>
-      <td>${h.cloud_label}/${h.moon_label}/${h.smoke_label}/${h.wind_label}</td></tr>`;
-  }).join('');
+  const g=loc.night.grade_code, color=GRADE_COLOR[g];
+  const dw=loc.darkness_window;
+  const flags=[...loc.night.vetoes.map(v=>`<div class="flag veto">⛔ ${esc(zh(v))}</div>`),
+               ...loc.night.caps.map(c=>`<div class="flag cap">🔒 ${esc(zh(c))}</div>`)].join('');
+  const open=expanded.has(loc.location_id);
+  const rows=(loc.hourly||[]).map(h=>`<tr>
+      <td>${h.time}</td><td>${h.cloud_total_pct}%</td><td>${h.pm2_5??'—'}</td><td>${h.us_aqi??'—'}</td>
+      <td>${h.wind_kmh}${h.wind_dir||''}</td><td>${h.moon_altitude>0?h.moon_altitude+'°':'下'}</td>
+      <td><b>${Math.round(h.astro_score)}</b></td><td>${h.cloud_label}/${h.moon_label}/${h.smoke_label}/${h.wind_label}</td></tr>`).join('');
 
   return `<div class="card">
     <div class="card-top">
-      <div class="ring">${ringSVG(loc.night.score, color)}
-        <div class="num"><b style="color:${color}">${g==='NO_DATA'?'—':Math.round(loc.night.score)}</b><span>分</span></div>
-      </div>
-      <div class="card-title">
-        <h2>${isBest?'⭐ ':''}${esc(loc.name_zh)}</h2>
-        <div class="mtn">${esc(loc.mountain)}</div>
-      </div>
+      <div class="ring">${ringSVG(loc.night.score,color)}<div class="num"><b style="color:${color}">${g==='NO_DATA'?'—':Math.round(loc.night.score)}</b><span>分</span></div></div>
+      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(loc.name_zh)}</h2><div class="mtn">${esc(loc.mountain)}</div></div>
       <span class="badge b-${g}">${GRADE_ZH[g]||g}</span>
     </div>
     ${flags?`<div class="flags">${flags}</div>`:''}
-    <div class="facts">
-      <div class="fact"><span class="ico">🌑</span><span class="lbl">窗口</span><span class="val">${dw.start} → ${dw.end}
-        ${dw.full_astronomical_darkness?'':`<span class="warn">（最深 ${dw.min_sun_altitude}°，冇完整黑夜）</span>`}</span></div>
-      <div class="fact"><span class="ico">🌕</span><span class="lbl">月亮</span><span class="val">${Math.round(m.illumination_pct)}% 照明 · ${m.overlap_minutes_in_window===0?'✅ 唔阻':`❌ 重疊 ${m.overlap_minutes_in_window} 分鐘${m.moon_free_periods&&m.moon_free_periods.length?` · 無月 ${m.moon_free_periods.map(p=>p[0]+'→'+p[1]).join('、')}`:''}`}</span></div>
-      <div class="fact"><span class="ico">🌌</span><span class="lbl">銀心</span><span class="val">${gc.max_altitude_in_window!=null&&gc.max_altitude_in_window>0?`最高 ${gc.max_altitude_in_window}° @ ${gc.max_altitude_time}（${gc.direction}）${gc.above_10deg_period?'':' · 太貼地平線'}`:'窗口內喺地平線下'}</span></div>
-      ${bw?`<div class="fact"><span class="ico">⏱️</span><span class="lbl">建議</span><span class="val">${bw.start} → ${bw.end}</span></div>`:''}
-    </div>
-    <div class="chips">${chips.map(c=>`<div class="chip c-${c.l}">${c.n}<b>${c.l}${c.s!=='—'?' '+c.s:''}</b></div>`).join('')}</div>
-    <button class="expand-btn" onclick="toggle('${loc.location_id}')">${open?'▲ 收埋':'▼ 逐小時 · 器材 · 詳情'}</button>
+    ${timelineSVG(loc)}
+    <div class="mini3">${cloudMini(loc)}${moonMini(loc)}${smokeMini(loc)}</div>
+    <div class="bonus">${windRow(loc)}${gcRow(loc)}</div>
+    ${gearWarn(loc)}
+    <button class="expand-btn" onclick="toggle('${loc.location_id}')">${open?'▲ 收起':'▼ 逐小時 · 器材 · 詳情'}</button>
     <div class="detail ${open?'open':''}">
-      ${loc.hourly&&loc.hourly.length?`<h3>逐小時（建議窗口底色）</h3>
+      ${loc.hourly&&loc.hourly.length?`<h3>逐小時</h3>
       <div class="htable"><table>
         <tr><th>時間</th><th>雲</th><th>PM2.5</th><th>AQI</th><th>風</th><th>月</th><th>分</th><th>雲/月/煙/風</th></tr>${rows}
-      </table></div>`:'<p class="gear">冇逐小時數據（可能超出預報範圍）</p>'}
-      <h3>器材保護（全晚）</h3>
+      </table></div>`:'<p class="gear">沒有逐小時數據（可能超出預報範圍）</p>'}
+      <h3>器材保護（整晚）</h3>
       <div class="gear">${(loc.gear_advice||[]).map(g=>`<div>${esc(g)}</div>`).join('')}</div>
       <div class="src">座標 ${loc.lat}, ${loc.lon} · ${esc(loc.coord_source)}<br>${esc(loc.sources?.weather||'')}<br>${esc(loc.sources?.air_quality||'')}<br>${esc(loc.sources?.astronomy||'')}</div>
     </div>
@@ -280,86 +409,78 @@ function cardHTML(loc, isBest){
 
 function sorryHTML(loc){
   return `<div class="sorry">
-    <h2>🙇 對唔住 — ${esc(loc.name_zh||loc.location_id)} 而家分析唔到</h2>
+    <h2>🙇 對不起 — ${esc(loc.name_zh||loc.location_id)} 暫時無法分析</h2>
     <p>${esc(loc.message||'未知原因')}</p>
-    <p style="margin-top:8px;font-size:.75rem">我唔會俾假數據你。可以稍後撳「更新」再試一次。</p>
+    <p style="margin-top:8px;font-size:.75rem">我不會提供假數據。請稍後按「更新」再試一次。</p>
   </div>`;
 }
 
 function heroHTML(data){
-  const ok = data.locations.filter(l=>!l.error && l.night.grade_code!=='NO_DATA');
-  if (!ok.length) return `<div class="hero"><div class="k">今晚結論</div><div class="v">🙇 分析唔到</div><div class="why">全部機位都攞唔到數據，我唔會靠估。請睇下面各機位嘅失敗原因，或者稍後再更新。</div></div>`;
-  const best = ok.find(l=>l.location_id===data.best_location_id) || ok[0];
-  const g = best.night.grade_code;
-  if (['GO','GOOD'].includes(g))
-    return `<div class="hero"><div class="k">今晚結論</div><div class="v" style="color:${GRADE_COLOR[g]}">⭐ ${esc(best.name_zh)} — ${GRADE_ZH[g]}（${Math.round(best.night.score)} 分）</div><div class="why">窗口 ${best.darkness_window.start} → ${best.darkness_window.end}${best.best_window?`，建議 ${best.best_window.start} → ${best.best_window.end}`:''}。出門前睇一眼逐小時同器材建議。</div></div>`;
-  const why = best.night.vetoes[0] || best.night.caps[0] || '條件一般';
-  return `<div class="hero"><div class="k">今晚結論</div><div class="v" style="color:${GRADE_COLOR[g]}">${GRADE_ZH[g]} — 最好都係 ${esc(best.name_zh)}（${Math.round(best.night.score)} 分）</div><div class="why">${esc(why)}</div></div>`;
+  const ok=data.locations.filter(l=>!l.error && l.night.grade_code!=='NO_DATA');
+  if(!ok.length) return `<div class="hero"><div class="k">今晚結論</div><div class="v">🙇 暫時無法分析</div><div class="why">所有機位都取不到數據，我不會猜測。請看各機位的失敗原因，或稍後再更新。</div></div>`;
+  const best=ok.find(l=>l.location_id===data.best_location_id)||ok[0];
+  const g=best.night.grade_code;
+  if(['GO','GOOD'].includes(g))
+    return `<div class="hero"><div class="k">今晚結論</div><div class="v" style="color:${GRADE_COLOR[g]}">⭐ ${esc(best.name_zh)} — ${GRADE_ZH[g]}（${Math.round(best.night.score)} 分）</div><div class="why">窗口 ${best.darkness_window.start} → ${best.darkness_window.end}。出門前請查看逐小時數據與器材建議。</div></div>`;
+  const why=zh(best.night.vetoes[0]||best.night.caps[0]||'條件一般');
+  return `<div class="hero"><div class="k">今晚結論</div><div class="v" style="color:${GRADE_COLOR[g]}">${GRADE_ZH[g]} — 最好是 ${esc(best.name_zh)}（${Math.round(best.night.score)} 分）</div><div class="why">${esc(why)}</div></div>`;
 }
 
 function render(data){
-  lastData = data;
-  document.getElementById('hero').innerHTML = heroHTML(data);
-  const ok = data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
-  const bad = data.locations.filter(l=>l.error);
+  lastData=data;
+  document.getElementById('ver').textContent='v'+(data.version||'—');
+  document.getElementById('hero').innerHTML=heroHTML(data);
+  const ok=data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
+  const bad=data.locations.filter(l=>l.error);
   document.getElementById('cards').innerHTML =
-    ok.map(l=>cardHTML(l, l.location_id===data.best_location_id)).join('') +
-    bad.map(sorryHTML).join('');
-  const age = data.cache_age_seconds ? `（cache ${data.cache_age_seconds}s）` : '';
-  const modeTag = data._mode==='static' ? '☁️ 每小時自動更新' : '⚡ 即時分析';
-  document.getElementById('stamp').textContent = `${modeTag} · 數據：${data.generated_at} ${age} · 分析用時 ${data.elapsed_seconds}s`;
-  document.getElementById('foot').innerHTML =
-    `雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只用機位本身座標`;
+    ok.map(l=>cardHTML(l,l.location_id===data.best_location_id)).join('') + bad.map(sorryHTML).join('');
+  ok.forEach(attachScrub);
+  const age=data.cache_age_seconds?`（快取 ${data.cache_age_seconds}s）`:'';
+  const modeTag=data._mode==='static'?'☁️ 每小時自動更新':'⚡ 即時分析';
+  document.getElementById('stamp').textContent=`${modeTag} · 數據：${data.generated_at} ${age} · 分析耗時 ${data.elapsed_seconds}s`;
+  document.getElementById('foot').innerHTML='雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只使用機位本身座標';
 }
 
 function loading(){
-  document.getElementById('hero').innerHTML = '';
-  document.getElementById('cards').innerHTML = '<div class="skel"></div>'.repeat(6);
-  document.getElementById('stamp').textContent = '正在即時分析六個機位（約 10–20 秒）…';
+  document.getElementById('hero').innerHTML='';
+  document.getElementById('cards').innerHTML='<div class="skel"></div>'.repeat(6);
+  document.getElementById('stamp').textContent='正在即時分析六個機位（約 10–30 秒）…';
 }
 
 async function load(){
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
-  loading();
-  try {
-    let data = null;
-    // 先試 LAN live API；失敗就試靜態 JSON（GitHub Pages 模式）
-    try {
-      const r = await fetch('/api/report?date='+dateFor(currentOffset));
-      if (!r.ok) throw new Error('HTTP '+r.status);
-      data = await r.json();
-      data._mode = 'live';
-    } catch(e1) {
-      const r2 = await fetch('report-'+currentOffset+'.json?_='+Date.now());
-      if (!r2.ok) throw new Error('靜態數據都冇（HTTP '+r2.status+'）');
-      data = await r2.json();
-      data._mode = 'static';
+  const btn=document.getElementById('refreshBtn');
+  btn.classList.add('spinning'); loading();
+  try{
+    let data=null;
+    try{
+      const r=await fetch('/api/report?date='+dateFor(currentOffset));
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      data=await r.json(); data._mode='live';
+    }catch(e1){
+      const r2=await fetch('report-'+currentOffset+'.json?_='+Date.now());
+      if(!r2.ok) throw new Error('靜態數據也沒有（HTTP '+r2.status+'）');
+      data=await r2.json(); data._mode='static';
     }
     render(data);
-  } catch(e) {
-    document.getElementById('hero').innerHTML = `<div class="sorry"><h2>🙇 對唔住，攞唔到數據</h2><p>${esc(e.message)}</p><p style="margin-top:8px;font-size:.75rem">我唔會俾假數據你。請檢查網絡，或者稍後再撳更新。</p></div>`;
-    document.getElementById('cards').innerHTML = '';
-  } finally {
-    btn.classList.remove('spinning');
-  }
+  }catch(e){
+    document.getElementById('hero').innerHTML=`<div class="sorry"><h2>🙇 對不起，取不到數據</h2><p>${esc(e.message)}</p><p style="margin-top:8px;font-size:.75rem">我不會提供假數據。請檢查網絡，或稍後再按更新。</p></div>`;
+    document.getElementById('cards').innerHTML='';
+  }finally{ btn.classList.remove('spinning'); }
 }
 
 function toggle(id){
-  expanded.has(id) ? expanded.delete(id) : expanded.add(id);
-  if (lastData) render(lastData);
+  expanded.has(id)?expanded.delete(id):expanded.add(id);
+  if(lastData) render(lastData);
 }
 
-document.getElementById('seg').addEventListener('click', e=>{
-  const b = e.target.closest('button'); if(!b) return;
+document.getElementById('seg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');
-  currentOffset = +b.dataset.offset;
-  load();
+  b.classList.add('on'); currentOffset=+b.dataset.offset; load();
 });
-document.getElementById('refreshBtn').addEventListener('click', load);
+document.getElementById('refreshBtn').addEventListener('click',load);
 load();
-setInterval(load, 600000);
+setInterval(load,600000);
 </script>
 </body>
 </html>
