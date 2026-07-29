@@ -78,6 +78,8 @@
   .spot .sun { font-size:.76rem; color:var(--warn); margin-top:6px; font-variant-numeric:tabular-nums; }
   .spot .acc { font-size:.76rem; color:var(--text); margin-top:6px; line-height:1.5; }
   .spot .nt { font-size:.74rem; color:var(--text-dim); margin-top:4px; line-height:1.5; }
+  .spot .guide { margin-top:8px; padding:8px 9px; border-left:2px solid rgba(125,211,252,.55); background:rgba(125,211,252,.05); border-radius:0 9px 9px 0; font-size:.73rem; color:var(--text); line-height:1.58; }
+  .spot .guide b { color:var(--accent); font-weight:700; }
   .spot .tags { margin-top:7px; display:flex; flex-wrap:wrap; gap:5px; }
   .spot .tag { font-size:.62rem; padding:2px 8px; border-radius:999px; background:rgba(125,211,252,.12); color:var(--accent); border:1px solid rgba(125,211,252,.25); }
   .spot .tag.warn { background:rgba(251,113,133,.14); color:var(--stay); border-color:rgba(251,113,133,.3); }
@@ -480,6 +482,7 @@ function spotCard(s){
     <div class="meta">${esc(zh(s.drive||''))}</div>
     ${timeStr?`<div class="sun">${timeStr}</div>`:''}
     <div class="acc">📍 ${esc(zh(s.access||''))}</div>
+    ${s.purpose?`<div class="guide"><b>拍攝建議</b><br>${esc(zh(s.purpose))}${s.season?`<br><b>季節窗口</b> ${esc(zh(s.season))}`:''}${s.caveat?`<br><b>注意</b> ${esc(zh(s.caveat))}`:''}</div>`:''}
     ${s.note?`<div class="nt">${esc(zh(s.note))}</div>`:''}
     ${s.alt_note?`<div class="nt">↳ ${esc(zh(s.alt_note))}</div>`:''}
     <div class="tags">${vb}${tags}</div>
@@ -498,7 +501,8 @@ const SPOT_GROUPS = [['sunset','🌇 日落 · 黃昏'],['sunrise','🌅 日出 
 
 function renderSpots(data){
   const pts = data.spots||[];
-  document.getElementById('spotview').innerHTML = SPOT_GROUPS.map(([cat,title])=>{
+  const intro = `<div class="hero" style="padding:13px 14px"><div class="k">拍攝點使用方式</div><div class="why">「季節窗口」是長期選景建議，不是天氣保證。日出／日落時間只代表幾何地平線；山體何時收到直射光，必須以該日期與現場地形實測為準。</div></div>`;
+  document.getElementById('spotview').innerHTML = intro + SPOT_GROUPS.map(([cat,title])=>{
     const items = pts.filter(p=>p.cat===cat);
     if(!items.length) return '';
     return `<div class="spotgroup">${title}</div>` + items.map(spotCard).join('');

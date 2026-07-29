@@ -25,6 +25,7 @@ LOCATIONS_JSON = SKILL_SCRIPT.parent.parent / "references" / "locations.json"
 STATIC_DIR = Path(__file__).parent / "static"
 VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 
+
 CACHE_TTL = 600  # 10 分鐘
 LOCATION_TIMEOUT = 120  # 每機位 subprocess 上限
 
@@ -34,6 +35,12 @@ _cache = {}  # date_str -> (timestamp, payload)
 
 def location_ids():
     return list(json.loads(LOCATIONS_JSON.read_text()).keys())
+
+
+def build_spots(date_str: str):
+    """LAN 與靜態模式使用同一套拍攝點資料與當日日出／日落。"""
+    from backend.build_report import build_spots as build_static_spots
+    return build_static_spots(date_str)
 
 
 async def run_one(loc_id: str, date_str: str, sem: asyncio.Semaphore) -> dict:
@@ -97,6 +104,7 @@ async def build_report(date_str: str) -> dict:
         "locations": results,
         "best_location_id": best["location_id"] if best else None,
         "failed_count": len(failed),
+        "spots": build_spots(date_str),
     }
 
 
