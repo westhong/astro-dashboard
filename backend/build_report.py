@@ -79,6 +79,13 @@ def build_spots(date_str):
     return points
 
 
+def build_daylight_report(date_str):
+    """日出／日落評分獨立於銀河評分；失敗時誠實保留錯誤物件。"""
+    sys.path.insert(0, str(HERE))
+    from daylight_report import build_daylight
+    return build_daylight(date_str)
+
+
 def main():
     locs = json.loads((HERE / "references" / "locations.json").read_text())
     today = dt.datetime.now(TZ).date()
@@ -101,6 +108,7 @@ def main():
         if scored:
             best = max(scored, key=lambda r: r["night"]["score"])
         spots = build_spots(date_str)
+        daylight = build_daylight_report(date_str)
         payload = {
             "version": (HERE.parent / "VERSION").read_text().strip(),
             "night_date": date_str,
@@ -111,6 +119,7 @@ def main():
             "best_location_id": best["location_id"] if best else None,
             "failed_count": len(results) - len(ok),
             "spots": spots,
+            "daylight": daylight,
         }
         out = DOCS / f"report-{offset}.json"
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=2))

@@ -43,6 +43,11 @@ def build_spots(date_str: str):
     return build_static_spots(date_str)
 
 
+def build_daylight_report(date_str: str):
+    from backend.daylight_report import build_daylight
+    return build_daylight(date_str)
+
+
 async def run_one(loc_id: str, date_str: str, sem: asyncio.Semaphore) -> dict:
     """跑一個機位；失敗回傳誠實嘅 error object，唔會 throw"""
     async with sem:
@@ -105,6 +110,7 @@ async def build_report(date_str: str) -> dict:
         "best_location_id": best["location_id"] if best else None,
         "failed_count": len(failed),
         "spots": build_spots(date_str),
+        "daylight": build_daylight_report(date_str),
     }
 
 
