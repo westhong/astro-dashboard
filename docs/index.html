@@ -544,9 +544,10 @@ function daylightCard(p,e,isBest){
   const l=e.light,g=dayGrade(e.score),color=GRADE_COLOR[g];
   const eventName=e.event==='sunrise'?'日出':'日落';
   const model=l.model?`DEM ${l.model.time} · 太陽 ${l.model.sun_altitude_deg}°／${l.model.sun_azimuth_deg}° · 山脊 ${l.model.terrain_horizon_deg}°`:'';
+  const dateText=lastData?.daylight?.date||'日期資料暫缺';
   return `<div class="card day-card">
     <div class="card-top"><div class="ring">${ringSVG(e.score,color)}<div class="num"><b style="color:${color}">${e.score}</b><span>分</span></div></div>
-      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${eventName} · 雲／風／光</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
+      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／光</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
     <div class="day-window"><span>📷 拍攝窗口</span><b>${l.window.start} → ${l.window.end}</b><small>${l.label} ${l.time} · 幾何${eventName} ${l.geometric_time}</small></div>
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${dayLightMini(e)}</div>
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}<br><span class="dim">${esc(model||'')}</span></span></div>
@@ -562,9 +563,7 @@ function renderDaylight(data){
   const valid=cards.filter(x=>!x.e.error), best=valid[0];
   const dateWord=['今天','明天','後天'][currentOffset]||'當日';
   root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。拍攝窗口以地形首束／末束直射光為核心，不以幾何日出／日落代替。</div></div>
-    <div class="day-event"><button class="${daylightEvent==='sunrise'?'on':''}" data-day="sunrise">🌅 日出</button><button class="${daylightEvent==='sunset'?'on':''}" data-day="sunset">🌇 日落</button></div>
     ${cards.map((x,i)=>daylightCard(x.p,x.e,i===0)).join('') || '<div class="nt" style="padding:20px">此日期沒有對應的拍攝點資料</div>'}`;
-  root.querySelector('.day-event').addEventListener('click', ev=>{const b=ev.target.closest('button'); if(!b)return; daylightEvent=b.dataset.day; renderDaylight(data);});
 }
 
 function renderSpots(data){
