@@ -518,7 +518,7 @@ function daylightCard(p, e){
   const w=e.weather, c=e.components, color=daylightColor(e.score);
   return `<div class="daycard">
     <div class="head"><h2>${esc(zh(p.name))}</h2><span class="dayscore" style="color:${color}">${e.score} · ${esc(e.label)}</span></div>
-    <div class="daymeta">${e.event==='sunrise'?'🌅 日出':'🌇 日落'} ${e.time} · 評估時段 ${e.window_hours.join('、')}<br>高雲 ${w.high_cloud_pct}% · 低／中雲 ${w.low_mid_cloud_pct}% · 降水 ${w.precip_probability_pct}% · 風 ${w.wind_kmh} km/h（陣風 ${w.gust_kmh}）</div>
+    <div class="daymeta">${e.event==='sunrise'?'🌅 日出':'🌇 日落'} ${e.time} · 評估時段 ${e.window_hours.join('、')}<br>高雲 ${w.high_cloud_pct}% · 低／中雲 ${w.low_mid_cloud_pct}% · 降水 ${w.precip_probability_pct}% · 風 ${w.wind_kmh} km/h（陣風 ${w.gust_kmh}）${e.first_direct_light?`<br><b style="color:#fcd34d">☀️ 預計山體首束直射光 ${e.first_direct_light}</b>（${esc(e.first_direct_light_basis)}）`:''}</div>
     <div class="daynotes">${e.notes.map(esc).join('<br>')}<br><span style="color:var(--text-dim)">${esc(e.terrain_disclaimer)}</span></div>
   </div>`;
 }

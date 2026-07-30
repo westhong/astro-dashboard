@@ -155,10 +155,14 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     for point, fc in zip(points, forecasts):
         try:
             day_index = fc["daily"]["time"].index(date_str)
-            events = {
-                event: _condition(event, fc["daily"][event][day_index], fc["hourly"])
-                for event in point["daylight_events"]
-            }
+            events = {}
+            terrain = point.get("terrain_first_light", {}).get(date_str, {})
+            for event in point["daylight_events"]:
+                condition = _condition(event, fc["daily"][event][day_index], fc["hourly"])
+                if terrain.get(event):
+                    condition["first_direct_light"] = terrain[event]
+                    condition["first_direct_light_basis"] = terrain.get("basis", "現場／路徑判讀")
+                events[event] = condition
             result.append({
                 "id": point["id"], "name": point["name"], "mountain": point.get("name", ""),
                 "lat": point["lat"], "lon": point["lon"], "purpose": point.get("purpose"),
