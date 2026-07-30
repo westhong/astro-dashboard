@@ -173,6 +173,10 @@
   td:first-child, th:first-child { text-align:left; }
   .gear { font-size:.8rem; line-height:1.7; }
   .src { font-size:.68rem; color:var(--text-dim); margin-top:10px; line-height:1.6; }
+  .day-window { margin:10px 12px 2px; padding:10px 12px; border-radius:10px; background:rgba(251,191,36,.09); border:1px solid rgba(251,191,36,.27); display:grid; grid-template-columns:1fr auto; gap:2px 8px; align-items:baseline; color:#fcd34d; font-size:.78rem; }
+  .day-window b { font-size:1rem; letter-spacing:.02em; }
+  .day-window small { grid-column:1/-1; color:var(--text-dim); font-size:.68rem; }
+  .day-disclaimer { margin:0 14px 14px; color:var(--text-dim); font-size:.64rem; line-height:1.45; }
 
   .sorry { border:1px solid rgba(248,113,113,.25); background:rgba(248,113,113,.06); border-radius:20px; padding:18px; margin-bottom:12px; }
   .sorry h2 { font-size:.95rem; color:#fca5a5; }
@@ -221,7 +225,15 @@ const GRADE_COLOR = { GO:'#34d399', GOOD:'#a3e635', MARGINAL:'#fbbf24', RISKY:'#
 const GRADE_ZH = { GO:'立即出發', GOOD:'值得前往', MARGINAL:'可嘗試但有風險', RISKY:'不太建議', STAY_HOME:'留在家中', NO_DATA:'無法評估' };
 let currentOffset = 0, lastData = null, expanded = new Set(), scrubState = {};
 
-function dateFor(offset){ const d=new Date(); d.setDate(d.getDate()+offset); return d.toISOString().slice(0,10); }
+function dateFor(offset){
+  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'America/Edmonton',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts().filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+  const d=new Date(Date.UTC(+parts.year,+parts.month-1,+parts.day+offset));
+  return d.toISOString().slice(0,10);
+}
+function setSegmentLabels(mode){
+  const labels=['sunrise','sunset'].includes(mode)?['今天','明天','後天']:['今晚','明晚','後晚'];
+  document.querySelectorAll('#seg button').forEach((b,i)=>b.textContent=labels[i]);
+}
 function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 /* 後端字串 → 書面中文 */
 function zh(s){
@@ -513,14 +525,33 @@ const SPOT_GROUPS = [['sunset','🌇 日落 · 黃昏'],['sunrise','🌅 日出 
 let daylightEvent = 'sunrise';
 
 function daylightColor(score){ return colorOfScore(score); }
-function daylightCard(p, e){
+function dayGrade(score){ return score>=80?'GO':score>=65?'GOOD':score>=45?'MARGINAL':'RISKY'; }
+function dayCloudMini(e){ const w=e.weather,c=e.components;
+  return `<div class="mini"><div class="mt">雲 <span class="ml l-${labelOf(c.cloud)}">${labelOf(c.cloud)}</span></div>
+    <div class="graphic"><div class="cloudbar"><span style="width:${w.low_cloud_pct}%;background:#f87171"></span><span style="width:${w.mid_cloud_pct}%;background:#fbbf24"></span><span style="width:${w.high_cloud_pct}%;background:#7dd3fc"></span></div></div>
+    <div class="ms">${c.cloud}</div><div class="md">低雲 ${w.low_cloud_pct}%<br>中雲 ${w.mid_cloud_pct}% · 高雲 ${w.high_cloud_pct}%</div></div>`;
+}
+function dayWindMini(e){ const w=e.weather,c=e.components,desc=w.wind_kmh<=6?'鏡面倒影':w.wind_kmh<=10?'接近鏡面':w.wind_kmh<=15?'微波':'明顯波紋';
+  return `<div class="mini"><div class="mt">風 <span class="ml l-${labelOf(c.wind)}">${labelOf(c.wind)}</span></div><div class="graphic" style="font-size:1.45rem">💨</div>
+    <div class="ms">${c.wind}</div><div class="md">平均 ${w.wind_kmh} km/h<br>陣風 ${w.gust_kmh} · ${desc}</div></div>`;
+}
+function dayLightMini(e){ const l=e.light,model=l.model,conf=l.confidence==='field'?'實測':'DEM';
+  return `<div class="mini"><div class="mt">光 <span class="ml l-${labelOf(l.score)}">${conf}</span></div><div class="graphic" style="font-size:1.45rem">☀️</div>
+    <div class="ms">${l.score}</div><div class="md">幾何 ${l.geometric_time}<br>${l.label} ${l.time}</div></div>`;
+}
+function daylightCard(p,e,isBest){
   if(p.error || e.error) return `<div class="sorry"><h2>🙇 ${esc(p.name)} 暫時無法評估</h2><p>${esc(p.message||e.message||'未知原因')}</p></div>`;
-  const w=e.weather, c=e.components, color=daylightColor(e.score);
-  return `<div class="daycard">
-    <div class="head"><h2>${esc(zh(p.name))}</h2><span class="dayscore" style="color:${color}">${e.score} · ${esc(e.label)}</span></div>
-    <div class="daymeta">${e.event==='sunrise'?'🌅 日出':'🌇 日落'} ${e.time} · 評估時段 ${e.window_hours.join('、')}<br>高雲 ${w.high_cloud_pct}% · 低／中雲 ${w.low_mid_cloud_pct}% · 降水 ${w.precip_probability_pct}% · 風 ${w.wind_kmh} km/h（陣風 ${w.gust_kmh}）${e.first_direct_light?`<br><b style="color:#fcd34d">☀️ 預計山體首束直射光 ${e.first_direct_light}</b>（${esc(e.first_direct_light_basis)}）`:''}</div>
-    <div class="daynotes">${e.notes.map(esc).join('<br>')}<br><span style="color:var(--text-dim)">${esc(e.terrain_disclaimer)}</span></div>
-  </div>`;
+  const l=e.light,g=dayGrade(e.score),color=GRADE_COLOR[g];
+  const eventName=e.event==='sunrise'?'日出':'日落';
+  const model=l.model?`DEM ${l.model.time} · 太陽 ${l.model.sun_altitude_deg}°／${l.model.sun_azimuth_deg}° · 山脊 ${l.model.terrain_horizon_deg}°`:'';
+  return `<div class="card day-card">
+    <div class="card-top"><div class="ring">${ringSVG(e.score,color)}<div class="num"><b style="color:${color}">${e.score}</b><span>分</span></div></div>
+      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${eventName} · 雲／風／光</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
+    <div class="day-window"><span>📷 拍攝窗口</span><b>${l.window.start} → ${l.window.end}</b><small>${l.label} ${l.time} · 幾何${eventName} ${l.geometric_time}</small></div>
+    <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${dayLightMini(e)}</div>
+    <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}<br><span class="dim">${esc(model||'')}</span></span></div>
+    <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%</span></span></div></div>
+    <div class="day-disclaimer">${esc(lastData?.daylight?.terrain_disclaimer||'')}</div></div>`;
 }
 
 function renderDaylight(data){
@@ -528,9 +559,11 @@ function renderDaylight(data){
   const root=document.getElementById('dayview');
   if(!d || d.error){ root.innerHTML=`<div class="sorry"><h2>🙇 日出／日落暫時無法評估</h2><p>${esc(d?.message||'沒有日間資料')}</p></div>`; return; }
   const cards=d.points.filter(p=>p.events && p.events[daylightEvent]).map(p=>({p,e:p.events[daylightEvent]})).sort((a,b)=>(b.e.score||0)-(a.e.score||0));
-  root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${daylightEvent==='sunrise'?'日出':'日落'}條件評分</div><div class="why">${esc(d.method)}。${esc(d.terrain_disclaimer)}</div></div>
+  const valid=cards.filter(x=>!x.e.error), best=valid[0];
+  const dateWord=['今天','明天','後天'][currentOffset]||'當日';
+  root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。拍攝窗口以地形首束／末束直射光為核心，不以幾何日出／日落代替。</div></div>
     <div class="day-event"><button class="${daylightEvent==='sunrise'?'on':''}" data-day="sunrise">🌅 日出</button><button class="${daylightEvent==='sunset'?'on':''}" data-day="sunset">🌇 日落</button></div>
-    ${cards.map(x=>daylightCard(x.p,x.e)).join('') || '<div class="nt" style="padding:20px">此日期沒有對應的拍攝點資料</div>'}`;
+    ${cards.map((x,i)=>daylightCard(x.p,x.e,i===0)).join('') || '<div class="nt" style="padding:20px">此日期沒有對應的拍攝點資料</div>'}`;
   root.querySelector('.day-event').addEventListener('click', ev=>{const b=ev.target.closest('button'); if(!b)return; daylightEvent=b.dataset.day; renderDaylight(data);});
 }
 
@@ -606,7 +639,14 @@ document.getElementById('mode').addEventListener('click',e=>{
   document.getElementById('mwview').hidden = mode!=='mw';
   document.getElementById('spotview').hidden = mode!=='spots';
   document.getElementById('dayview').hidden = !['sunrise','sunset'].includes(mode);
-  if(mode==='sunrise' || mode==='sunset'){ daylightEvent=mode; if(lastData) renderDaylight(lastData); }
+  setSegmentLabels(mode);
+  if(mode==='sunrise' || mode==='sunset'){
+    daylightEvent=mode;
+    document.getElementById('foot').innerHTML='雲45%（色彩雲層與低空開口） · 風20%（倒影） · 光35%（地形直射光）<br>Open-Meteo · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
+    if(lastData) renderDaylight(lastData);
+  } else {
+    document.getElementById('foot').innerHTML='雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只使用機位本身座標';
+  }
 });
 document.getElementById('refreshBtn').addEventListener('click',load);
 load();
