@@ -22,8 +22,28 @@ jobs:
       - name: Install deps
         run: pip install skyfield requests
 
-      - name: Build report JSON
-        run: python backend/build_report.py
+      - name: Build report JSON（暫時性失敗自動重試）
+        shell: bash
+        run: |
+          set -u -o pipefail
+          max_attempts=3
+          for attempt in $(seq 1 "$max_attempts"); do
+            echo "Build attempt ${attempt}/${max_attempts}"
+            if python backend/build_report.py; then
+              exit 0
+            else
+              status=$?
+            fi
+
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              echo "Build failed after ${max_attempts} attempts (exit ${status})."
+              exit "$status"
+            fi
+
+            delay=$((60 * (2 ** (attempt - 1))))
+            echo "Build failed (exit ${status}); retrying in ${delay}s."
+            sleep "$delay"
+          done
 
       - name: Commit updated data
         run: |
