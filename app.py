@@ -20,8 +20,8 @@ from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-SKILL_SCRIPT = Path("/home/jarvis/.hermes/skills/photography/rockies-milkyway-scout/scripts/night_report.py")
-LOCATIONS_JSON = SKILL_SCRIPT.parent.parent / "references" / "locations.json"
+SKILL_SCRIPT = Path(__file__).parent / "backend" / "scripts" / "night_report.py"
+LOCATIONS_JSON = Path(__file__).parent / "backend" / "references" / "locations.json"
 STATIC_DIR = Path(__file__).parent / "static"
 VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 

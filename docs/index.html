@@ -100,6 +100,12 @@
   .hero .k { font-size:.72rem; color:var(--text-dim); letter-spacing:.12em; }
   .hero .v { font-size:1.24rem; font-weight:700; margin-top:5px; line-height:1.35; }
   .hero .why { font-size:.85rem; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+  details.hero-why { margin-top:9px; }
+  details.hero-why summary { color:var(--accent); cursor:pointer; font-size:.78rem; list-style:none; }
+  details.hero-why summary::-webkit-details-marker { display:none; }
+  details.hero-why[open] summary { opacity:.75; }
+  details.hero-why .why-body { margin-top:6px; font-size:.82rem; color:var(--text-dim); line-height:1.55; }
+  .page-note { font-size:.64rem; color:var(--text-dim); text-align:center; margin:0 6px 10px; line-height:1.6; }
   .ai-note { margin-top:10px; padding:9px 11px; border-left:2px solid var(--accent); background:rgba(125,211,252,.06); border-radius:0 10px 10px 0; font-size:.78rem; line-height:1.55; }
   .ai-note b { color:var(--accent); }
 
@@ -196,7 +202,7 @@
   <div class="header-inner">
     <h1>🌌 銀河儀表板<span class="sub">Rockies Milky Way Scout</span></h1>
     <span class="ver" id="ver">v—</span>
-    <button class="refresh-btn" id="refreshBtn"><span><span class="ico">↻</span> 更新</span></button>
+    <button class="refresh-btn" id="refreshBtn"><span><span class="ico">↻</span> <span id="refreshLabel">更新</span></span></button>
   </div>
 </header>
 
@@ -256,6 +262,15 @@ function zh(s){
     .replace('唔','不');
 }
 function labelOf(s){ return s>=78?'好':(s>=48?'中':'差'); }
+/* 否決／封頂 flag：Tier 1 只留短句，門檻說明收折疊 */
+function shortFlag(s){
+  let t=zh(s);
+  t=t.replace(/（[^）]*）/g,'');
+  t=t.replace(/窗口內無月時段 = (\d+) 分鐘/,'無月 $1 分鐘');
+  t=t.replace(/窗口內無月時段只有 (\d+) 分鐘/,'無月僅 $1 分鐘');
+  t=t.replace(/：/,' · ').replace(/，/g,' · ');
+  return t;
+}
 function colorOfScore(s){ for(const [t,c] of [[85,'#34d399'],[70,'#a3e635'],[55,'#fbbf24'],[40,'#fb923c']]) if(s>=t) return c; return '#f87171'; }
 
 /* 時間 → 分鐘（18:00 = 0，跨午夜 +1440） */
@@ -310,7 +325,6 @@ function timelineSVG(loc){
       </g>
     </svg>
     <div class="readout" id="ro-${id}"></div>
-    <div class="hint">拖曳檢視任意時間的太陽角度 · 色帶 = 天文黑夜窗口 · 黃色 = 月亮在地平線上 · 底部色塊 = 每小時評分</div>
   </div>`;
 }
 
@@ -412,7 +426,7 @@ function smokeMini(loc){
   return `<div class="mini"><div class="mt">煙 <span class="ml l-${l}">${l}</span></div>
     <div class="graphic">${aqiSVG(aqi)}</div>
     <div class="ms">${noData?'—':s}</div>
-    <div class="md">${noData?'稍後再更新':`PM2.5 ${pm.toFixed(0)} · AQI ${Math.round(aqi)}<br>${infer}<br><a href="https://firesmoke.ca" target="_blank" rel="noopener">煙霧預報圖 ↗</a>`}</div></div>`;
+    <div class="md">${noData?'稍後再更新':`PM2.5 ${pm.toFixed(0)} · AQI ${Math.round(aqi)}<br>${infer}`}</div></div>`;
 }
 
 function windRow(loc){
@@ -428,7 +442,7 @@ function gcRow(loc){
   const main = gc.max_altitude_in_window!=null&&gc.max_altitude_in_window>0
     ? `銀心最高 ${gc.max_altitude_in_window}° @ ${gc.max_altitude_time}（${gc.direction}）${gc.above_10deg_period?'':' · 太貼地平線'}`
     : '窗口內銀心在地平線下';
-  return `<div class="brow"><span class="ico">🌌</span><span class="txt">${main}<br><span class="dim">${esc(loc.vertical_mw||'')}</span></span></div>`;
+  return `<div class="brow"><span class="ico">🌌</span><span class="txt">${main}</span></div>`;
 }
 
 function gearWarn(loc){
@@ -446,8 +460,11 @@ function locAnalysis(loc){
 function cardHTML(loc, isBest){
   const g=loc.night.grade_code, color=GRADE_COLOR[g];
   const dw=loc.darkness_window;
-  const flags=[...loc.night.vetoes.map(v=>`<div class="flag veto">⛔ ${esc(zh(v))}</div>`),
-               ...loc.night.caps.map(c=>`<div class="flag cap">🔒 ${esc(zh(c))}</div>`)].join('');
+  const allFlags=[...loc.night.vetoes, ...loc.night.caps];
+  const flags=[...loc.night.vetoes.map(v=>`<div class="flag veto">⛔ ${esc(shortFlag(v))}</div>`),
+               ...loc.night.caps.map(c=>`<div class="flag cap">🔒 ${esc(shortFlag(c))}</div>`)].join('');
+  const flagDetail=allFlags.length?`<h3>否決／封頂門檻</h3>
+      <div class="gear">${allFlags.map(f=>`<div>${esc(zh(f))}</div>`).join('')}</div>`:'';
   const open=expanded.has(loc.location_id);
   const rows=(loc.hourly||[]).map(h=>`<tr>
       <td>${h.time}</td><td>${h.cloud_total_pct}%</td><td>${h.pm2_5??'—'}</td><td>${h.us_aqi??'—'}</td>
@@ -461,13 +478,14 @@ function cardHTML(loc, isBest){
       <span class="badge b-${g}">${GRADE_ZH[g]||g}</span>
     </div>
     ${flags?`<div class="flags">${flags}</div>`:''}
-    ${locAnalysis(loc)}
-    ${timelineSVG(loc)}
+    ${loc.night.vetoes.length?'':timelineSVG(loc)}
     <div class="mini3">${cloudMini(loc)}${moonMini(loc)}${smokeMini(loc)}</div>
     <div class="bonus">${windRow(loc)}${gcRow(loc)}</div>
     ${gearWarn(loc)}
     <button class="expand-btn" onclick="toggle('${loc.location_id}')">${open?'▲ 收起':'▼ 逐小時 · 器材 · 詳情'}</button>
     <div class="detail ${open?'open':''}">
+      ${locAnalysis(loc)}
+      ${flagDetail}
       ${loc.hourly&&loc.hourly.length?`<h3>逐小時</h3>
       <div class="htable"><table>
         <tr><th>時間</th><th>雲</th><th>PM2.5</th><th>AQI</th><th>風</th><th>月</th><th>分</th><th>雲/月/煙/風</th></tr>${rows}
@@ -492,7 +510,7 @@ function heroHTML(data){
   if(ai && ai.source_generated_utc===data.generated_utc){
     const confidence={high:'高',medium:'中',low:'低'}[ai.confidence]||ai.confidence;
     const factors=(ai.key_factors||[]).map(x=>esc(x)).join(' · ');
-    return `<div class="hero"><div class="k">愛的攝影判讀 · 信心 ${esc(confidence)}</div><div class="v">${esc(ai.headline)}</div><div class="why">${esc(ai.summary)}${factors?`<br><br><b>關鍵：</b>${factors}`:''}</div></div>`;
+    return `<div class="hero"><div class="k">愛的攝影判讀 · 信心 ${esc(confidence)}</div><div class="v">${esc(ai.headline)}</div><details class="hero-why"><summary>▼ 點解</summary><div class="why-body">${esc(ai.summary)}${factors?`<br><br><b>關鍵：</b>${factors}`:''}</div></details></div>`;
   }
   if(!ai) return `<div class="hero"><div class="k">愛的攝影判讀</div><div class="v">尚未經愛分析</div><div class="why">目前只顯示固定公式計算結果；不把自動分數冒充為攝影判讀。</div></div>`;
   return `<div class="hero"><div class="k">愛的攝影判讀</div><div class="v">分析與資料版本不一致</div><div class="why">為避免顯示過期判讀，本次只保留原始數據卡，不提供總結。</div></div>`;
@@ -559,9 +577,9 @@ function daylightCard(p,e,isBest){
       <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／光</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
     <div class="day-window"><span>📷 拍攝窗口</span><b>${l.window.start} → ${l.window.end}</b><small>${l.label} ${l.time} · 幾何${eventName} ${l.geometric_time}</small></div>
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${dayLightMini(e)}</div>
-    <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}<br><span class="dim">${esc(model||'')}</span></span></div>
+    <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
     <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%</span></span></div></div>
-    <div class="day-disclaimer">${esc(lastData?.daylight?.terrain_disclaimer||'')}</div></div>`;
+    ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}</div>`;
 }
 
 function renderDaylight(data){
@@ -572,6 +590,7 @@ function renderDaylight(data){
   const valid=cards.filter(x=>!x.e.error), best=valid[0];
   const dateWord=['今天','明天','後天'][currentOffset]||'當日';
   root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。拍攝窗口以地形首束／末束直射光為核心，不以幾何日出／日落代替。</div></div>
+    <div class="page-note">${esc(d.terrain_disclaimer||'')}</div>
     ${cards.map((x,i)=>daylightCard(x.p,x.e,i===0)).join('') || '<div class="nt" style="padding:20px">此日期沒有對應的拍攝點資料</div>'}`;
 }
 
@@ -585,6 +604,7 @@ function renderSpots(data){
   }).join('') || '<div class="nt" style="padding:20px">此日期沒有拍攝點資料</div>';
 }
 
+const FOOT_MW='雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只使用機位本身座標<br><a href="https://firesmoke.ca" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">煙霧預報圖 ↗</a>';
 function render(data){
   lastData=data;
   document.getElementById('ver').textContent='v'+(data.version||'—');
@@ -592,14 +612,18 @@ function render(data){
   const ok=data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
   const bad=data.locations.filter(l=>l.error);
   const analysisBestId=data.ai_analysis?.best_location_id||data.best_location_id;
+  const anyTimeline=ok.some(l=>!l.night.vetoes.length);
+  const seasonNote=ok.map(l=>l.vertical_mw).find(Boolean);
   document.getElementById('cards').innerHTML =
+    (anyTimeline?'<div class="page-note">拖曳時間軸檢視任意時間的太陽角度 · 色帶 = 天文黑夜窗口 · 黃色 = 月亮在地平線上 · 底部色塊 = 每小時評分</div>':'') +
+    (seasonNote?`<div class="page-note">🌌 季節：${esc(seasonNote)}</div>`:'') +
     ok.map(l=>cardHTML(l,l.location_id===analysisBestId)).join('') + bad.map(sorryHTML).join('');
   ok.forEach(attachScrub);
   const age=data.cache_age_seconds?`（快取 ${data.cache_age_seconds}s）`:'';
   const modeTag=data.ai_analysis?'愛 · 每小時分析':(data._mode==='static'?'☁️ 固定公式更新':'⚡ 即時計算');
-  document.getElementById('stamp').textContent=`${modeTag} · 數據：${data.generated_at} ${age} · 分析耗時 ${data.elapsed_seconds}s`;
-  document.getElementById('foot').innerHTML='雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只使用機位本身座標';
-  renderSpots(data);
+  document.getElementById('stamp').innerHTML=`${modeTag} · <span style="font-size:.62rem">數據 ${esc(data.generated_at)}${age}</span>`;
+  document.getElementById('foot').innerHTML=FOOT_MW;
+  renderSpots(currentOffset===0?data:(spotsReport||data));
   renderDaylight(data);
 }
 
@@ -611,7 +635,9 @@ function loading(){
 
 async function load(){
   const btn=document.getElementById('refreshBtn');
-  btn.classList.add('spinning'); loading();
+  const lbl=document.getElementById('refreshLabel');
+  btn.classList.add('spinning'); btn.disabled=true; if(lbl) lbl.textContent='更新中…';
+  if(!lastData) loading();  /* 保留舊內容直至新數據到達 */
   try{
     let data=null;
     try{
@@ -625,9 +651,33 @@ async function load(){
     }
     render(data);
   }catch(e){
-    document.getElementById('hero').innerHTML=`<div class="sorry"><h2>🙇 對不起，取不到數據</h2><p>${esc(e.message)}</p><p style="margin-top:8px;font-size:.75rem">我不會提供假數據。請檢查網絡，或稍後再按更新。</p></div>`;
-    document.getElementById('cards').innerHTML='';
-  }finally{ btn.classList.remove('spinning'); }
+    if(lastData){
+      document.getElementById('stamp').textContent='更新失敗：'+e.message+'（仍顯示上次數據）';
+    }else{
+      document.getElementById('hero').innerHTML=`<div class="sorry"><h2>🙇 對不起，取不到數據</h2><p>${esc(e.message)}</p><p style="margin-top:8px;font-size:.75rem">我不會提供假數據。請檢查網絡，或稍後再按更新。</p></div>`;
+      document.getElementById('cards').innerHTML='';
+    }
+  }finally{ btn.classList.remove('spinning'); btn.disabled=false; if(lbl) lbl.textContent='更新'; }
+}
+
+/* 拍攝點 tab：長期選景資料唔綁 report-N，永遠用 report-0（今晚）嘅日出日落時間 */
+let spotsReport=null;
+async function loadSpots(){
+  if(currentOffset===0 && lastData){ spotsReport=null; renderSpots(lastData); return; }
+  if(spotsReport){ renderSpots(spotsReport); return; }
+  try{
+    let d=null;
+    try{
+      const r=await fetch('/api/report?date='+dateFor(0));
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      d=await r.json();
+    }catch(e1){
+      const r2=await fetch('report-0.json?_='+Date.now());
+      if(!r2.ok) throw new Error('HTTP '+r2.status);
+      d=await r2.json();
+    }
+    spotsReport=d; renderSpots(d);
+  }catch(e){ if(lastData) renderSpots(lastData); }
 }
 
 function toggle(id){
@@ -648,13 +698,15 @@ document.getElementById('mode').addEventListener('click',e=>{
   document.getElementById('mwview').hidden = mode!=='mw';
   document.getElementById('spotview').hidden = mode!=='spots';
   document.getElementById('dayview').hidden = !['sunrise','sunset'].includes(mode);
+  document.getElementById('seg').style.display = mode==='spots' ? 'none' : '';
   setSegmentLabels(mode);
+  if(mode==='spots'){ loadSpots(); }
   if(mode==='sunrise' || mode==='sunset'){
     daylightEvent=mode;
     document.getElementById('foot').innerHTML='雲45%（色彩雲層與低空開口） · 風20%（倒影） · 光35%（地形直射光）<br>Open-Meteo · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
     if(lastData) renderDaylight(lastData);
   } else {
-    document.getElementById('foot').innerHTML='雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只使用機位本身座標';
+    document.getElementById('foot').innerHTML=FOOT_MW;
   }
 });
 document.getElementById('refreshBtn').addEventListener('click',load);
