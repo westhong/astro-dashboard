@@ -100,6 +100,8 @@
   .hero .k { font-size:.72rem; color:var(--text-dim); letter-spacing:.12em; }
   .hero .v { font-size:1.24rem; font-weight:700; margin-top:5px; line-height:1.35; }
   .hero .why { font-size:.85rem; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+  .ai-note { margin-top:10px; padding:9px 11px; border-left:2px solid var(--accent); background:rgba(125,211,252,.06); border-radius:0 10px 10px 0; font-size:.78rem; line-height:1.55; }
+  .ai-note b { color:var(--accent); }
 
   .card { background: var(--card); border:1px solid var(--card-border); border-radius:20px; padding:16px; margin-bottom:12px; animation: rise .35s ease both; }
   @keyframes rise { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:none;} }
@@ -435,6 +437,12 @@ function gearWarn(loc){
   return `<div class="gearwarn">${warns.map(g=>`<div>${esc(zh(g))}</div>`).join('')}</div>`;
 }
 
+function locAnalysis(loc){
+  const note=lastData?.ai_analysis?.location_notes?.[loc.location_id];
+  if(!note) return '';
+  return `<div class="ai-note"><b>愛的判讀 · ${esc(note.verdict)}</b><br>${esc(note.photographic_meaning)}</div>`;
+}
+
 function cardHTML(loc, isBest){
   const g=loc.night.grade_code, color=GRADE_COLOR[g];
   const dw=loc.darkness_window;
@@ -453,6 +461,7 @@ function cardHTML(loc, isBest){
       <span class="badge b-${g}">${GRADE_ZH[g]||g}</span>
     </div>
     ${flags?`<div class="flags">${flags}</div>`:''}
+    ${locAnalysis(loc)}
     ${timelineSVG(loc)}
     <div class="mini3">${cloudMini(loc)}${moonMini(loc)}${smokeMini(loc)}</div>
     <div class="bonus">${windRow(loc)}${gcRow(loc)}</div>
@@ -479,14 +488,14 @@ function sorryHTML(loc){
 }
 
 function heroHTML(data){
-  const ok=data.locations.filter(l=>!l.error && l.night.grade_code!=='NO_DATA');
-  if(!ok.length) return `<div class="hero"><div class="k">今晚結論</div><div class="v">🙇 暫時無法分析</div><div class="why">所有機位都取不到數據，我不會猜測。請看各機位的失敗原因，或稍後再更新。</div></div>`;
-  const best=ok.find(l=>l.location_id===data.best_location_id)||ok[0];
-  const g=best.night.grade_code;
-  if(['GO','GOOD'].includes(g))
-    return `<div class="hero"><div class="k">今晚結論</div><div class="v" style="color:${GRADE_COLOR[g]}">⭐ ${esc(best.name_zh)} — ${GRADE_ZH[g]}（${Math.round(best.night.score)} 分）</div><div class="why">窗口 ${best.darkness_window.start} → ${best.darkness_window.end}。出門前請查看逐小時數據與器材建議。</div></div>`;
-  const why=zh(best.night.vetoes[0]||best.night.caps[0]||'條件一般');
-  return `<div class="hero"><div class="k">今晚結論</div><div class="v" style="color:${GRADE_COLOR[g]}">${GRADE_ZH[g]} — 最好是 ${esc(best.name_zh)}（${Math.round(best.night.score)} 分）</div><div class="why">${esc(why)}</div></div>`;
+  const ai=data.ai_analysis;
+  if(ai && ai.source_generated_utc===data.generated_utc){
+    const confidence={high:'高',medium:'中',low:'低'}[ai.confidence]||ai.confidence;
+    const factors=(ai.key_factors||[]).map(x=>esc(x)).join(' · ');
+    return `<div class="hero"><div class="k">愛的攝影判讀 · 信心 ${esc(confidence)}</div><div class="v">${esc(ai.headline)}</div><div class="why">${esc(ai.summary)}${factors?`<br><br><b>關鍵：</b>${factors}`:''}</div></div>`;
+  }
+  if(!ai) return `<div class="hero"><div class="k">愛的攝影判讀</div><div class="v">尚未經愛分析</div><div class="why">目前只顯示固定公式計算結果；不把自動分數冒充為攝影判讀。</div></div>`;
+  return `<div class="hero"><div class="k">愛的攝影判讀</div><div class="v">分析與資料版本不一致</div><div class="why">為避免顯示過期判讀，本次只保留原始數據卡，不提供總結。</div></div>`;
 }
 
 function spotCard(s){
@@ -582,11 +591,12 @@ function render(data){
   document.getElementById('hero').innerHTML=heroHTML(data);
   const ok=data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
   const bad=data.locations.filter(l=>l.error);
+  const analysisBestId=data.ai_analysis?.best_location_id||data.best_location_id;
   document.getElementById('cards').innerHTML =
-    ok.map(l=>cardHTML(l,l.location_id===data.best_location_id)).join('') + bad.map(sorryHTML).join('');
+    ok.map(l=>cardHTML(l,l.location_id===analysisBestId)).join('') + bad.map(sorryHTML).join('');
   ok.forEach(attachScrub);
   const age=data.cache_age_seconds?`（快取 ${data.cache_age_seconds}s）`:'';
-  const modeTag=data._mode==='static'?'☁️ 每小時自動更新':'⚡ 即時分析';
+  const modeTag=data.ai_analysis?'愛 · 每小時分析':(data._mode==='static'?'☁️ 固定公式更新':'⚡ 即時計算');
   document.getElementById('stamp').textContent=`${modeTag} · 數據：${data.generated_at} ${age} · 分析耗時 ${data.elapsed_seconds}s`;
   document.getElementById('foot').innerHTML='雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只使用機位本身座標';
   renderSpots(data);
