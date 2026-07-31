@@ -1,9 +1,7 @@
 name: update-report
 
 on:
-  schedule:
-    # 每小時 :07 同 :37（MDT 傍晚/深夜都覆蓋到）
-    - cron: "7,37 * * * *"
+  # 只作手動 deterministic fallback；正式每小時發佈由 Hermes 分析 job 負責。
   workflow_dispatch:
 
 permissions:

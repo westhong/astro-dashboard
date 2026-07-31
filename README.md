@@ -30,12 +30,12 @@ static/index.html          Mobile-first frontend（無外部依賴，暗色星�
                            雙模式：LAN 試 /api/report，失敗自動轉靜態 report-N.json
 backend/scripts/           Self-contained 分析（night_report.py，內建 429 retry）
 backend/references/        locations.json（機位座標單一來源嘅 copy）
-backend/build_report.py    Actions 用：產生 docs/report-{0,1,2}.json
-docs/                      GitHub Pages 輸出（index.html + report JSON）
-.github/workflows/         每小時自動更新數據
+backend/build_report.py    產生原始 docs/report-{0,1,2}.json
+backend/ai_analysis.py     驗證並合併 Hermes 的 ai_analysis
+.github/workflows/         僅保留手動 deterministic fallback
 ```
 
-**Public 模式（GitHub Pages）**：Actions 每小時跑分析 → commit `docs/report-*.json` → Pages 靜態 hosting。
+**Public 模式（GitHub Pages）**：Hermes 每小時喚醒愛，在 Windows 本機建置資料、完成攝影判讀、把 `ai_analysis` 寫入 report JSON，驗證後 commit/push；Pages 只讀 JSON 並套用 template。
 **全條鏈零 credential**：Open-Meteo / CAMS / skyfield 全部唔使 key，repo 入面冇任何秘密。
 
 **LAN 模式**：`python3 app.py` → http://\<LAN IP\>:8788（即時按掣重跑）
