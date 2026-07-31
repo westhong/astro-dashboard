@@ -451,6 +451,15 @@ function gearWarn(loc){
   return `<div class="gearwarn">${warns.map(g=>`<div>${esc(zh(g))}</div>`).join('')}</div>`;
 }
 
+const VERDICT_COLOR={'值得去':'#4ade80','可以去':'#a3e635','邊緣':'#fbbf24','留在家':'#9ca3af'};
+function localVerdict(loc){
+  const la=lastData?.local_analysis;
+  if(!la||la.source_generated_utc!==lastData.generated_utc) return '';
+  const v=la.locations?.[loc.location_id]?.verdict;
+  if(!v||!VERDICT_COLOR[v]) return '';
+  return `<span class="badge" style="color:${VERDICT_COLOR[v]};border-color:${VERDICT_COLOR[v]}">${v}</span>`;
+}
+
 function cardHTML(loc, isBest){
   const g=loc.night.grade_code, color=GRADE_COLOR[g];
   const dw=loc.darkness_window;
@@ -469,7 +478,7 @@ function cardHTML(loc, isBest){
     <div class="card-top">
       <div class="ring">${ringSVG(loc.night.score,color)}<div class="num"><b style="color:${color}">${g==='NO_DATA'?'—':Math.round(loc.night.score)}</b><span>分</span></div></div>
       <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(loc.name_zh)}</h2><div class="mtn">${esc(loc.mountain)}</div></div>
-      <span class="badge b-${g}">${GRADE_ZH[g]||g}</span>
+      <span class="badge b-${g}">${GRADE_ZH[g]||g}</span>${localVerdict(loc)}
     </div>
     ${flags?`<div class="flags">${flags}</div>`:''}
     ${loc.night.vetoes.length?'':timelineSVG(loc)}
@@ -499,6 +508,10 @@ function sorryHTML(loc){
 }
 
 function heroHTML(data){
+  const la=data.local_analysis;
+  if(la && la.source_generated_utc===data.generated_utc){
+    return `<div class="hero"><div class="k">今晚銀河結論</div><div class="v">${esc(la.headline)}</div></div>`;
+  }
   const ok=data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
   const best=ok[0];
   const v=best?`⭐ ${esc(best.name_zh)} — ${Math.round(best.night.score)} 分`:'🙇 暫時無法評估';
