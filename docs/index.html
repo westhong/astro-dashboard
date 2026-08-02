@@ -557,17 +557,19 @@ let daylightEvent = 'sunrise';
 function daylightColor(score){ return colorOfScore(score); }
 function dayGrade(score){ return score>=80?'GO':score>=65?'GOOD':score>=45?'MARGINAL':'RISKY'; }
 function dayCloudMini(e){ const w=e.weather,c=e.components;
+  const gap=w.horizon_gap!=null?`地平線開口 ${w.horizon_gap} · ${w.horizon_azimuth_deg}°方向低雲 ${w.horizon_low_pct}%`:'地平線開口資料暫缺';
   return `<div class="mini"><div class="mt">雲 <span class="ml l-${labelOf(c.cloud)}">${labelOf(c.cloud)}</span></div>
     <div class="graphic"><div class="cloudbar"><span style="width:${w.low_cloud_pct}%;background:#f87171"></span><span style="width:${w.mid_cloud_pct}%;background:#fbbf24"></span><span style="width:${w.high_cloud_pct}%;background:#7dd3fc"></span></div></div>
-    <div class="ms">${c.cloud}</div><div class="md">低雲 ${w.low_cloud_pct}%<br>中雲 ${w.mid_cloud_pct}% · 高雲 ${w.high_cloud_pct}%</div></div>`;
+    <div class="ms">${c.cloud}</div><div class="md">低雲 ${w.low_cloud_pct}%<br>中雲 ${w.mid_cloud_pct}% · 高雲 ${w.high_cloud_pct}%<br>${gap}</div></div>`;
 }
 function dayWindMini(e){ const w=e.weather,c=e.components,desc=w.wind_kmh<=6?'鏡面倒影':w.wind_kmh<=10?'接近鏡面':w.wind_kmh<=15?'微波':'明顯波紋';
   return `<div class="mini"><div class="mt">風 <span class="ml l-${labelOf(c.wind)}">${labelOf(c.wind)}</span></div><div class="graphic" style="font-size:1.45rem">💨</div>
     <div class="ms">${c.wind}</div><div class="md">平均 ${w.wind_kmh} km/h<br>陣風 ${w.gust_kmh} · ${desc}</div></div>`;
 }
-function dayLightMini(e){ const l=e.light,model=l.model,conf=l.confidence==='field'?'實測':'DEM';
-  return `<div class="mini"><div class="mt">光 <span class="ml l-${labelOf(l.score)}">${conf}</span></div><div class="graphic" style="font-size:1.45rem">☀️</div>
-    <div class="ms">${l.score}</div><div class="md">幾何 ${l.geometric_time}<br>${l.label} ${l.time}</div></div>`;
+function daySmokeMini(e){ const w=e.weather,c=e.components;
+  const detail=w.pm2_5!=null?`PM2.5 ${w.pm2_5} µg/m³<br>US AQI ${w.us_aqi??'—'}`:'煙塵資料暫缺<br>以不確定值計算';
+  return `<div class="mini"><div class="mt">煙 <span class="ml l-${labelOf(c.smoke)}">${labelOf(c.smoke)}</span></div><div class="graphic" style="font-size:1.45rem">🌫️</div>
+    <div class="ms">${c.smoke}</div><div class="md">${detail}</div></div>`;
 }
 function daylightCard(p,e,isBest){
   if(p.error || e.error) return `<div class="sorry"><h2>🙇 ${esc(p.name)} 暫時無法評估</h2><p>${esc(p.message||e.message||'未知原因')}</p></div>`;
@@ -577,9 +579,9 @@ function daylightCard(p,e,isBest){
   const dateText=lastData?.daylight?.date||'日期資料暫缺';
   return `<div class="card day-card">
     <div class="card-top"><div class="ring">${ringSVG(e.score,color)}<div class="num"><b style="color:${color}">${e.score}</b><span>分</span></div></div>
-      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／光</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
+      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／煙 · 火燒雲機率</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
     <div class="day-window"><span>📷 拍攝窗口</span><b>${l.window.start} → ${l.window.end}</b><small>${l.label} ${l.time} · 幾何${eventName} ${l.geometric_time}</small></div>
-    <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${dayLightMini(e)}</div>
+    <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${daySmokeMini(e)}</div>
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
     <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%</span></span></div></div>
     ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}</div>`;
@@ -706,7 +708,7 @@ document.getElementById('mode').addEventListener('click',e=>{
   if(mode==='spots'){ loadSpots(); }
   if(mode==='sunrise' || mode==='sunset'){
     daylightEvent=mode;
-    document.getElementById('foot').innerHTML='雲45%（色彩雲層與低空開口） · 風20%（倒影） · 光35%（地形直射光）<br>Open-Meteo · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
+    document.getElementById('foot').innerHTML='雲50%（色彩雲層×地平線開口） · 煙30%（PM2.5） · 風20%（倒影）<br>Open-Meteo · CAMS 空氣質素 · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
     if(lastData) renderDaylight(lastData);
   } else {
     document.getElementById('foot').innerHTML=FOOT_MW;

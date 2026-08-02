@@ -2,20 +2,25 @@
 """Terrain-aware sunrise and sunset photography conditions.
 
 The three visible indicators are deliberately separate:
-- cloud: fire-cloud / colour-canvas potential and low-horizon opening;
-- wind: reflection potential;
-- light: geometric event plus terrain-cleared direct sunlight.
+- cloud: colour-canvas potential multiplied by the horizon-opening factor
+  (low/mid cloud measured ~100 km toward the Sun at the event);
+- smoke: PM2.5 atmospheric clarity for colour transmission;
+- wind: reflection potential.
 
-A score does not promise a fire cloud or golden mountain.
+Terrain direct-light times remain displayed as information, but no longer
+contribute to the score (geometric + terrain times are already shown).
+A score is a fire-cloud probability heuristic, never a guarantee.
 """
 from __future__ import annotations
 
 import json
+import math
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 from urllib.request import urlopen
+from zoneinfo import ZoneInfo
 
 try:  # Package import for FastAPI; script import for build_report.py.
     from .terrain_light import DirectLightCalculator
@@ -24,6 +29,8 @@ except ImportError:
 
 HERE = Path(__file__).resolve().parent
 TZ = "America/Edmonton"
+LOCAL = ZoneInfo(TZ)
+HORIZON_OFFSET_KM = 100.0
 
 
 def _mean(values: list[float]) -> float:
@@ -42,6 +49,40 @@ def _wind_score(kmh: float) -> int:
     return 10
 
 
+def _smoke_score(pm: float | None) -> int:
+    """煙塵分，沿用 rockies-milkyway-scout 嘅 PM2.5 表。無資料 → 60（不確定）。"""
+    if pm is None:
+        return 60
+    if pm <= 5:
+        return 100
+    if pm <= 10:
+        return 90
+    if pm <= 15:
+        return 75
+    if pm <= 25:
+        return 55
+    if pm <= 35:
+        return 35
+    if pm <= 55:
+        return 18
+    return 5
+
+
+def _gap_score(block: float | None) -> int | None:
+    """地平線開口分。block = 太陽方向 100km 外嘅低雲 + 0.5×中雲（%）。"""
+    if block is None:
+        return None
+    if block <= 10:
+        return 100
+    if block <= 25:
+        return 80
+    if block <= 40:
+        return 55
+    if block <= 60:
+        return 30
+    return 10
+
+
 def _canvas_score(coverage: float) -> int:
     """A cloud layer's capacity to catch colour; not a fire-cloud prediction."""
     if coverage < 5:
@@ -53,6 +94,20 @@ def _canvas_score(coverage: float) -> int:
     if coverage <= 80:
         return 68
     return 28
+
+
+def _offset_point(lat: float, lon: float, azimuth_deg: float, dist_km: float = HORIZON_OFFSET_KM) -> tuple[float, float]:
+    """Destination point dist_km away along azimuth (spherical Earth)."""
+    radius = 6371.0
+    delta = dist_km / radius
+    brg = math.radians(azimuth_deg)
+    lat1, lon1 = math.radians(lat), math.radians(lon)
+    lat2 = math.asin(math.sin(lat1) * math.cos(delta) + math.cos(lat1) * math.sin(delta) * math.cos(brg))
+    lon2 = lon1 + math.atan2(
+        math.sin(brg) * math.sin(delta) * math.cos(lat1),
+        math.cos(delta) - math.sin(lat1) * math.sin(lat2),
+    )
+    return round(math.degrees(lat2), 4), round(math.degrees(lon2), 4)
 
 
 def _event_window(hourly: dict[str, list[Any]], centre: str) -> list[int]:
@@ -71,7 +126,14 @@ def _shift(time_text: str, minutes: int) -> str:
     return anchor.strftime("%H:%M")
 
 
-def _condition(event: str, centre: str, hourly: dict[str, list[Any]]) -> dict[str, Any]:
+def _condition(
+    event: str,
+    centre: str,
+    hourly: dict[str, list[Any]],
+    aq_hourly: dict[str, list[Any]] | None,
+    horizon_hourly: dict[str, list[Any]] | None,
+    horizon_azimuth: float | None,
+) -> dict[str, Any]:
     ids = _event_window(hourly, centre)
     avg = lambda key: _mean([float(hourly[key][i] or 0) for i in ids])
     high, middle, low = avg("cloud_cover_high"), avg("cloud_cover_mid"), avg("cloud_cover_low")
@@ -80,10 +142,31 @@ def _condition(event: str, centre: str, hourly: dict[str, list[Any]]) -> dict[st
     gust = max(float(hourly["wind_gusts_10m"][i] or 0) for i in ids)
     visibility = avg("visibility") / 1000
 
+    # 煙塵（CAMS PM2.5／US AQI，同一事件窗口平均）
+    pm_avg = aqi_avg = None
+    if aq_hourly:
+        aq_ids = _event_window(aq_hourly, centre)
+        pm_vals = [aq_hourly["pm2_5"][i] for i in aq_ids if aq_hourly["pm2_5"][i] is not None]
+        aqi_vals = [aq_hourly["us_aqi"][i] for i in aq_ids if aq_hourly["us_aqi"][i] is not None]
+        pm_avg = _mean([float(v) for v in pm_vals]) if pm_vals else None
+        aqi_avg = _mean([float(v) for v in aqi_vals]) if aqi_vals else None
+    smoke = _smoke_score(pm_avg)
+
+    # 地平線開口（太陽方向 100km 外嘅低／中雲）
+    horizon_low = horizon_mid = gap = None
+    if horizon_hourly:
+        h_ids = _event_window(horizon_hourly, centre)
+        horizon_low = _mean([float(horizon_hourly["cloud_cover_low"][i] or 0) for i in h_ids])
+        horizon_mid = _mean([float(horizon_hourly["cloud_cover_mid"][i] or 0) for i in h_ids])
+        gap = _gap_score(horizon_low + 0.5 * horizon_mid)
+
     cloud = round(_canvas_score(high) * 0.50 + _canvas_score(middle) * 0.25 + max(0, 100 - low) * 0.25)
     if precip >= 30:
         cloud = max(0, cloud - 25)
+    if gap is not None:
+        cloud = round(cloud * gap / 100)
     reflection = _wind_score(wind)
+
     notes: list[str] = []
     if high < 5 and middle < 5:
         notes.append("高／中雲極少：天空可乾淨，但火燒雲機會低")
@@ -93,6 +176,14 @@ def _condition(event: str, centre: str, hourly: dict[str, list[Any]]) -> dict[st
         notes.append("雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空")
     if low > 30:
         notes.append("低雲偏多，山體與低空色彩可能被遮擋")
+    if gap is None:
+        notes.append("地平線開口資料暫缺，雲分未作開口修正")
+    elif gap <= 30:
+        notes.append("太陽方向地平線雲量偏高，霞光難以照射雲底")
+    if pm_avg is None:
+        notes.append("煙塵資料暫缺，煙分以不確定值計算")
+    elif pm_avg > 35:
+        notes.append("煙塵偏高，霞光色彩可能明顯受抑制")
     if precip >= 30:
         notes.append("降水機率偏高，先以安全與能見度為優先")
     if wind > 10:
@@ -100,11 +191,17 @@ def _condition(event: str, centre: str, hourly: dict[str, list[Any]]) -> dict[st
     return {
         "event": event,
         "centre_time": centre[11:16],
-        "components": {"cloud": cloud, "wind": round(reflection)},
+        "components": {"cloud": cloud, "wind": round(reflection), "smoke": smoke},
         "weather": {
             "high_cloud_pct": round(high), "mid_cloud_pct": round(middle), "low_cloud_pct": round(low),
             "precip_probability_pct": round(precip), "wind_kmh": round(wind),
             "gust_kmh": round(gust), "visibility_km": round(visibility, 1),
+            "pm2_5": (round(pm_avg, 1) if pm_avg is not None else None),
+            "us_aqi": (round(aqi_avg, 0) if aqi_avg is not None else None),
+            "horizon_low_pct": (round(horizon_low) if horizon_low is not None else None),
+            "horizon_mid_pct": (round(horizon_mid) if horizon_mid is not None else None),
+            "horizon_gap": gap,
+            "horizon_azimuth_deg": (round(horizon_azimuth, 1) if horizon_azimuth is not None else None),
         },
         "notes": notes,
         "window_hours": [hourly["time"][i][11:16] for i in ids],
@@ -133,7 +230,6 @@ def _light_for_event(calculator: DirectLightCalculator, point: dict[str, Any], d
         light["window"] = {"start": _shift(light["time"], -90), "end": _shift(light["time"], 30)}
         light["label"] = "最後直射光"
     light["geometric_time"] = geometric[11:16]
-    light["score"] = 100 if light["confidence"] == "field" else 78
     return light
 
 
@@ -147,31 +243,93 @@ def _label(score: int) -> str:
     return "不建議專程前往"
 
 
+def _fetch(coords: list[tuple[float, float]], hourly: str, daily: str | None = None) -> list[dict[str, Any]]:
+    params: dict[str, Any] = {
+        "latitude": ",".join(str(c[0]) for c in coords),
+        "longitude": ",".join(str(c[1]) for c in coords),
+        "timezone": TZ,
+        "forecast_days": 7,
+        "hourly": hourly,
+    }
+    if daily:
+        params["daily"] = daily
+    url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
+    with urlopen(url, timeout=30) as response:
+        raw = json.load(response)
+    return raw if isinstance(raw, list) else [raw]
+
+
+def _fetch_air_quality(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | None:
+    params = {
+        "latitude": ",".join(str(c[0]) for c in coords),
+        "longitude": ",".join(str(c[1]) for c in coords),
+        "timezone": TZ,
+        "forecast_days": 7,
+        "hourly": "pm2_5,us_aqi",
+    }
+    url = "https://air-quality-api.open-meteo.com/v1/air-quality?" + urlencode(params)
+    try:
+        with urlopen(url, timeout=30) as response:
+            raw = json.load(response)
+        return raw if isinstance(raw, list) else [raw]
+    except Exception:
+        return None
+
+
 def build_daylight(date_str: str) -> dict[str, Any]:
     data = json.loads((HERE / "spots.json").read_text(encoding="utf-8"))
     points = [p for p in data["points"] if p.get("daylight_events")]
     if not points:
         return {"date": date_str, "error": True, "message": "尚未設定日出／日落評估點"}
-    params = {
-        "latitude": ",".join(str(p["lat"]) for p in points),
-        "longitude": ",".join(str(p["lon"]) for p in points),
-        "timezone": TZ,
-        "forecast_days": 7,
-        "hourly": "cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability,visibility,wind_speed_10m,wind_gusts_10m",
-        "daily": "sunrise,sunset",
-    }
+    coords = [(p["lat"], p["lon"]) for p in points]
     try:
-        with urlopen("https://api.open-meteo.com/v1/forecast?" + urlencode(params), timeout=30) as response:
-            raw = json.load(response)
+        forecasts = _fetch(
+            coords,
+            "cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability,visibility,wind_speed_10m,wind_gusts_10m",
+            "sunrise,sunset",
+        )
     except Exception as exc:
         return {"date": date_str, "error": True, "message": f"日出／日落天氣資料暫時無法取得：{exc}"}
-    forecasts = raw if isinstance(raw, list) else [raw]
     if len(forecasts) != len(points):
         return {"date": date_str, "error": True, "message": "日出／日落天氣資料數量不完整"}
 
     calculator = DirectLightCalculator()
+
+    # 太陽方向 100km 外嘅地平線監測點（逐 point 逐 event 一個，去重後一次過查）
+    horizon_points: dict[tuple[float, float], tuple[float, float]] = {}  # (point_idx, event) -> offset coord
+    unique_offsets: list[tuple[float, float]] = []
+    for idx, (point, fc) in enumerate(zip(points, forecasts)):
+        try:
+            day_index = fc["daily"]["time"].index(date_str)
+        except (KeyError, ValueError):
+            continue
+        for event in point["daylight_events"]:
+            geometric = fc["daily"][event][day_index]
+            try:
+                when = datetime.fromisoformat(geometric).replace(tzinfo=LOCAL)
+                _alt, az = calculator._sun(point["lat"], point["lon"], 0.0, when)
+            except Exception:
+                continue
+            offset = _offset_point(point["lat"], point["lon"], az)
+            horizon_points[(idx, event)] = offset
+            if offset not in unique_offsets:
+                unique_offsets.append(offset)
+
+    horizon_forecasts: dict[tuple[float, float], dict[str, Any]] = {}
+    if unique_offsets:
+        try:
+            for offset, hfc in zip(unique_offsets, _fetch(unique_offsets, "cloud_cover_low,cloud_cover_mid")):
+                horizon_forecasts[offset] = hfc
+        except Exception:
+            horizon_forecasts = {}
+
+    aq_list = _fetch_air_quality(coords)
+    aq_by_point: dict[int, dict[str, Any]] = {}
+    if aq_list and len(aq_list) == len(points):
+        aq_by_point = {i: aq for i, aq in enumerate(aq_list)}
+
     result = []
-    for point, fc in zip(points, forecasts):
+    for idx, (point, fc) in enumerate(zip(points, forecasts)):
         try:
             index = fc["daily"]["time"].index(date_str)
             events: dict[str, Any] = {}
@@ -182,9 +340,23 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                     events[event] = {"event": event, "error": True, "message": light["message"]}
                     continue
                 centre = f"{date_str}T{light['time']}"
-                condition = _condition(event, centre, fc["hourly"])
+                offset = horizon_points.get((idx, event))
+                horizon_hourly = horizon_forecasts.get(offset, {}).get("hourly") if offset else None
+                horizon_az = None
+                if offset:
+                    try:
+                        when = datetime.fromisoformat(geometric).replace(tzinfo=LOCAL)
+                        _alt, horizon_az = calculator._sun(point["lat"], point["lon"], 0.0, when)
+                    except Exception:
+                        horizon_az = None
+                aq_hourly = aq_by_point.get(idx, {}).get("hourly")
+                condition = _condition(event, centre, fc["hourly"], aq_hourly, horizon_hourly, horizon_az)
                 condition["light"] = light
-                condition["score"] = round(condition["components"]["cloud"] * 0.45 + condition["components"]["wind"] * 0.20 + light["score"] * 0.35)
+                condition["score"] = round(
+                    condition["components"]["cloud"] * 0.50
+                    + condition["components"]["smoke"] * 0.30
+                    + condition["components"]["wind"] * 0.20
+                )
                 condition["label"] = _label(condition["score"])
                 events[event] = condition
             result.append({
@@ -196,8 +368,8 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     return {
         "date": date_str,
         "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"),
-        "method": "雲 45%（色彩雲層與低空開口）／風 20%（倒影）／光 35%（地形直射光）",
-        "terrain_disclaimer": "火燒雲無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
+        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影）",
+        "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
         "points": result,
-        "sources": "Open-Meteo（各拍攝點天氣）＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",
+        "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",
     }
