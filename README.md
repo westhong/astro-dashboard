@@ -32,10 +32,11 @@ backend/scripts/           Self-contained 分析（night_report.py，內建 429 
 backend/references/        locations.json（機位座標單一來源嘅 copy）
 backend/build_report.py    產生原始 docs/report-{0,1,2}.json
 backend/ai_analysis.py     驗證並合併 Hermes 的 ai_analysis
+backend/local_analysis.py  本機 Llama 可用時，為三份報告加入 local_analysis
 .github/workflows/         僅保留手動 deterministic fallback
 ```
 
-**Public 模式（GitHub Pages）**：Hermes 每小時喚醒愛，在 Windows 本機建置資料、完成攝影判讀、把 `ai_analysis` 寫入 report JSON，驗證後 commit/push；Pages 只讀 JSON 並套用 template。
+**Public 模式（GitHub Pages）**：Hermes 的 no-agent cron 每五分鐘直接執行固定更新腳本，在 Windows 本機建置資料並更新 report JSON；Pages 只讀 JSON 並套用 template。這不是一次互動式 agent 執行；不過若本機 Llama Server 可用，腳本會額外執行 `backend/local_analysis.py`，為三份報告加入本機模型分析。若 Llama 不可用，固定資料更新仍會繼續。
 **全條鏈零 credential**：Open-Meteo / CAMS / skyfield 全部唔使 key，repo 入面冇任何秘密。
 
 **LAN 模式**：`python3 app.py` → http://\<LAN IP\>:8788（即時按掣重跑）
