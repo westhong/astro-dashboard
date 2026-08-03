@@ -81,6 +81,13 @@
   .spot .guide { margin-top:8px; padding:8px 9px; border-left:2px solid rgba(125,211,252,.55); background:rgba(125,211,252,.05); border-radius:0 9px 9px 0; font-size:.73rem; color:var(--text); line-height:1.58; }
   .spot .guide b { color:var(--accent); font-weight:700; }
   .spot .tags { margin-top:7px; display:flex; flex-wrap:wrap; gap:5px; }
+  .samples { margin-top:9px; display:flex; gap:6px; overflow-x:auto; padding-bottom:3px; -webkit-overflow-scrolling:touch; }
+  .samples img { height:88px; min-width:88px; max-width:150px; object-fit:cover; border-radius:8px; border:1px solid var(--card-border); cursor:pointer; flex-shrink:0; background:var(--card-border); }
+  .sample_note { font-size:.7rem; color:var(--text-dim); margin-top:4px; font-style:italic; }
+  #lightbox { position:fixed; inset:0; z-index:99; background:rgba(0,0,0,.92); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px; cursor:zoom-out; }
+  #lightbox img { max-width:100%; max-height:78vh; border-radius:10px; }
+  #lightbox .lb-att { color:#cbd5e1; font-size:.72rem; margin-top:10px; text-align:center; line-height:1.5; }
+  #lightbox .lb-att a { color:var(--accent); }
   .spot .tag { font-size:.62rem; padding:2px 8px; border-radius:999px; background:rgba(125,211,252,.12); color:var(--accent); border:1px solid rgba(125,211,252,.25); }
   .spot .tag.warn { background:rgba(251,113,133,.14); color:var(--stay); border-color:rgba(251,113,133,.3); }
   .spot .nav { display:inline-block; margin-top:8px; font-size:.74rem; color:var(--accent); text-decoration:none; border:1px solid rgba(125,211,252,.35); border-radius:999px; padding:5px 12px; }
@@ -531,6 +538,8 @@ function spotCard(s){
     return `<span class="tag${warn?' warn':''}">${esc(zh(t))}</span>`;
   }).join('');
   const vb = s.verify ? `<span class="tag warn">⚠️ 待實地確認</span>` : '';
+  const thumbs = (s.samples||[]).map((sm,i)=>`<img loading="lazy" src="${escAttr(sm.thumb)}" alt="構圖參考 ${i+1}" onclick="openLB('${escAttr(s.id)}',${i})">`).join('');
+  const sblock = thumbs ? `<div class="samples">${thumbs}</div>${s.sample_note?`<div class="sample_note">${esc(zh(s.sample_note))}</div>`:''}` : '';
   return `<div class="spot">
     <div class="st">${esc(zh(s.name))} <span class="stars">${stars}</span></div>
     <div class="meta">${esc(zh(s.drive||''))}</div>
@@ -539,6 +548,7 @@ function spotCard(s){
     ${s.purpose?`<div class="guide"><b>拍攝建議</b><br>${esc(zh(s.purpose))}${s.season?`<br><b>季節窗口</b> ${esc(zh(s.season))}`:''}${s.caveat?`<br><b>注意</b> ${esc(zh(s.caveat))}`:''}</div>`:''}
     ${s.note?`<div class="nt">${esc(zh(s.note))}</div>`:''}
     ${s.alt_note?`<div class="nt">↳ ${esc(zh(s.alt_note))}</div>`:''}
+    ${sblock}
     <div class="tags">${vb}${tags}</div>
     <a class="nav" href="${s.gmaps}" target="_blank" rel="noopener">導航前往 ↗</a>
   </div>`;
@@ -550,6 +560,23 @@ function shift(hhmm, mins){
   let t=h*60+m+mins; t=((t%1440)+1440)%1440;
   return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
 }
+
+/* sample image lightbox */
+function escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
+function spotById(id){
+  const pts=(spotsReport&&spotsReport.spots||lastData&&lastData.spots)||[];
+  return pts.find(p=>p.id===id);
+}
+function openLB(id,i){
+  const s=spotById(id); if(!s||!s.samples||!s.samples[i]) return;
+  const sm=s.samples[i];
+  const att=`${sm.artist||''} · ${sm.license||''}${sm.src?` · <a href="${escAttr(sm.src)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Commons 原圖 ↗</a>`:''}`;
+  const lb=document.getElementById('lightbox');
+  lb.innerHTML=`<img src="${escAttr(sm.full)}" alt="構圖參考"><div class="lb-att">${att}</div>`;
+  lb.hidden=false;
+}
+function closeLB(){ const lb=document.getElementById('lightbox'); lb.hidden=true; lb.innerHTML=''; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLB(); });
 
 const SPOT_GROUPS = [['sunset','🌇 日落 · 黃昏'],['sunrise','🌅 日出 · 晨光'],['night','🌌 夜景 · 探索']];
 let daylightEvent = 'sunrise';
@@ -718,5 +745,6 @@ document.getElementById('refreshBtn').addEventListener('click',load);
 load();
 setInterval(load,600000);
 </script>
+  <div id="lightbox" hidden onclick="closeLB()"></div>
 </body>
 </html>
