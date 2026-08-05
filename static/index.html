@@ -611,7 +611,7 @@ function dayWindMini(e){ const w=e.weather,c=e.components,wd=e.wind_detail;
 function dayWindDetail(e){ const wd=e.wind_detail; if(!wd||wd.ecmwf_missing||!wd.curve||!wd.curve.length) return '';
   const rows=wd.curve.map(r=>`<tr><td>${r.t}</td><td>${r.best??'—'}</td><td>${r.ecmwf??'—'}</td></tr>`).join('');
   const calm=v=>v?`${v} 起鏡面`:'窗口內未見鏡面';
-  return `<details class="wind-detail"><summary>逐小時雙模型風速（直射光前 1h → 後 2.5h）</summary>
+  return `<details class="wind-detail"><summary>逐小時雙模型風速（幾何${e.event==='sunrise'?'日出':'日落'}前 1h → 後 2.5h）</summary>
     <table><thead><tr><th>時間</th><th>預設</th><th>ECMWF</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="calm">鏡面（≤6 km/h）：預設 ${calm(wd.calm_best)} · ECMWF ${calm(wd.calm_ecmwf)}<br>單位 km/h · Open-Meteo best_match ＋ ecmwf_ifs025</div></details>`;
 }
@@ -643,7 +643,7 @@ function renderDaylight(data){
   const cards=d.points.filter(p=>p.events && p.events[daylightEvent]).map(p=>({p,e:p.events[daylightEvent]})).sort((a,b)=>(b.e.score||0)-(a.e.score||0));
   const valid=cards.filter(x=>!x.e.error), best=valid[0];
   const dateWord=['今天','明天','後天'][currentOffset]||'當日';
-  root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。拍攝窗口以地形首束／末束直射光為核心，不以幾何日出／日落代替。</div></div>
+  root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。拍攝窗口與評分以幾何日出／日落為錨點；地形首束／末束直射光為山體受光資訊。</div></div>
     <div class="page-note">${esc(d.terrain_disclaimer||'')}</div>
     ${cards.map((x,i)=>daylightCard(x.p,x.e,i===0)).join('') || '<div class="nt" style="padding:20px">此日期沒有對應的拍攝點資料</div>'}`;
 }

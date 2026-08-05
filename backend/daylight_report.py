@@ -307,13 +307,31 @@ def _light_for_event(calculator: DirectLightCalculator, point: dict[str, Any], d
         light = {"time": model["time"], "basis": model["basis"], "confidence": "model", "model": model}
     else:
         return {"error": True, "message": f"無法計算地形直射光：{model_error}"}
+    geo_hhmm = geometric[11:16]
+    geo_min = int(geo_hhmm[:2]) * 60 + int(geo_hhmm[3:])
+    light_min = int(light["time"][:2]) * 60 + int(light["time"][3:])
+
+    def _mm(minutes: float) -> str:
+        minutes = int(round(minutes)) % 1440
+        return f"{minutes // 60:02d}:{minutes % 60:02d}"
+
     if event == "sunrise":
-        light["window"] = {"start": _shift(light["time"], -30), "end": _shift(light["time"], 90)}
+        # 錨定幾何日出：朝霞色彩喺日出前 ~45 分鐘開始；山體首束直射光為受光資訊。
+        # 終點包首束光後 30 分鐘，但至少到日出後 60 分鐘，上限日出後 150 分鐘
+        # （防 Moraine 式「首束光遲 5 個鐘」令窗口失真）。
+        start = geo_min - 45
+        end = min(max(light_min + 30, geo_min + 60), geo_min + 150)
+        light["window"] = {"start": _mm(start), "end": _mm(end)}
         light["label"] = "首束直射光"
     else:
-        light["window"] = {"start": _shift(light["time"], -90), "end": _shift(light["time"], 30)}
+        # 錨定幾何日落：火燒雲色彩高峰係幾何日落前後（日落後 0–45 分鐘）。
+        # 起點包山體最後金光前 1 小時，但最遲由日落前 75 分鐘開始；
+        # 終點 = 幾何日落後 45 分鐘（色彩尾段＋藍調開始＋風趨平靜）。
+        start = min(light_min - 60, geo_min - 75)
+        end = geo_min + 45
+        light["window"] = {"start": _mm(start), "end": _mm(end)}
         light["label"] = "最後直射光"
-    light["geometric_time"] = geometric[11:16]
+    light["geometric_time"] = geo_hhmm
     return light
 
 
@@ -458,7 +476,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                 if light.get("error"):
                     events[event] = {"event": event, "error": True, "message": light["message"]}
                     continue
-                centre = f"{date_str}T{light['time']}"
+                centre = geometric  # 評分錨定幾何事件（v2.14.0）：火燒雲色彩圍繞幾何日出日落，唔係地形直射光
                 offset = horizon_points.get((idx, event))
                 horizon_hourly = horizon_forecasts.get(offset, {}).get("hourly") if offset else None
                 horizon_az = None
