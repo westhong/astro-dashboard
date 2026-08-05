@@ -163,6 +163,11 @@
   .mini .ms { font-size:1.05rem; font-weight:700; }
   .mini .md { font-size:.64rem; color:var(--text-dim); margin-top:4px; line-height:1.55; }
   .mini .md a { color:var(--accent); text-decoration:none; }
+  .wind-detail { margin-top:8px; font-size:.72rem; color:var(--text-dim); }
+  .wind-detail summary { color:var(--accent); cursor:pointer; font-size:.72rem; }
+  .wind-detail table { width:100%; border-collapse:collapse; margin-top:6px; text-align:center; }
+  .wind-detail th, .wind-detail td { padding:2px 4px; border-bottom:1px solid var(--card-border); font-weight:400; }
+  .wind-detail .calm { margin-top:6px; line-height:1.55; }
   .cloudbar { width:100%; height:10px; border-radius:99px; overflow:hidden; display:flex; background:rgba(255,255,255,.06); }
   .cloudbar span { display:block; height:100%; }
 
@@ -590,9 +595,23 @@ function dayCloudMini(e){ const w=e.weather,c=e.components;
     <div class="graphic"><div class="cloudbar"><span style="width:${w.low_cloud_pct}%;background:#f87171"></span><span style="width:${w.mid_cloud_pct}%;background:#fbbf24"></span><span style="width:${w.high_cloud_pct}%;background:#7dd3fc"></span></div></div>
     <div class="ms">${c.cloud}</div><div class="md">低雲 ${w.low_cloud_pct}%<br>中雲 ${w.mid_cloud_pct}% · 高雲 ${w.high_cloud_pct}%<br>${gap}</div></div>`;
 }
-function dayWindMini(e){ const w=e.weather,c=e.components,desc=w.wind_kmh<=6?'鏡面倒影':w.wind_kmh<=10?'接近鏡面':w.wind_kmh<=15?'微波':'明顯波紋';
-  return `<div class="mini"><div class="mt">風 <span class="ml l-${labelOf(c.wind)}">${labelOf(c.wind)}</span></div><div class="graphic" style="font-size:1.45rem">💨</div>
-    <div class="ms">${c.wind}</div><div class="md">平均 ${w.wind_kmh} km/h<br>陣風 ${w.gust_kmh} · ${desc}</div></div>`;
+function dayWindMini(e){ const w=e.weather,c=e.components,wd=e.wind_detail;
+  const descOf=v=>v<=6?'鏡面倒影':v<=10?'接近鏡面':v<=15?'微波':'明顯波紋';
+  if(!wd||wd.ecmwf_missing){
+    return `<div class="mini"><div class="mt">風 <span class="ml l-${labelOf(c.wind)}">${labelOf(c.wind)}</span></div><div class="graphic" style="font-size:1.45rem">💨</div>
+    <div class="ms">${c.wind}</div><div class="md">平均 ${w.wind_kmh} km/h<br>陣風 ${w.gust_kmh} · ${descOf(w.wind_kmh)}<br><span style="color:#fbbf24">ECMWF 資料暫缺</span></div></div>`;
+  }
+  const badge=wd.divergent?'<span style="font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(251,191,36,.15);color:#fbbf24">分歧</span>':'<span style="font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(52,211,153,.12);color:#34d399">一致</span>';
+  const gustTxt=wd.gust_range?`${wd.gust_range[0]}–${wd.gust_range[1]}`:`${wd.best_gust}`;
+  return `<div class="mini"><div class="mt">風 <span class="ml l-${labelOf(c.wind)}">${labelOf(c.wind)}</span>${badge}</div><div class="graphic" style="font-size:1.45rem">💨</div>
+    <div class="ms">${c.wind}</div><div class="md">平均 ${wd.range[0]}–${wd.range[1]} km/h<br>陣風 ${gustTxt} · ${descOf(wd.range[1])}</div></div>`;
+}
+function dayWindDetail(e){ const wd=e.wind_detail; if(!wd||wd.ecmwf_missing||!wd.curve||!wd.curve.length) return '';
+  const rows=wd.curve.map(r=>`<tr><td>${r.t}</td><td>${r.best??'—'}</td><td>${r.ecmwf??'—'}</td></tr>`).join('');
+  const calm=v=>v?`${v} 起鏡面`:'窗口內未見鏡面';
+  return `<details class="wind-detail"><summary>逐小時雙模型風速（直射光前 1h → 後 2.5h）</summary>
+    <table><thead><tr><th>時間</th><th>預設</th><th>ECMWF</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="calm">鏡面（≤6 km/h）：預設 ${calm(wd.calm_best)} · ECMWF ${calm(wd.calm_ecmwf)}<br>單位 km/h · Open-Meteo best_match ＋ ecmwf_ifs025</div></details>`;
 }
 function daySmokeMini(e){ const w=e.weather,c=e.components;
   const detail=w.pm2_5!=null?`PM2.5 ${w.pm2_5} µg/m³<br>US AQI ${w.us_aqi??'—'}`:'煙塵資料暫缺<br>以不確定值計算';
@@ -612,7 +631,7 @@ function daylightCard(p,e,isBest){
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${daySmokeMini(e)}</div>
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
     <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%</span></span></div></div>
-    ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}</div>`;
+    ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}${dayWindDetail(e)}</div>`;
 }
 
 function renderDaylight(data){
@@ -736,7 +755,7 @@ document.getElementById('mode').addEventListener('click',e=>{
   if(mode==='spots'){ loadSpots(); }
   if(mode==='sunrise' || mode==='sunset'){
     daylightEvent=mode;
-    document.getElementById('foot').innerHTML='雲50%（色彩雲層×地平線開口） · 煙30%（PM2.5） · 風20%（倒影）<br>Open-Meteo · CAMS 空氣質素 · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
+    document.getElementById('foot').innerHTML='雲50%（色彩雲層×地平線開口） · 煙30%（PM2.5） · 風20%（倒影 · 雙模型對比取保守）<br>Open-Meteo（best_match ＋ ECMWF IFS） · CAMS 空氣質素 · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
     if(lastData) renderDaylight(lastData);
   } else {
     document.getElementById('foot').innerHTML=FOOT_MW;

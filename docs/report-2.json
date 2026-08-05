@@ -1,9 +1,9 @@
 {
-  "version": "2.11.0",
+  "version": "2.12.0",
   "night_date": "2026-08-07",
-  "generated_at": "2026-08-05 14:31:46 MDT",
-  "generated_utc": "2026-08-05T20:31:46+00:00",
-  "elapsed_seconds": 28.0,
+  "generated_at": "2026-08-05 14:41:41 MDT",
+  "generated_utc": "2026-08-05T20:41:41+00:00",
+  "elapsed_seconds": 28.9,
   "locations": [
     {
       "location_id": "vermilion_lakes",
@@ -319,7 +319,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格）",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-08-05 14:31 MDT"
+      "fetched_at": "2026-08-05 14:41 MDT"
     },
     {
       "location_id": "two_jack_lake",
@@ -635,7 +635,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格）",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-08-05 14:31 MDT"
+      "fetched_at": "2026-08-05 14:41 MDT"
     },
     {
       "location_id": "herbert_lake",
@@ -952,7 +952,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格）",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-08-05 14:31 MDT"
+      "fetched_at": "2026-08-05 14:41 MDT"
     },
     {
       "location_id": "lake_louise",
@@ -1268,7 +1268,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格）",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-08-05 14:31 MDT"
+      "fetched_at": "2026-08-05 14:41 MDT"
     },
     {
       "location_id": "bow_lake",
@@ -1584,7 +1584,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格）",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-08-05 14:31 MDT"
+      "fetched_at": "2026-08-05 14:41 MDT"
     },
     {
       "location_id": "lake_minnewanka",
@@ -1900,7 +1900,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格）",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-08-05 14:31 MDT"
+      "fetched_at": "2026-08-05 14:41 MDT"
     }
   ],
   "best_location_id": "lake_minnewanka",
@@ -2997,8 +2997,8 @@
   ],
   "daylight": {
     "date": "2026-08-07",
-    "generated_at": "2026-08-05 14:31 美加山區日光節約時間",
-    "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影）",
+    "generated_at": "2026-08-05 14:41 美加山區日光節約時間",
+    "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
     "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
     "points": [
       {
@@ -3034,8 +3034,50 @@
               "horizon_azimuth_deg": 62.2
             },
             "notes": [
-              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "兩模型風速預報分歧（預設 6 vs ECMWF 3 km/h），風分採較保守值"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 6.5,
+              "best_gust": 9,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 17,
+              "range": [
+                2.8,
+                6.5
+              ],
+              "gust_range": [
+                9,
+                17
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": "06:00",
+              "calm_ecmwf": "06:00",
+              "curve": [
+                {
+                  "t": "06:00",
+                  "best": 5.6,
+                  "ecmwf": 2.8
+                },
+                {
+                  "t": "07:00",
+                  "best": 8.7,
+                  "ecmwf": 2.8
+                },
+                {
+                  "t": "08:00",
+                  "best": 5.2,
+                  "ecmwf": 2.7
+                },
+                {
+                  "t": "09:00",
+                  "best": 1.8,
+                  "ecmwf": 2.9
+                }
+              ]
+            },
             "window_hours": [
               "06:00",
               "07:00",
@@ -3090,6 +3132,42 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 4.4,
+              "best_gust": 14,
+              "ecmwf_mean": 2.6,
+              "ecmwf_gust": 28,
+              "range": [
+                2.6,
+                4.4
+              ],
+              "gust_range": [
+                14,
+                28
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "19:00",
+              "calm_ecmwf": "19:00",
+              "curve": [
+                {
+                  "t": "19:00",
+                  "best": 4.3,
+                  "ecmwf": 0.8
+                },
+                {
+                  "t": "20:00",
+                  "best": 4.6,
+                  "ecmwf": 4.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 11.9,
+                  "ecmwf": 6.9
+                }
+              ]
+            },
             "window_hours": [
               "19:00",
               "20:00"
@@ -3154,6 +3232,42 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 4.2,
+              "best_gust": 4,
+              "ecmwf_mean": 1.9,
+              "ecmwf_gust": 17,
+              "range": [
+                1.9,
+                4.2
+              ],
+              "gust_range": [
+                4,
+                17
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "07:00",
+              "calm_ecmwf": "07:00",
+              "curve": [
+                {
+                  "t": "07:00",
+                  "best": 4.5,
+                  "ecmwf": 2.2
+                },
+                {
+                  "t": "08:00",
+                  "best": 4.0,
+                  "ecmwf": 1.5
+                },
+                {
+                  "t": "09:00",
+                  "best": 2.0,
+                  "ecmwf": 0.4
+                }
+              ]
+            },
             "window_hours": [
               "07:00",
               "08:00"
@@ -3205,8 +3319,50 @@
               "horizon_azimuth_deg": 297.6
             },
             "notes": [
-              "高／中雲極少：天空可乾淨，但火燒雲機會低"
+              "高／中雲極少：天空可乾淨，但火燒雲機會低",
+              "兩模型風速預報分歧（預設 10 vs ECMWF 2 km/h），風分採較保守值"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 9.9,
+              "best_gust": 33,
+              "ecmwf_mean": 2.0,
+              "ecmwf_gust": 32,
+              "range": [
+                2.0,
+                9.9
+              ],
+              "gust_range": [
+                32,
+                33
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": "21:00",
+              "calm_ecmwf": "20:00",
+              "curve": [
+                {
+                  "t": "20:00",
+                  "best": 14.3,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "21:00",
+                  "best": 5.6,
+                  "ecmwf": 0.8
+                },
+                {
+                  "t": "22:00",
+                  "best": 11.5,
+                  "ecmwf": 0.8
+                },
+                {
+                  "t": "23:00",
+                  "best": 9.6,
+                  "ecmwf": 1.6
+                }
+              ]
+            },
             "window_hours": [
               "20:00",
               "21:00"
@@ -3271,6 +3427,42 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 3.4,
+              "best_gust": 17,
+              "ecmwf_mean": 3.5,
+              "ecmwf_gust": 18,
+              "range": [
+                3.4,
+                3.5
+              ],
+              "gust_range": [
+                17,
+                18
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "08:00",
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 2.6,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 4.2,
+                  "ecmwf": 3.9
+                },
+                {
+                  "t": "10:00",
+                  "best": 5.4,
+                  "ecmwf": 5.6
+                }
+              ]
+            },
             "window_hours": [
               "08:00",
               "09:00"
@@ -3324,6 +3516,42 @@
             "notes": [
               "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 4.5,
+              "best_gust": 33,
+              "ecmwf_mean": 4.8,
+              "ecmwf_gust": 38,
+              "range": [
+                4.5,
+                4.8
+              ],
+              "gust_range": [
+                33,
+                38
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "21:00",
+              "calm_ecmwf": "21:00",
+              "curve": [
+                {
+                  "t": "20:00",
+                  "best": 6.5,
+                  "ecmwf": 6.2
+                },
+                {
+                  "t": "21:00",
+                  "best": 2.4,
+                  "ecmwf": 3.4
+                },
+                {
+                  "t": "22:00",
+                  "best": 0.8,
+                  "ecmwf": 2.1
+                }
+              ]
+            },
             "window_hours": [
               "20:00",
               "21:00"
@@ -3388,6 +3616,42 @@
             "notes": [
               "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 7.2,
+              "best_gust": 14,
+              "ecmwf_mean": 9.3,
+              "ecmwf_gust": 32,
+              "range": [
+                7.2,
+                9.3
+              ],
+              "gust_range": [
+                14,
+                32
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": null,
+              "calm_ecmwf": null,
+              "curve": [
+                {
+                  "t": "11:00",
+                  "best": 6.5,
+                  "ecmwf": 8.1
+                },
+                {
+                  "t": "12:00",
+                  "best": 7.8,
+                  "ecmwf": 10.5
+                },
+                {
+                  "t": "13:00",
+                  "best": 9.5,
+                  "ecmwf": 11.4
+                }
+              ]
+            },
             "window_hours": [
               "11:00",
               "12:00"
@@ -3450,8 +3714,50 @@
               "horizon_azimuth_deg": 62.2
             },
             "notes": [
-              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "兩模型風速預報分歧（預設 7 vs ECMWF 3 km/h），風分採較保守值"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 6.7,
+              "best_gust": 16,
+              "ecmwf_mean": 3.1,
+              "ecmwf_gust": 18,
+              "range": [
+                3.1,
+                6.7
+              ],
+              "gust_range": [
+                16,
+                18
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": "09:00",
+              "calm_ecmwf": "09:00",
+              "curve": [
+                {
+                  "t": "09:00",
+                  "best": 6.0,
+                  "ecmwf": 2.9
+                },
+                {
+                  "t": "10:00",
+                  "best": 7.3,
+                  "ecmwf": 3.3
+                },
+                {
+                  "t": "11:00",
+                  "best": 7.4,
+                  "ecmwf": 3.5
+                },
+                {
+                  "t": "12:00",
+                  "best": 5.4,
+                  "ecmwf": 5.0
+                }
+              ]
+            },
             "window_hours": [
               "09:00",
               "10:00"
@@ -3504,8 +3810,50 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "風速偏高，倒影成功率下降"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 15 vs ECMWF 3 km/h），風分採較保守值"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 14.9,
+              "best_gust": 15,
+              "ecmwf_mean": 2.5,
+              "ecmwf_gust": 31,
+              "range": [
+                2.5,
+                14.9
+              ],
+              "gust_range": [
+                15,
+                31
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": null,
+              "calm_ecmwf": "18:00",
+              "curve": [
+                {
+                  "t": "18:00",
+                  "best": 11.9,
+                  "ecmwf": 4.3
+                },
+                {
+                  "t": "19:00",
+                  "best": 18.0,
+                  "ecmwf": 0.8
+                },
+                {
+                  "t": "20:00",
+                  "best": 12.0,
+                  "ecmwf": 4.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 8.0,
+                  "ecmwf": 6.9
+                }
+              ]
+            },
             "window_hours": [
               "18:00",
               "19:00"
@@ -3570,6 +3918,47 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 5.1,
+              "best_gust": 5,
+              "ecmwf_mean": 3.1,
+              "ecmwf_gust": 13,
+              "range": [
+                3.1,
+                5.1
+              ],
+              "gust_range": [
+                5,
+                13
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "06:00",
+              "calm_ecmwf": "06:00",
+              "curve": [
+                {
+                  "t": "06:00",
+                  "best": 5.2,
+                  "ecmwf": 3.6
+                },
+                {
+                  "t": "07:00",
+                  "best": 5.2,
+                  "ecmwf": 3.1
+                },
+                {
+                  "t": "08:00",
+                  "best": 5.0,
+                  "ecmwf": 2.5
+                },
+                {
+                  "t": "09:00",
+                  "best": 3.8,
+                  "ecmwf": 1.6
+                }
+              ]
+            },
             "window_hours": [
               "06:00",
               "07:00",
@@ -3633,8 +4022,45 @@
               "horizon_azimuth_deg": 62.1
             },
             "notes": [
-              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "兩模型風速預報分歧（預設 8 vs ECMWF 3 km/h），風分採較保守值"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 7.9,
+              "best_gust": 11,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 17,
+              "range": [
+                2.8,
+                7.9
+              ],
+              "gust_range": [
+                11,
+                17
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": "10:00",
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 9.0,
+                  "ecmwf": 2.7
+                },
+                {
+                  "t": "09:00",
+                  "best": 6.8,
+                  "ecmwf": 2.9
+                },
+                {
+                  "t": "10:00",
+                  "best": 2.5,
+                  "ecmwf": 3.3
+                }
+              ]
+            },
             "window_hours": [
               "08:00",
               "09:00"
@@ -3687,8 +4113,45 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "風速偏高，倒影成功率下降"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 12 vs ECMWF 3 km/h），風分採較保守值"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 12.1,
+              "best_gust": 14,
+              "ecmwf_mean": 2.6,
+              "ecmwf_gust": 28,
+              "range": [
+                2.6,
+                12.1
+              ],
+              "gust_range": [
+                14,
+                28
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": null,
+              "calm_ecmwf": "19:00",
+              "curve": [
+                {
+                  "t": "19:00",
+                  "best": 10.5,
+                  "ecmwf": 0.8
+                },
+                {
+                  "t": "20:00",
+                  "best": 13.7,
+                  "ecmwf": 4.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 11.3,
+                  "ecmwf": 6.9
+                }
+              ]
+            },
             "window_hours": [
               "19:00",
               "20:00"
@@ -3753,6 +4216,47 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 2.1,
+              "best_gust": 17,
+              "ecmwf_mean": 3.2,
+              "ecmwf_gust": 18,
+              "range": [
+                2.1,
+                3.2
+              ],
+              "gust_range": [
+                17,
+                18
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "07:00",
+              "calm_ecmwf": "07:00",
+              "curve": [
+                {
+                  "t": "07:00",
+                  "best": 1.5,
+                  "ecmwf": 2.5
+                },
+                {
+                  "t": "08:00",
+                  "best": 1.5,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 3.3,
+                  "ecmwf": 3.9
+                },
+                {
+                  "t": "10:00",
+                  "best": 5.5,
+                  "ecmwf": 5.6
+                }
+              ]
+            },
             "window_hours": [
               "07:00",
               "08:00",
@@ -3807,6 +4311,42 @@
             "notes": [
               "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 6.9,
+              "best_gust": 36,
+              "ecmwf_mean": 7.9,
+              "ecmwf_gust": 42,
+              "range": [
+                6.9,
+                7.9
+              ],
+              "gust_range": [
+                36,
+                42
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "20:00",
+              "calm_ecmwf": "21:00",
+              "curve": [
+                {
+                  "t": "19:00",
+                  "best": 8.7,
+                  "ecmwf": 9.7
+                },
+                {
+                  "t": "20:00",
+                  "best": 5.2,
+                  "ecmwf": 6.2
+                },
+                {
+                  "t": "21:00",
+                  "best": 1.0,
+                  "ecmwf": 3.4
+                }
+              ]
+            },
             "window_hours": [
               "19:00",
               "20:00"
@@ -3871,6 +4411,47 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 2.9,
+              "best_gust": 5,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 17,
+              "range": [
+                2.8,
+                2.9
+              ],
+              "gust_range": [
+                5,
+                17
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "07:00",
+              "calm_ecmwf": "07:00",
+              "curve": [
+                {
+                  "t": "07:00",
+                  "best": 3.4,
+                  "ecmwf": 2.8
+                },
+                {
+                  "t": "08:00",
+                  "best": 2.4,
+                  "ecmwf": 2.7
+                },
+                {
+                  "t": "09:00",
+                  "best": 1.1,
+                  "ecmwf": 2.9
+                },
+                {
+                  "t": "10:00",
+                  "best": 2.6,
+                  "ecmwf": 3.3
+                }
+              ]
+            },
             "window_hours": [
               "07:00",
               "08:00"
@@ -3922,8 +4503,50 @@
               "horizon_azimuth_deg": 297.5
             },
             "notes": [
-              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度"
+              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
+              "兩模型風速預報分歧（預設 8 vs ECMWF 3 km/h），風分採較保守值"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 7.8,
+              "best_gust": 15,
+              "ecmwf_mean": 2.5,
+              "ecmwf_gust": 31,
+              "range": [
+                2.5,
+                7.8
+              ],
+              "gust_range": [
+                15,
+                31
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": "18:00",
+              "calm_ecmwf": "18:00",
+              "curve": [
+                {
+                  "t": "18:00",
+                  "best": 5.1,
+                  "ecmwf": 4.3
+                },
+                {
+                  "t": "19:00",
+                  "best": 10.5,
+                  "ecmwf": 0.8
+                },
+                {
+                  "t": "20:00",
+                  "best": 13.7,
+                  "ecmwf": 4.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 11.3,
+                  "ecmwf": 6.9
+                }
+              ]
+            },
             "window_hours": [
               "18:00",
               "19:00"
@@ -3988,6 +4611,42 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空"
             ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 4.7,
+              "best_gust": 8,
+              "ecmwf_mean": 3.1,
+              "ecmwf_gust": 18,
+              "range": [
+                3.1,
+                4.7
+              ],
+              "gust_range": [
+                8,
+                18
+              ],
+              "divergent": false,
+              "scoring": "conservative",
+              "calm_best": "10:00",
+              "calm_ecmwf": "09:00",
+              "curve": [
+                {
+                  "t": "09:00",
+                  "best": 6.8,
+                  "ecmwf": 2.9
+                },
+                {
+                  "t": "10:00",
+                  "best": 2.6,
+                  "ecmwf": 3.3
+                },
+                {
+                  "t": "11:00",
+                  "best": 3.2,
+                  "ecmwf": 3.5
+                }
+              ]
+            },
             "window_hours": [
               "09:00",
               "10:00"
@@ -4018,6 +4677,6 @@
         }
       }
     ],
-    "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"
+    "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"
   }
 }
