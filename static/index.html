@@ -521,15 +521,17 @@ function sorryHTML(loc){
 }
 
 function heroHTML(data){
+  const dateWord=['今晚','明晚','後晚'][currentOffset]||'當晚';
+  const why='雲 45%（雲量遮蔽）／月 25%（月光照射）／煙 20%（PM2.5 大氣通透度）／風 10%（倒影）。評分取天文黑夜窗口內最佳連續 3 小時，只使用機位本身座標。';
   const la=data.local_analysis;
   if(la && la.source_generated_utc===data.generated_utc){
-    return `<div class="hero"><div class="k">今晚銀河結論</div><div class="v">${esc(la.headline)}</div></div>`;
+    return `<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}銀河結論</div><div class="v">${esc(la.headline)}</div><div class="why">${why}</div></div>`;
   }
   const ok=data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
   const best=ok[0];
   const v=best?`⭐ ${esc(best.name_zh)} — ${Math.round(best.night.score)} 分`:'🙇 暫時無法評估';
   const color=best?GRADE_COLOR[best.night.grade_code]:'#9ca3af';
-  return `<div class="hero"><div class="k">今晚銀河結論（固定公式）</div><div class="v" style="color:${color}">${v}</div></div>`;
+  return `<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}銀河結論</div><div class="v" style="color:${color}">${v}</div><div class="why">${why}</div></div>`;
 }
 
 function spotCard(s){
