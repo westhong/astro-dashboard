@@ -31,6 +31,9 @@ HERE = Path(__file__).resolve().parent
 TZ = "America/Edmonton"
 LOCAL = ZoneInfo(TZ)
 HORIZON_OFFSET_KM = 100.0
+# ECMWF 模型名：必須用 ecmwf_ifs025。舊名 ecmwf_ifs04 已廢棄——API 唔報錯，
+# 靜靜雞全部回 null（2026-08-05 實測，連蘇黎世都係），禁用。
+ECMWF_MODEL = "ecmwf_ifs025"
 
 
 def _mean(values: list[float]) -> float:
@@ -47,6 +50,19 @@ def _wind_score(kmh: float) -> int:
     if kmh <= 20:
         return 32
     return 10
+
+
+def _wind_tier(kmh: float) -> int:
+    """評分級別（6/10/15/20 km/h 邊界）——兩模型落入不同級別即視為分歧。"""
+    if kmh <= 6:
+        return 0
+    if kmh <= 10:
+        return 1
+    if kmh <= 15:
+        return 2
+    if kmh <= 20:
+        return 3
+    return 4
 
 
 def _smoke_score(pm: float | None) -> int:
@@ -126,6 +142,36 @@ def _shift(time_text: str, minutes: int) -> str:
     return anchor.strftime("%H:%M")
 
 
+def _wind_curve(
+    hourly: dict[str, list[Any]],
+    ecm_wind_by_time: dict[str, float | None] | None,
+    centre: str,
+) -> list[dict[str, Any]]:
+    """逐小時雙模型風速：直射光前 1 小時 → 後 2.5 小時（日落後風勢崩塌係決策關鍵）。"""
+    target = datetime.fromisoformat(centre)
+    out: list[dict[str, Any]] = []
+    for i, raw in enumerate(hourly["time"]):
+        minutes = (datetime.fromisoformat(raw) - target).total_seconds() / 60
+        if -60 <= minutes <= 150:
+            best = hourly["wind_speed_10m"][i]
+            ecm = ecm_wind_by_time.get(raw) if ecm_wind_by_time else None
+            out.append({
+                "t": raw[11:16],
+                "best": (round(float(best), 1) if best is not None else None),
+                "ecmwf": (round(float(ecm), 1) if ecm is not None else None),
+            })
+    return out
+
+
+def _calm_from(curve: list[dict[str, Any]], key: str) -> str | None:
+    """曲線內首次 ≤6 km/h（鏡面門檻）嘅時間；未達 → None。"""
+    for entry in curve:
+        v = entry.get(key)
+        if v is not None and v <= 6:
+            return entry["t"]
+    return None
+
+
 def _condition(
     event: str,
     centre: str,
@@ -133,6 +179,7 @@ def _condition(
     aq_hourly: dict[str, list[Any]] | None,
     horizon_hourly: dict[str, list[Any]] | None,
     horizon_azimuth: float | None,
+    ecmwf_hourly: dict[str, list[Any]] | None = None,
 ) -> dict[str, Any]:
     ids = _event_window(hourly, centre)
     avg = lambda key: _mean([float(hourly[key][i] or 0) for i in ids])
@@ -165,7 +212,39 @@ def _condition(
         cloud = max(0, cloud - 25)
     if gap is not None:
         cloud = round(cloud * gap / 100)
-    reflection = _wind_score(wind)
+
+    # ECMWF 雙模型風速對比（R1–R5）：評分取兩模型較差者（保守），
+    # 落入不同評分級別即標記分歧；ECMWF 缺失 → 退回單模型並明確標示。
+    ecm_wind_by_time: dict[str, float | None] | None = None
+    ecm_gust_by_time: dict[str, float | None] | None = None
+    if ecmwf_hourly and ecmwf_hourly.get("time"):
+        ecm_wind_by_time = {t: v for t, v in zip(ecmwf_hourly["time"], ecmwf_hourly.get("wind_speed_10m") or [])}
+        ecm_gust_by_time = {t: v for t, v in zip(ecmwf_hourly["time"], ecmwf_hourly.get("wind_gusts_10m") or [])}
+    ecm_vals = [float(ecm_wind_by_time[hourly["time"][i]]) for i in ids
+                if ecm_wind_by_time and ecm_wind_by_time.get(hourly["time"][i]) is not None]
+    ecm_wind = _mean(ecm_vals) if ecm_vals else None
+    ecm_gust_vals = [float(ecm_gust_by_time[hourly["time"][i]]) for i in ids
+                     if ecm_gust_by_time and ecm_gust_by_time.get(hourly["time"][i]) is not None]
+    ecm_gust = max(ecm_gust_vals) if ecm_gust_vals else None
+    curve = _wind_curve(hourly, ecm_wind_by_time, centre)
+    ecmwf_missing = ecm_wind is None
+    divergent = (not ecmwf_missing) and _wind_tier(wind) != _wind_tier(ecm_wind)
+    scoring_wind = wind if ecmwf_missing else max(wind, ecm_wind)
+    reflection = _wind_score(scoring_wind)
+    wind_detail = {
+        "ecmwf_missing": ecmwf_missing,
+        "best_mean": round(wind, 1),
+        "best_gust": round(gust),
+        "ecmwf_mean": (round(ecm_wind, 1) if ecm_wind is not None else None),
+        "ecmwf_gust": (round(ecm_gust) if ecm_gust is not None else None),
+        "range": ([round(min(wind, ecm_wind), 1), round(max(wind, ecm_wind), 1)] if not ecmwf_missing else None),
+        "gust_range": ([round(min(gust, ecm_gust)), round(max(gust, ecm_gust))] if (not ecmwf_missing and ecm_gust is not None) else None),
+        "divergent": divergent,
+        "scoring": "conservative",
+        "calm_best": _calm_from(curve, "best"),
+        "calm_ecmwf": (None if ecmwf_missing else _calm_from(curve, "ecmwf")),
+        "curve": curve,
+    }
 
     notes: list[str] = []
     if high < 5 and middle < 5:
@@ -186,8 +265,12 @@ def _condition(
         notes.append("煙塵偏高，霞光色彩可能明顯受抑制")
     if precip >= 30:
         notes.append("降水機率偏高，先以安全與能見度為優先")
-    if wind > 10:
+    if scoring_wind > 10:
         notes.append("風速偏高，倒影成功率下降")
+    if ecmwf_missing:
+        notes.append("ECMWF 風速資料暫缺，風分只按預設模型計算")
+    elif divergent:
+        notes.append(f"兩模型風速預報分歧（預設 {round(wind)} vs ECMWF {round(ecm_wind)} km/h），風分採較保守值")
     return {
         "event": event,
         "centre_time": centre[11:16],
@@ -204,6 +287,7 @@ def _condition(
             "horizon_azimuth_deg": (round(horizon_azimuth, 1) if horizon_azimuth is not None else None),
         },
         "notes": notes,
+        "wind_detail": wind_detail,
         "window_hours": [hourly["time"][i][11:16] for i in ids],
     }
 
@@ -276,6 +360,36 @@ def _fetch_air_quality(coords: list[tuple[float, float]]) -> list[dict[str, Any]
         return None
 
 
+def _fetch_ecmwf(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | None:
+    """ECMWF IFS 風速（ecmwf_ifs025），沿用逗號分隔座標批次 pattern（每次 build 只多 1 個 call）。
+
+    誠實失敗：任何一點風速全 null（例如誤用已廢棄嘅 ecmwf_ifs04）或整批失敗 → None，
+    由呼叫方標示「ECMWF 資料暫缺」，絕不以 best_match 數字冒充。
+    """
+    params = {
+        "latitude": ",".join(str(c[0]) for c in coords),
+        "longitude": ",".join(str(c[1]) for c in coords),
+        "timezone": TZ,
+        "forecast_days": 4,  # 覆蓋 report-2 日落後 +2.5h 曲線
+        "hourly": "wind_speed_10m,wind_gusts_10m",
+        "models": ECMWF_MODEL,
+    }
+    url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
+    try:
+        with urlopen(url, timeout=30) as response:
+            raw = json.load(response)
+        forecasts = raw if isinstance(raw, list) else [raw]
+    except Exception:
+        return None
+    if len(forecasts) != len(coords):
+        return None
+    for fc in forecasts:
+        winds = (fc.get("hourly") or {}).get("wind_speed_10m") or []
+        if not any(v is not None for v in winds):
+            return None
+    return forecasts
+
+
 def build_daylight(date_str: str) -> dict[str, Any]:
     data = json.loads((HERE / "spots.json").read_text(encoding="utf-8"))
     points = [p for p in data["points"] if p.get("daylight_events")]
@@ -328,6 +442,11 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     if aq_list and len(aq_list) == len(points):
         aq_by_point = {i: aq for i, aq in enumerate(aq_list)}
 
+    ecmwf_list = _fetch_ecmwf(coords)
+    ecmwf_by_point: dict[int, dict[str, Any]] = {}
+    if ecmwf_list and len(ecmwf_list) == len(points):
+        ecmwf_by_point = {i: fc for i, fc in enumerate(ecmwf_list)}
+
     result = []
     for idx, (point, fc) in enumerate(zip(points, forecasts)):
         try:
@@ -350,7 +469,8 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                     except Exception:
                         horizon_az = None
                 aq_hourly = aq_by_point.get(idx, {}).get("hourly")
-                condition = _condition(event, centre, fc["hourly"], aq_hourly, horizon_hourly, horizon_az)
+                ecmwf_hourly = ecmwf_by_point.get(idx, {}).get("hourly")
+                condition = _condition(event, centre, fc["hourly"], aq_hourly, horizon_hourly, horizon_az, ecmwf_hourly)
                 condition["light"] = light
                 condition["score"] = round(
                     condition["components"]["cloud"] * 0.50
@@ -368,8 +488,8 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     return {
         "date": date_str,
         "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"),
-        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影）",
+        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
         "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
         "points": result,
-        "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",
+        "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",
     }
