@@ -458,6 +458,13 @@ function gcRow(loc){
   return `<div class="brow"><span class="ico">🌌</span><span class="txt">${main}</span></div>`;
 }
 
+function seasonRow(loc){
+  const sa=loc.season_angle;
+  if(!sa) return '';
+  const verdict=sa.score>=10?'山-銀河對齊':sa.score>=6?'關聯良好':sa.score>=3?'關聯轉弱':'季節已過';
+  return `<div class="brow"><span class="ico">🧭</span><span class="txt">季節角度 <b>${sa.score}/10</b> · 構圖軸 ${sa.composition_az}° vs 銀心最近 ${sa.min_separation_deg}°（@ ${sa.best_time}）<span class="dim"> · ${verdict}</span></span></div>`;
+}
+
 function gearWarn(loc){
   const warns=(loc.gear_advice||[]).filter(g=>/[🔴🟡❄️🔋]/u.test(g));
   if(!warns.length) return '';
@@ -496,7 +503,7 @@ function cardHTML(loc, isBest){
     ${flags?`<div class="flags">${flags}</div>`:''}
     ${loc.night.vetoes.length?'':timelineSVG(loc)}
     <div class="mini3">${cloudMini(loc)}${moonMini(loc)}${smokeMini(loc)}</div>
-    <div class="bonus">${windRow(loc)}${gcRow(loc)}</div>
+    <div class="bonus">${windRow(loc)}${gcRow(loc)}${seasonRow(loc)}</div>
     ${gearWarn(loc)}
     <button class="expand-btn" onclick="toggle('${loc.location_id}')">${open?'▲ 收起':'▼ 逐小時 · 器材 · 詳情'}</button>
     <div class="detail ${open?'open':''}">
