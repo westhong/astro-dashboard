@@ -15,12 +15,41 @@ from __future__ import annotations
 
 import json
 import math
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from zoneinfo import ZoneInfo
+
+# ---------- Open-Meteo 結果快取（v2.24.0：quota 保護，同 night_report.py 共用目錄） ----------
+# 同一 URL 55 分鐘內重用。一個 build 內 5 個 daylight offsets 嘅主 fetch／AQ／ECMWF／GFS
+# URL 完全相同 → 第一個 offset fetch 完，其餘 4 個全部命中 cache。
+import hashlib
+
+OM_CACHE_DIR = Path.home() / ".cache" / "astro-openmeteo"
+OM_CACHE_TTL = 55 * 60  # 秒
+
+
+def _cached_urlopen_json(url: str) -> Any:
+    """urlopen+JSON parse，附 55 分鐘磁碟 cache。錯誤/429 唔入 cache。"""
+    key = hashlib.sha256(url.encode()).hexdigest()[:20]
+    today = datetime.now(LOCAL).date().isoformat()
+    p = OM_CACHE_DIR / f"{today}-{key}.json"
+    try:
+        if p.exists() and time.time() - p.stat().st_mtime < OM_CACHE_TTL:
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    with urlopen(url, timeout=30) as response:
+        data = json.load(response)
+    try:
+        OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(data), encoding="utf-8")
+    except Exception:
+        pass
+    return data
 
 try:  # Package import for FastAPI; script import for build_report.py.
     from .terrain_light import DirectLightCalculator
@@ -399,14 +428,13 @@ def _fetch(coords: list[tuple[float, float]], hourly: str, daily: str | None = N
         "latitude": ",".join(str(c[0]) for c in coords),
         "longitude": ",".join(str(c[1]) for c in coords),
         "timezone": TZ,
-        "forecast_days": 7,
+        "forecast_days": 5,  # v2.24.0：7→5（系統最遠睇 5 日）
         "hourly": hourly,
     }
     if daily:
         params["daily"] = daily
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
-    with urlopen(url, timeout=30) as response:
-        raw = json.load(response)
+    raw = _cached_urlopen_json(url)
     return raw if isinstance(raw, list) else [raw]
 
 
@@ -415,13 +443,12 @@ def _fetch_air_quality(coords: list[tuple[float, float]]) -> list[dict[str, Any]
         "latitude": ",".join(str(c[0]) for c in coords),
         "longitude": ",".join(str(c[1]) for c in coords),
         "timezone": TZ,
-        "forecast_days": 7,
+        "forecast_days": 5,
         "hourly": "pm2_5,us_aqi",
     }
     url = "https://air-quality-api.open-meteo.com/v1/air-quality?" + urlencode(params)
     try:
-        with urlopen(url, timeout=30) as response:
-            raw = json.load(response)
+        raw = _cached_urlopen_json(url)
         return raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -437,14 +464,13 @@ def _fetch_ecmwf(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | No
         "latitude": ",".join(str(c[0]) for c in coords),
         "longitude": ",".join(str(c[1]) for c in coords),
         "timezone": TZ,
-        "forecast_days": 4,  # 覆蓋 report-2 日落後 +2.5h 曲線
+        "forecast_days": 5,  # v2.24.0：4→5，配合 R7 五日展望同 cache 統一
         "hourly": "wind_speed_10m,wind_gusts_10m,cloud_cover",
         "models": ECMWF_MODEL,
     }
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
     try:
-        with urlopen(url, timeout=30) as response:
-            raw = json.load(response)
+        raw = _cached_urlopen_json(url)
         forecasts = raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -469,8 +495,7 @@ def _fetch_model(coords: list[tuple[float, float]], model: str, hourly: str) -> 
     }
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
     try:
-        with urlopen(url, timeout=30) as response:
-            raw = json.load(response)
+        raw = _cached_urlopen_json(url)
         forecasts = raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -527,7 +552,11 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                 _alt, az = calculator._sun(point["lat"], point["lon"], 0.0, when)
             except Exception:
                 continue
-            offset = _offset_point(point["lat"], point["lon"], az)
+            # v2.24.0：方位 round 到最近 5°——同一點 5 日內日出/日落方位漂移 <2°，
+            # round 後 5 個 offset 嘅 horizon fetch URL 完全一致，配合 cache 只抓一次。
+            # 100km 外 5° 偏差 ≈ 4.4km，遠細於預報網格解析度（GEM 10km／ECMWF 25km），唔影響判讀。
+            az_rounded = round(az / 5.0) * 5.0
+            offset = _offset_point(point["lat"], point["lon"], az_rounded)
             horizon_points[(idx, event)] = offset
             if offset not in unique_offsets:
                 unique_offsets.append(offset)

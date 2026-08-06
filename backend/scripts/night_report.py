@@ -20,11 +20,13 @@ night_report.py — 落磯山六機位銀河拍攝條件報告
 """
 import argparse
 import datetime as dt
+import hashlib
 import json
 import math
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 
 import requests
@@ -145,9 +147,45 @@ def grade_of(score):
     return "STAY_HOME", "留喺屋企"
 
 
+# ---------- Open-Meteo 結果快取（v2.24.0：quota 保護） ----------
+# 同一 URL 55 分鐘內重用結果。cron 每 30 分鐘一輪 → 每兩輪先真 fetch 一次，
+# 上游 call 量減 ~50 倍。key 埋當日日期：午夜後自動冷啟動（forecast 嘅「今日」向前移）。
+# 錯誤/429 永遠唔入 cache；cache 讀寫失敗靜默略過，唔影響正常 fetch。
+
+OM_CACHE_DIR = Path.home() / ".cache" / "astro-openmeteo"
+OM_CACHE_TTL = 55 * 60  # 秒
+
+
+def _om_cache_key(url, params) -> str:
+    raw = url + "?" + urlencode(sorted(params.items())) + "|" + dt.datetime.now(TZ).date().isoformat()
+    return hashlib.sha256(raw.encode()).hexdigest()[:20]
+
+
+def _om_cache_get(url, params):
+    try:
+        p = OM_CACHE_DIR / f"{_om_cache_key(url, params)}.json"
+        if p.exists() and time.time() - p.stat().st_mtime < OM_CACHE_TTL:
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return None
+
+
+def _om_cache_put(url, params, data) -> None:
+    try:
+        OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        (OM_CACHE_DIR / f"{_om_cache_key(url, params)}.json").write_text(
+            json.dumps(data), encoding="utf-8")
+    except Exception:
+        pass
+
+
 # ---------- 數據抓取（429/5xx 自動 retry with backoff） ----------
 
 def _get_with_retry(url, params, attempts=4):
+    cached = _om_cache_get(url, params)
+    if cached is not None:
+        return cached
     delay = 5
     last = None
     for i in range(attempts):
@@ -159,7 +197,9 @@ def _get_with_retry(url, params, attempts=4):
                 delay *= 3
                 continue
             r.raise_for_status()
-            return r.json()
+            data = r.json()
+            _om_cache_put(url, params, data)
+            return data
         except requests.RequestException as e:
             last = e
             if i < attempts - 1:
@@ -179,7 +219,7 @@ def fetch_weather(lat, lon):
         ]),
         "timezone": "America/Edmonton",
         "wind_speed_unit": "kmh",
-        "forecast_days": 16,
+        "forecast_days": 5,  # v2.24.0：16→5。分析窗口只係當晚 18:00→翌日 10:00，5 日已覆蓋晒 3 晚 report；慳返嘅係 Open-Meteo quota（按 fetch 日數計）
     }
     return _get_with_retry(FORECAST_URL, params)
 
