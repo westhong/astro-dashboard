@@ -127,29 +127,33 @@ def main():
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
         print(f"[{date_str}] ok={len(ok)} failed={len(results)-len(ok)} best={payload['best_location_id']} → {out}")
 
-    # R7：五日日間展望（淨日間分數；offset 3–4 屬遠期，前端標低信心）
+    # R7（v2.22.0 改版）：第 4／5 日產生完整淨日間 report（前端加開日間 tab），
+    # 唔再整迷你展望條。遠期標示由前端負責。
+    version = (HERE.parent / "VERSION").read_text().strip()
     for offset in range(3, 5):
         ds = (today + timedelta(days=offset)).isoformat()
+        t0 = time.time()
         try:
-            daylight_full[ds] = build_daylight_report(ds)
+            dl = build_daylight_report(ds)
         except Exception as exc:
-            daylight_full[ds] = {"date": ds, "error": True, "message": f"遠期日間資料失敗：{exc}"}
-
-    week = []
-    for offset in range(5):
-        ds = (today + timedelta(days=offset)).isoformat()
-        dl = daylight_full.get(ds) or {"error": True, "message": "無資料"}
-        entry = {"date": ds, "offset": offset, "far": offset >= 3}
-        if dl.get("error"):
-            entry.update(error=True, message=dl.get("message"))
-        else:
-            entry["events"] = [
-                {"id": p["id"], "event": ev, "score": c.get("score"), "label": c.get("label"),
-                 "confidence": (c.get("confidence") or {}).get("level")}
-                for p in dl.get("points", []) if not p.get("error")
-                for ev, c in (p.get("events") or {}).items() if not c.get("error")
-            ]
-        week.append(entry)
+            dl = {"date": ds, "error": True, "message": f"遠期日間資料失敗：{exc}"}
+        daylight_full[ds] = dl
+        payload = {
+            "version": version,
+            "night_date": ds,
+            "generated_at": dt.datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S %Z"),
+            "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+            "elapsed_seconds": round(time.time() - t0, 1),
+            "locations": [],
+            "best_location_id": None,
+            "failed_count": 0,
+            "spots": build_spots(ds),
+            "daylight": dl,
+            "far": True,
+        }
+        out = DOCS / f"report-{offset}.json"
+        out.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+        print(f"[{ds}] 淨日間遠期 report → {out}")
 
     # R1：日間評分歷史歸檔（repo 外 ~/astro-history/，避免觸發 cron clean-tree gate）+ 回測
     sys.path.insert(0, str(HERE))
@@ -160,13 +164,13 @@ def main():
     except Exception as exc:
         backtest = {"error": True, "message": f"回測計算失敗：{exc}"}
 
-    # 注入 report-0（展望條 + 往績只屬「今日」視角）
+    # 注入 report-0（評分往績只屬「今日」視角）
     r0_path = DOCS / "report-0.json"
     r0 = json.loads(r0_path.read_text(encoding="utf-8"))
-    r0["daylight_week"] = week
+    r0.pop("daylight_week", None)  # v2.22.0 起停用迷你展望條
     r0["backtest"] = backtest
     r0_path.write_text(json.dumps(r0, ensure_ascii=False, indent=2), encoding="utf-8")
-    print("daylight_week + backtest injected into report-0")
+    print("backtest injected into report-0")
 
     # R2：GOES-18 衛星實測雲量修正（需要 xarray/netCDF4/pyproj —— astro venv 冇，
     # 用 PATH 上嘅系統 Python subprocess；任何失敗 report-0 保留原樣，唔阻塞 build）

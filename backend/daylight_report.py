@@ -585,7 +585,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                     + condition["components"]["wind"] * 0.20
                 )
                 condition["label"] = _label(condition["score"])
-                # R3：三模型雲量分歧 → 信心等級
+                # R3：三模型雲量分歧計算保留喺數據層（v2.22.0 起 UI 唔顯示信心標示）
                 gfs_hourly = gfs_by_point.get(idx, {}).get("hourly")
                 model_clouds = {
                     "best_match": _window_avg(fc["hourly"], "cloud_cover", centre),
@@ -599,10 +599,6 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                     "cloud_spread": (round(spread) if spread is not None else None),
                     "models": {k: round(v) for k, v in model_clouds.items() if v is not None},
                 }
-                if spread is None:
-                    condition["notes"].append("多模型雲量資料不足，信心未能評估")
-                elif _confidence_level(spread) == "低":
-                    condition["notes"].append(f"三模型雲量預報分歧大（相差 {round(spread)}%），今日預測信心低")
                 # R4：峰值色彩時段（逐小時雲層結構，hourly 解像度限制屬指示性）
                 condition["peak_window"] = _peak_window(fc["hourly"], light.get("window"))
                 events[event] = condition
@@ -615,7 +611,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     return {
         "date": date_str,
         "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"),
-        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）＋三模型雲量分歧信心（best_match／ECMWF／GFS）",
+        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
         "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
         "points": result,
         "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",
