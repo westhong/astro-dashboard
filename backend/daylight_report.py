@@ -329,18 +329,20 @@ def _light_for_event(calculator: DirectLightCalculator, point: dict[str, Any], d
         return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
     if event == "sunrise":
-        # 錨定幾何日出：朝霞色彩喺日出前 ~45 分鐘開始；山體首束直射光為受光資訊。
+        # v2.23.0：窗口起點 = 幾何日出 −75 分鐘（= West 建議到場時間）。
+        # 山體首束直射光只係受光資訊，永遠唔再參與窗口計算。
         # 終點包首束光後 30 分鐘，但至少到日出後 60 分鐘，上限日出後 150 分鐘
         # （防 Moraine 式「首束光遲 5 個鐘」令窗口失真）。
-        start = geo_min - 45
+        start = geo_min - 75
         end = min(max(light_min + 30, geo_min + 60), geo_min + 150)
         light["window"] = {"start": _mm(start), "end": _mm(end)}
         light["label"] = "首束直射光"
     else:
-        # 錨定幾何日落：火燒雲色彩高峰係幾何日落前後（日落後 0–45 分鐘）。
-        # 起點包山體最後金光前 1 小時，但最遲由日落前 75 分鐘開始；
+        # v2.23.0：窗口起點 = 幾何日落 −75 分鐘（= West 建議到場時間）。
+        # 舊版 min(最後直射光 −60, 幾何 −75) 會俾地形光扯早幾個鐘
+        # （Cascade Ponds 日落窗口 17:40 vs 幾何日落 21:18），West 明令廢除。
         # 終點 = 幾何日落後 45 分鐘（色彩尾段＋藍調開始＋風趨平靜）。
-        start = min(light_min - 60, geo_min - 75)
+        start = geo_min - 75
         end = geo_min + 45
         light["window"] = {"start": _mm(start), "end": _mm(end)}
         light["label"] = "最後直射光"

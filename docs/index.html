@@ -649,7 +649,7 @@ function daylightCard(p,e,isBest){
   return `<div class="card day-card">
     <div class="card-top"><div class="ring">${ringSVG(e.score,color)}<div class="num"><b style="color:${color}">${e.score}</b><span>分</span></div></div>
       <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／煙 · 火燒雲機率</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
-    <div class="day-window"><span>📷 拍攝窗口</span><b>${l.window.start} → ${l.window.end}</b><small>${l.label} ${l.time} · 幾何${eventName} ${l.geometric_time}</small></div>
+    <div class="day-window"><span>📷 建議到場</span><b>${l.window.start}</b><small>幾何${eventName} ${l.geometric_time} · 提前 75 分到場 · 拍攝至 ${l.window.end} · ${l.label} ${l.time}（山體受光參考）</small></div>
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${daySmokeMini(e)}</div>
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
     ${peakTxt}${satTxt}
@@ -668,7 +668,7 @@ function renderDaylight(data){
   // R1：評分往績
   const bt=data.backtest;
   const btLine=bt?`<div class="page-note">📊 評分往績：${bt.message?esc(bt.message):`樣本 ${bt.total_pairs} 宗 · 排除沒戲命中率 ${bt.npv_excluding_no_burn??'—'} · 值得去命中率 ${bt.ppv_worth_going??'—'} · 等級 MAE ${bt.mean_abs_error}`}</div>`:'';
-  root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。拍攝窗口與評分以幾何日出／日落為錨點；地形首束／末束直射光為山體受光資訊。</div></div>
+  root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。建議到場 = 幾何日出／日落前 75 分鐘；評分以幾何事件為錨點；地形首束／末束直射光只係山體受光參考，不影響到場時間。</div></div>
     <div class="page-note">${esc(d.terrain_disclaimer||'')}</div>
     ${farNote}${btLine}
     ${cards.map((x,i)=>daylightCard(x.p,x.e,i===0)).join('') || '<div class="nt" style="padding:20px">此日期沒有對應的拍攝點資料</div>'}`;
