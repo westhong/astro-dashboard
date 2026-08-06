@@ -633,13 +633,18 @@ function daylightCard(p,e,isBest){
   const eventName=e.event==='sunrise'?'日出':'日落';
   const model=l.model?`DEM ${l.model.time} · 太陽 ${l.model.sun_altitude_deg}°／${l.model.sun_azimuth_deg}° · 山脊 ${l.model.terrain_horizon_deg}°`:'';
   const dateText=lastData?.daylight?.date||'日期資料暫缺';
+  const conf=e.confidence||{};
+  const confBadge=conf.level?` <span class="badge" style="color:#9ca3af;border-color:#9ca3af">信心 ${conf.level}</span>`:'';
+  const confTxt=conf.level?`多模型雲量分歧 ${conf.cloud_spread}%（${Object.entries(conf.models||{}).map(([k,v])=>k+' '+v+'%').join(' · ')}）`:'';
+  const peakTxt=e.peak_window?`<div class="brow"><span class="ico">🔥</span><span class="txt">預計最濃 <b>${e.peak_window}</b><span class="dim"> · 逐小時預報推估，僅供參考</span></span></div>`:'';
   return `<div class="card day-card">
     <div class="card-top"><div class="ring">${ringSVG(e.score,color)}<div class="num"><b style="color:${color}">${e.score}</b><span>分</span></div></div>
-      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／煙 · 火燒雲機率</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
+      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／煙 · 火燒雲機率</div></div><span class="badge b-${g}">${esc(e.label)}</span>${confBadge}</div>
     <div class="day-window"><span>📷 拍攝窗口</span><b>${l.window.start} → ${l.window.end}</b><small>${l.label} ${l.time} · 幾何${eventName} ${l.geometric_time}</small></div>
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${daySmokeMini(e)}</div>
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
-    <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%</span></span></div></div>
+    ${peakTxt}
+    <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%${confTxt?' · '+confTxt:''}</span></span></div></div>
     ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}${dayWindDetail(e)}</div>`;
 }
 
@@ -650,8 +655,22 @@ function renderDaylight(data){
   const cards=d.points.filter(p=>p.events && p.events[daylightEvent]).map(p=>({p,e:p.events[daylightEvent]})).sort((a,b)=>(b.e.score||0)-(a.e.score||0));
   const valid=cards.filter(x=>!x.e.error), best=valid[0];
   const dateWord=['今天','明天','後天'][currentOffset]||'當日';
+  // R7：五日展望條（遠期標示）
+  const week=data.daylight_week;
+  const strip=week?`<div style="display:flex;gap:7px;margin:10px 14px 0;overflow-x:auto">`+week.map(w=>{
+    const evs=(w.events||[]).filter(e=>e.event===daylightEvent);
+    const bs=evs.length?Math.max(...evs.map(e=>e.score??0)):null;
+    return `<div style="flex:1;min-width:58px;background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px 4px;text-align:center;${w.far?'opacity:.6':''}">
+      <div style="font-size:.62rem;color:#9ca3af">${w.date.slice(5)}${w.far?'·遠期':''}</div>
+      <div style="font-size:1.05rem;font-weight:700;color:${bs!=null?daylightColor(bs):'#9ca3af'}">${bs!=null?bs:'—'}</div>
+      <div style="font-size:.58rem;color:#9ca3af">${bs!=null?(evs.find(e=>e.score===bs)?.confidence?'信心'+evs.find(e=>e.score===bs).confidence:''):''}</div></div>`;
+  }).join('')+`</div>`:'';
+  // R1：評分往績
+  const bt=data.backtest;
+  const btLine=bt?`<div class="page-note">📊 評分往績：${bt.message?esc(bt.message):`樣本 ${bt.total_pairs} 宗 · 排除沒戲命中率 ${bt.npv_excluding_no_burn??'—'} · 值得去命中率 ${bt.ppv_worth_going??'—'} · 等級 MAE ${bt.mean_abs_error}`}</div>`:'';
   root.innerHTML=`<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}${daylightEvent==='sunrise'?'日出':'日落'}結論</div><div class="v" style="color:${best?daylightColor(best.e.score):'#9ca3af'}">${best?`⭐ ${esc(best.p.name)} — ${best.e.score} 分`:'🙇 暫時無法評估'}</div><div class="why">${esc(d.method)}。拍攝窗口與評分以幾何日出／日落為錨點；地形首束／末束直射光為山體受光資訊。</div></div>
     <div class="page-note">${esc(d.terrain_disclaimer||'')}</div>
+    ${strip}${btLine}
     ${cards.map((x,i)=>daylightCard(x.p,x.e,i===0)).join('') || '<div class="nt" style="padding:20px">此日期沒有對應的拍攝點資料</div>'}`;
 }
 

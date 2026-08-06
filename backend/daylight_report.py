@@ -34,6 +34,19 @@ HORIZON_OFFSET_KM = 100.0
 # ECMWF 模型名：必須用 ecmwf_ifs025。舊名 ecmwf_ifs04 已廢棄——API 唔報錯，
 # 靜靜雞全部回 null（2026-08-05 實測，連蘇黎世都係），禁用。
 ECMWF_MODEL = "ecmwf_ifs025"
+GFS_MODEL = "gfs_seamless"
+
+
+def _confidence_level(spread: float | None) -> str | None:
+    """三模型雲量分歧度 → 信心等級（對照 fc.nekolens.tw 嘅 ECMWF/GFS/ICON 思路）。
+    spread = 各模型事件窗口平均總雲量嘅 max-min（百分點）。"""
+    if spread is None:
+        return None
+    if spread <= 20:
+        return "高"
+    if spread <= 40:
+        return "中"
+    return "低"
 
 
 def _mean(values: list[float]) -> float:
@@ -345,6 +358,40 @@ def _label(score: int) -> str:
     return "不建議專程前往"
 
 
+def _peak_window(hourly: dict[str, list[Any]], window: dict[str, str] | None) -> str | None:
+    """R4：拍攝窗口內雲層結構最佳嘅連續時段（「最濃 HH:MM–HH:MM」）。
+    逐小時預報解像度所限，只屬指示性；以最佳小時為中心向兩邊延伸（分數跌 ≤15 內）。"""
+    if not window or not hourly.get("time"):
+        return None
+
+    def _mm(s: str) -> int:
+        return int(s[:2]) * 60 + int(s[3:])
+
+    lo, hi = _mm(window["start"]), _mm(window["end"])
+    scored: list[tuple[int, float]] = []
+    for i, raw in enumerate(hourly["time"]):
+        h = _mm(raw[11:16])
+        if lo <= h <= hi:
+            high = float(hourly["cloud_cover_high"][i] or 0)
+            mid = float(hourly["cloud_cover_mid"][i] or 0)
+            low = float(hourly["cloud_cover_low"][i] or 0)
+            s = _canvas_score(high) * 0.50 + _canvas_score(mid) * 0.25 + max(0, 100 - low) * 0.25
+            scored.append((h, s))
+    if not scored:
+        return None
+    best_idx = max(range(len(scored)), key=lambda k: scored[k][1])
+    best_s = scored[best_idx][1]
+    a = b = best_idx
+    while a > 0 and scored[a - 1][1] >= best_s - 15:
+        a -= 1
+    while b < len(scored) - 1 and scored[b + 1][1] >= best_s - 15:
+        b += 1
+    start = scored[a][0]
+    end = scored[b][0] + 60  # hourly slot：最後一小時覆蓋到佢嘅結尾
+    fmt = lambda m: f"{(m // 60) % 24:02d}:{m % 60:02d}"
+    return f"{fmt(start)}–{fmt(end)}"
+
+
 def _fetch(coords: list[tuple[float, float]], hourly: str, daily: str | None = None) -> list[dict[str, Any]]:
     params: dict[str, Any] = {
         "latitude": ",".join(str(c[0]) for c in coords),
@@ -389,7 +436,7 @@ def _fetch_ecmwf(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | No
         "longitude": ",".join(str(c[1]) for c in coords),
         "timezone": TZ,
         "forecast_days": 4,  # 覆蓋 report-2 日落後 +2.5h 曲線
-        "hourly": "wind_speed_10m,wind_gusts_10m",
+        "hourly": "wind_speed_10m,wind_gusts_10m,cloud_cover",
         "models": ECMWF_MODEL,
     }
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
@@ -408,6 +455,42 @@ def _fetch_ecmwf(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | No
     return forecasts
 
 
+def _fetch_model(coords: list[tuple[float, float]], model: str, hourly: str) -> list[dict[str, Any]] | None:
+    """指定單模型批次查詢（plain key）。任何一點全 null 或整批失敗 → None（誠實缺失）。"""
+    params = {
+        "latitude": ",".join(str(c[0]) for c in coords),
+        "longitude": ",".join(str(c[1]) for c in coords),
+        "timezone": TZ,
+        "forecast_days": 5,  # 覆蓋 R7 五日展望
+        "hourly": hourly,
+        "models": model,
+    }
+    url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
+    try:
+        with urlopen(url, timeout=30) as response:
+            raw = json.load(response)
+        forecasts = raw if isinstance(raw, list) else [raw]
+    except Exception:
+        return None
+    if len(forecasts) != len(coords):
+        return None
+    key = hourly.split(",")[0]
+    for fc in forecasts:
+        vals = (fc.get("hourly") or {}).get(key) or []
+        if not any(v is not None for v in vals):
+            return None
+    return forecasts
+
+
+def _window_avg(hourly: dict[str, list[Any]] | None, key: str, centre: str) -> float | None:
+    """事件窗口（±65min）內某 hourly 欄位平均；缺資料 → None。"""
+    if not hourly or not hourly.get("time") or hourly.get(key) is None:
+        return None
+    ids = _event_window(hourly, centre)
+    vals = [hourly[key][i] for i in ids if i < len(hourly[key]) and hourly[key][i] is not None]
+    return _mean([float(v) for v in vals]) if vals else None
+
+
 def build_daylight(date_str: str) -> dict[str, Any]:
     data = json.loads((HERE / "spots.json").read_text(encoding="utf-8"))
     points = [p for p in data["points"] if p.get("daylight_events")]
@@ -417,7 +500,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     try:
         forecasts = _fetch(
             coords,
-            "cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability,visibility,wind_speed_10m,wind_gusts_10m",
+            "cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability,visibility,wind_speed_10m,wind_gusts_10m",
             "sunrise,sunset",
         )
     except Exception as exc:
@@ -465,6 +548,12 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     if ecmwf_list and len(ecmwf_list) == len(points):
         ecmwf_by_point = {i: fc for i, fc in enumerate(ecmwf_list)}
 
+    # R3：GFS 第三模型（信心分歧度用；失敗 → 信心標示資料不足，唔阻塞評分）
+    gfs_list = _fetch_model(coords, GFS_MODEL, "cloud_cover")
+    gfs_by_point: dict[int, dict[str, Any]] = {}
+    if gfs_list and len(gfs_list) == len(points):
+        gfs_by_point = {i: fc for i, fc in enumerate(gfs_list)}
+
     result = []
     for idx, (point, fc) in enumerate(zip(points, forecasts)):
         try:
@@ -496,6 +585,26 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                     + condition["components"]["wind"] * 0.20
                 )
                 condition["label"] = _label(condition["score"])
+                # R3：三模型雲量分歧 → 信心等級
+                gfs_hourly = gfs_by_point.get(idx, {}).get("hourly")
+                model_clouds = {
+                    "best_match": _window_avg(fc["hourly"], "cloud_cover", centre),
+                    "ecmwf": _window_avg(ecmwf_hourly, "cloud_cover", centre),
+                    "gfs": _window_avg(gfs_hourly, "cloud_cover", centre),
+                }
+                cloud_vals = [v for v in model_clouds.values() if v is not None]
+                spread = (max(cloud_vals) - min(cloud_vals)) if len(cloud_vals) >= 2 else None
+                condition["confidence"] = {
+                    "level": _confidence_level(spread),
+                    "cloud_spread": (round(spread) if spread is not None else None),
+                    "models": {k: round(v) for k, v in model_clouds.items() if v is not None},
+                }
+                if spread is None:
+                    condition["notes"].append("多模型雲量資料不足，信心未能評估")
+                elif _confidence_level(spread) == "低":
+                    condition["notes"].append(f"三模型雲量預報分歧大（相差 {round(spread)}%），今日預測信心低")
+                # R4：峰值色彩時段（逐小時雲層結構，hourly 解像度限制屬指示性）
+                condition["peak_window"] = _peak_window(fc["hourly"], light.get("window"))
                 events[event] = condition
             result.append({
                 "id": point["id"], "name": point["name"], "lat": point["lat"], "lon": point["lon"],
@@ -506,7 +615,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     return {
         "date": date_str,
         "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"),
-        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
+        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）＋三模型雲量分歧信心（best_match／ECMWF／GFS）",
         "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
         "points": result,
         "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",

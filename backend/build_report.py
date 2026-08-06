@@ -90,6 +90,7 @@ def main():
     locs = json.loads((HERE / "references" / "locations.json").read_text())
     today = dt.datetime.now(TZ).date()
     DOCS.mkdir(exist_ok=True)
+    daylight_full: dict[str, dict] = {}
 
     for offset in range(3):
         date_str = (today + timedelta(days=offset)).isoformat()
@@ -109,6 +110,7 @@ def main():
             best = max(scored, key=lambda r: r["night"]["score"])
         spots = build_spots(date_str)
         daylight = build_daylight_report(date_str)
+        daylight_full[date_str] = daylight
         payload = {
             "version": (HERE.parent / "VERSION").read_text().strip(),
             "night_date": date_str,
@@ -124,6 +126,47 @@ def main():
         out = DOCS / f"report-{offset}.json"
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
         print(f"[{date_str}] ok={len(ok)} failed={len(results)-len(ok)} best={payload['best_location_id']} → {out}")
+
+    # R7：五日日間展望（淨日間分數；offset 3–4 屬遠期，前端標低信心）
+    for offset in range(3, 5):
+        ds = (today + timedelta(days=offset)).isoformat()
+        try:
+            daylight_full[ds] = build_daylight_report(ds)
+        except Exception as exc:
+            daylight_full[ds] = {"date": ds, "error": True, "message": f"遠期日間資料失敗：{exc}"}
+
+    week = []
+    for offset in range(5):
+        ds = (today + timedelta(days=offset)).isoformat()
+        dl = daylight_full.get(ds) or {"error": True, "message": "無資料"}
+        entry = {"date": ds, "offset": offset, "far": offset >= 3}
+        if dl.get("error"):
+            entry.update(error=True, message=dl.get("message"))
+        else:
+            entry["events"] = [
+                {"id": p["id"], "event": ev, "score": c.get("score"), "label": c.get("label"),
+                 "confidence": (c.get("confidence") or {}).get("level")}
+                for p in dl.get("points", []) if not p.get("error")
+                for ev, c in (p.get("events") or {}).items() if not c.get("error")
+            ]
+        week.append(entry)
+
+    # R1：日間評分歷史歸檔（repo 外 ~/astro-history/，避免觸發 cron clean-tree gate）+ 回測
+    sys.path.insert(0, str(HERE))
+    try:
+        from backtest import archive_scores, run_backtest
+        archive_scores(daylight_full)
+        backtest = run_backtest()
+    except Exception as exc:
+        backtest = {"error": True, "message": f"回測計算失敗：{exc}"}
+
+    # 注入 report-0（展望條 + 往績只屬「今日」視角）
+    r0_path = DOCS / "report-0.json"
+    r0 = json.loads(r0_path.read_text(encoding="utf-8"))
+    r0["daylight_week"] = week
+    r0["backtest"] = backtest
+    r0_path.write_text(json.dumps(r0, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("daylight_week + backtest injected into report-0")
 
     # 同步最新 frontend 去 docs/（index.html + manifest + icons）
     import shutil
