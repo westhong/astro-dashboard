@@ -168,6 +168,20 @@ def main():
     r0_path.write_text(json.dumps(r0, ensure_ascii=False, indent=2), encoding="utf-8")
     print("daylight_week + backtest injected into report-0")
 
+    # R2：GOES-18 衛星實測雲量修正（需要 xarray/netCDF4/pyproj —— astro venv 冇，
+    # 用 PATH 上嘅系統 Python subprocess；任何失敗 report-0 保留原樣，唔阻塞 build）
+    import shutil
+    goes_py = (shutil.which("python") or shutil.which("python3")
+               or r"C:\Users\West\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe")
+    try:
+        r = subprocess.run(
+            [goes_py, str(HERE / "goes_correction.py")],
+            capture_output=True, text=True, timeout=420, stdin=subprocess.DEVNULL,
+        )
+        print("[goes]", (r.stdout or "").strip()[:300], (r.stderr or "").strip()[:200])
+    except Exception as exc:
+        print(f"[goes] 修正失敗（report 保留原樣）：{exc}")
+
     # 同步最新 frontend 去 docs/（index.html + manifest + icons）
     import shutil
     (DOCS / "index.html").write_text(STATIC.read_text())

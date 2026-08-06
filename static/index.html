@@ -637,13 +637,15 @@ function daylightCard(p,e,isBest){
   const confBadge=conf.level?` <span class="badge" style="color:#9ca3af;border-color:#9ca3af">信心 ${conf.level}</span>`:'';
   const confTxt=conf.level?`多模型雲量分歧 ${conf.cloud_spread}%（${Object.entries(conf.models||{}).map(([k,v])=>k+' '+v+'%').join(' · ')}）`:'';
   const peakTxt=e.peak_window?`<div class="brow"><span class="ico">🔥</span><span class="txt">預計最濃 <b>${e.peak_window}</b><span class="dim"> · 逐小時預報推估，僅供參考</span></span></div>`:'';
+  const sat=e.satellite;
+  const satTxt=sat&&sat.status==='ok'?`<div class="brow"><span class="ico">🛰️</span><span class="txt">衛星實測修正：原始 ${sat.raw_score} → <b>${sat.adjusted_score}</b><span class="dim"> · 觀測雲量 ${sat.observed_sector_cloud_pct}% vs 預報 ${sat.forecast_horizon_block_pct}%（GOES-18 趨勢校正）</span></span></div>`:'';
   return `<div class="card day-card">
     <div class="card-top"><div class="ring">${ringSVG(e.score,color)}<div class="num"><b style="color:${color}">${e.score}</b><span>分</span></div></div>
       <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／煙 · 火燒雲機率</div></div><span class="badge b-${g}">${esc(e.label)}</span>${confBadge}</div>
     <div class="day-window"><span>📷 拍攝窗口</span><b>${l.window.start} → ${l.window.end}</b><small>${l.label} ${l.time} · 幾何${eventName} ${l.geometric_time}</small></div>
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${daySmokeMini(e)}</div>
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
-    ${peakTxt}
+    ${peakTxt}${satTxt}
     <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%${confTxt?' · '+confTxt:''}</span></span></div></div>
     ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}${dayWindDetail(e)}</div>`;
 }
