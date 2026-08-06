@@ -368,6 +368,31 @@ def analyze(loc_id, loc, date_str):
             if gc_best is None or galt > gc_best[1]:
                 gc_best = (t, galt, gaz)
 
+    # --- 季節角度（West 2026-08-05 定）：山-銀河構圖關聯性 ---
+    # 唔係睇銀心有冇露出山脊，係睇方位關聯：銀心方位 vs 機位構圖軸（composition_az）嘅最近角距離
+    # 軌跡用航海暮光（太陽 ≤ -12°）：八月銀心係黃昏尾主體（中天 ~22:40），唔係半夜
+    comp_az = loc.get("composition_az")
+    season_angle = None
+    if comp_az is not None:
+        track = []
+        for t, a in samples:
+            if a <= -12.0:
+                galt, gaz = astro.gc_alt_az(t)
+                if galt > 0:
+                    sep = abs((gaz - comp_az + 180) % 360 - 180)
+                    track.append((t, gaz, galt, sep))
+        if track:
+            b_t, b_az, b_alt, b_sep = min(track, key=lambda x: x[3])
+            s_score = 10 if b_sep <= 10 else 6 if b_sep <= 25 else 3 if b_sep <= 40 else 0
+            season_angle = {
+                "composition_az": comp_az,
+                "anchor": "galactic_center",
+                "min_separation_deg": round(b_sep, 0),
+                "best_time": fmt(b_t),
+                "gc_azimuth_at_best": round(b_az, 0),
+                "score": s_score,
+            }
+
     # --- 逐小時評分（窗口內） ---
     rows = []
     for h in window_hours:
@@ -540,6 +565,7 @@ def analyze(loc_id, loc, date_str):
             "direction": cardinal(gc_best[2]) if gc_best else None,
             "above_10deg_period": [fmt(gc_visible_hours[0]), fmt(gc_visible_hours[-1])] if gc_visible_hours else None,
         },
+        "season_angle": season_angle,
         "weights": {"cloud": 0.45, "moon": 0.25, "smoke": 0.20, "wind_reflection": 0.10},
         "night": {
             "score": round(night_score, 1),
@@ -617,6 +643,9 @@ def render_text(d):
             out.append("  ⚠️ 窗口內銀心仰角 ≤10°，太貼地平線")
     else:
         out.append("【銀心】窗口內喺地平線下 — 目標轉冬季銀河 / Cygnus / 星野")
+    sa = d.get("season_angle")
+    if sa:
+        out.append(f"【季節角度】{sa['score']}/10 — 構圖軸 {sa['composition_az']:.0f}° vs 銀心最近 {sa['min_separation_deg']:.0f}°（@ {sa['best_time']}）")
     out.append("")
     n = d["night"]
     out.append(f"【評級】{n['grade_code']} — {n['grade_zh']}（最佳 3 小時平均 {n['score']:.0f} 分）")
