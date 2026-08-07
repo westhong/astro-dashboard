@@ -147,9 +147,45 @@ def grade_of(score):
     return "STAY_HOME", "留喺屋企"
 
 
-# ---------- 數據抓取（429/5xx 自動 retry with backoff；429 時自動 fallback GFS） ----------
+# ---------- Open-Meteo 結果快取（v2.24.0：quota 保護） ----------
+# 同一 URL 55 分鐘內重用結果。cron 每 30 分鐘一輪 → 每兩輪先真 fetch 一次，
+# 上游 call 量減 ~50 倍。key 埋當日日期：午夜後自動冷啟動（forecast 嘅「今日」向前移）。
+# 錯誤/429 永遠唔入 cache；cache 讀寫失敗靜默略過，唔影響正常 fetch。
+
+OM_CACHE_DIR = Path.home() / ".cache" / "astro-openmeteo"
+OM_CACHE_TTL = 55 * 60  # 秒
+
+
+def _om_cache_key(url, params) -> str:
+    raw = url + "?" + urlencode(sorted(params.items())) + "|" + dt.datetime.now(TZ).date().isoformat()
+    return hashlib.sha256(raw.encode()).hexdigest()[:20]
+
+
+def _om_cache_get(url, params):
+    try:
+        p = OM_CACHE_DIR / f"{_om_cache_key(url, params)}.json"
+        if p.exists() and time.time() - p.stat().st_mtime < OM_CACHE_TTL:
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return None
+
+
+def _om_cache_put(url, params, data) -> None:
+    try:
+        OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        (OM_CACHE_DIR / f"{_om_cache_key(url, params)}.json").write_text(
+            json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
+
+
+# ---------- 數據抓取（429/5xx 自動 retry with backoff；v2.25.0：唔入 cache 嘅失敗 → MET Norway fallback） ----------
 
 def _get_with_retry(url, params, attempts=4):
+    cached = _om_cache_get(url, params)
+    if cached is not None:
+        return cached
     delay = 5
     last = None
     for i in range(attempts):
@@ -161,13 +197,34 @@ def _get_with_retry(url, params, attempts=4):
                 delay *= 3
                 continue
             r.raise_for_status()
-            return r.json()
+            data = r.json()
+            _om_cache_put(url, params, data)
+            return data
         except requests.RequestException as e:
             last = e
             if i < attempts - 1:
                 time.sleep(delay)
                 delay *= 3
     raise last
+
+
+def _met_norway_fetch_one(lat, lon, forecast_days=5):
+    """v2.25.0：Open-Meteo 完全失效時嘅後備數據源（免 key，加拿大區 = ECMWF IFS 9km）。
+
+    import 放喺入面：正常路徑零開銷；backend/scripts 同 skill scripts 兩個
+    擺位都work（搵唔到就將自己嘅 parent / grandparent 加入 sys.path）。
+    """
+    try:
+        from met_norway_fallback import fetch_one
+    except ImportError:
+        import sys as _s
+        _here = Path(__file__).resolve()
+        for _cand in (_here.parent, _here.parent.parent):
+            if (_cand / "met_norway_fallback.py").exists():
+                _s.path.insert(0, str(_cand))
+                break
+        from met_norway_fallback import fetch_one
+    return fetch_one(lat, lon, forecast_days)
 
 
 def fetch_weather(lat, lon):
@@ -183,7 +240,14 @@ def fetch_weather(lat, lon):
         "wind_speed_unit": "kmh",
         "forecast_days": 5,  # v2.24.0：16→5。分析窗口只係當晚 18:00→翌日 10:00，5 日已覆蓋晒 3 晚 report；慳返嘅係 Open-Meteo quota（按 fetch 日數計）
     }
-    return _get_with_retry(FORECAST_URL, params)
+    try:
+        return _get_with_retry(FORECAST_URL, params)
+    except Exception as e:
+        # v2.25.0：Open-Meteo 失效（例如每日 quota 用盡）→ MET Norway 後備。
+        # 缺 gust/visibility/freezing_level/precip_probability → 全部 None，
+        # 下游評分用 wind_speed（有齊），gust 只用於 gear 提示（None-safe）。
+        print(f"[警告] Open-Meteo 失效（{e}）— 轉用 MET Norway 後備數據源", file=sys.stderr)
+        return _met_norway_fetch_one(lat, lon, forecast_days=params["forecast_days"])
 
 
 def fetch_air_quality(lat, lon):
@@ -411,7 +475,7 @@ def analyze(loc_id, loc, date_str):
         dew = hourly["dew_point_2m"][i]
         wind = hourly["wind_speed_10m"][i] or 0
         wind_dir = hourly["wind_direction_10m"][i]
-        gust = hourly["wind_gusts_10m"][i] or 0
+        gust = hourly["wind_gusts_10m"][i]  # v2.25.0：保留 None（MET Norway 後備冇 gust），唔好用 0 冒充
         pm = aqi_val = None
         j = aq_by_time.get(key)
         if j is not None:
@@ -599,7 +663,7 @@ def analyze(loc_id, loc, date_str):
         } for r in rows],
         "gear_advice": gear,
         "sources": {
-            "weather": "Open-Meteo Forecast API（GEM 系 model，lat/lon 精確點）",
+            "weather": ("MET Norway Locationforecast（後備：ECMWF IFS 9km；缺 gust/visibility）" if wx.get("_source") == "met_norway" else "Open-Meteo Forecast API（GEM 系 model，lat/lon 精確點）"),
             "air_quality": ("Open-Meteo Air Quality API（CAMS global ~40km 網格）" if aq else f"失敗：{aq_error}"),
             "astronomy": "skyfield + de421（本地計算）",
         },
@@ -664,8 +728,9 @@ def render_text(d):
     for r in d["hourly"]:
         pm_s = f"{r['pm2_5']:.1f}" if r["pm2_5"] is not None else "—"
         aqi_s = f"{r['us_aqi']:.0f}" if r["us_aqi"] is not None else "—"
+        gust_s = f"{r['gust_kmh']:.0f}" if r["gust_kmh"] is not None else "—"
         out.append(f"{r['time']:<6}{r['cloud_total_pct']:>4.0f}{r['cloud_low_pct']:>4.0f}{r['cloud_mid_pct']:>4.0f}{r['cloud_high_pct']:>4.0f}"
-                   f"{pm_s:>7}{aqi_s:>5}{r['wind_kmh']:>5.0f}{r['gust_kmh']:>5.0f}{r['moon_altitude']:>7.1f}{r['astro_score']:>5.0f}"
+                   f"{pm_s:>7}{aqi_s:>5}{r['wind_kmh']:>5.0f}{gust_s:>5}{r['moon_altitude']:>7.1f}{r['astro_score']:>5.0f}"
                    f"  {r['cloud_label']}/{r['moon_label']}/{r['smoke_label']}/{r['wind_label']}")
     out.append("")
     out.append("【器材保護（全晚至 08:00）】")

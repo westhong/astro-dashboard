@@ -15,12 +15,41 @@ from __future__ import annotations
 
 import json
 import math
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from zoneinfo import ZoneInfo
+
+# ---------- Open-Meteo 結果快取（v2.24.0：quota 保護，同 night_report.py 共用目錄） ----------
+# 同一 URL 55 分鐘內重用。一個 build 內 5 個 daylight offsets 嘅主 fetch／AQ／ECMWF／GFS
+# URL 完全相同 → 第一個 offset fetch 完，其餘 4 個全部命中 cache。
+import hashlib
+
+OM_CACHE_DIR = Path.home() / ".cache" / "astro-openmeteo"
+OM_CACHE_TTL = 55 * 60  # 秒
+
+
+def _cached_urlopen_json(url: str) -> Any:
+    """urlopen+JSON parse，附 55 分鐘磁碟 cache。錯誤/429 唔入 cache。"""
+    key = hashlib.sha256(url.encode()).hexdigest()[:20]
+    today = datetime.now(LOCAL).date().isoformat()
+    p = OM_CACHE_DIR / f"{today}-{key}.json"
+    try:
+        if p.exists() and time.time() - p.stat().st_mtime < OM_CACHE_TTL:
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    with urlopen(url, timeout=30) as response:
+        data = json.load(response)
+    try:
+        OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(data), encoding="utf-8")
+    except Exception:
+        pass
+    return data
 
 try:  # Package import for FastAPI; script import for build_report.py.
     from .terrain_light import DirectLightCalculator
@@ -420,12 +449,12 @@ def _fetch(coords: list[tuple[float, float]], hourly: str, daily: str | None = N
         params["daily"] = daily
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
     try:
-        with urlopen(url, timeout=30) as response:
-            raw = json.load(response)
+        raw = _cached_urlopen_json(url)
         return raw if isinstance(raw, list) else [raw]
     except Exception:
         # v2.25.0：Open-Meteo 失效（例如每日 quota 用盡）→ MET Norway 後備數據源。
         # 免 key、加拿大區行 ECMWF IFS 9km；回傳已轉換做 Open-Meteo 形狀。
+        # fallback 結果唔入 Open-Meteo cache——OM 恢復後下一輪即刻用返真數據。
         from met_norway_fallback import fetch_batch
         return fetch_batch(coords, forecast_days=params["forecast_days"])
 
@@ -440,8 +469,7 @@ def _fetch_air_quality(coords: list[tuple[float, float]]) -> list[dict[str, Any]
     }
     url = "https://air-quality-api.open-meteo.com/v1/air-quality?" + urlencode(params)
     try:
-        with urlopen(url, timeout=30) as response:
-            raw = json.load(response)
+        raw = _cached_urlopen_json(url)
         return raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -463,8 +491,7 @@ def _fetch_ecmwf(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | No
     }
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
     try:
-        with urlopen(url, timeout=30) as response:
-            raw = json.load(response)
+        raw = _cached_urlopen_json(url)
         forecasts = raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -489,8 +516,7 @@ def _fetch_model(coords: list[tuple[float, float]], model: str, hourly: str) -> 
     }
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
     try:
-        with urlopen(url, timeout=30) as response:
-            raw = json.load(response)
+        raw = _cached_urlopen_json(url)
         forecasts = raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -529,6 +555,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
         return {"date": date_str, "error": True, "message": f"日出／日落天氣資料暫時無法取得：{exc}"}
     if len(forecasts) != len(points):
         return {"date": date_str, "error": True, "message": "日出／日落天氣資料數量不完整"}
+    fallback_mode = any(fc.get("_source") == "met_norway" for fc in forecasts)
 
     calculator = DirectLightCalculator()
 
@@ -640,5 +667,5 @@ def build_daylight(date_str: str) -> dict[str, Any]:
         "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
         "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
         "points": result,
-        "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",
+        "sources": ("MET Norway Locationforecast（後備模式：ECMWF IFS 9km；缺陣風／能見度／降水機率）＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM" if fallback_mode else "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"),
     }
