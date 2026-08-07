@@ -15,41 +15,12 @@ from __future__ import annotations
 
 import json
 import math
-import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from zoneinfo import ZoneInfo
-
-# ---------- Open-Meteo 結果快取（v2.24.0：quota 保護，同 night_report.py 共用目錄） ----------
-# 同一 URL 55 分鐘內重用。一個 build 內 5 個 daylight offsets 嘅主 fetch／AQ／ECMWF／GFS
-# URL 完全相同 → 第一個 offset fetch 完，其餘 4 個全部命中 cache。
-import hashlib
-
-OM_CACHE_DIR = Path.home() / ".cache" / "astro-openmeteo"
-OM_CACHE_TTL = 55 * 60  # 秒
-
-
-def _cached_urlopen_json(url: str) -> Any:
-    """urlopen+JSON parse，附 55 分鐘磁碟 cache。錯誤/429 唔入 cache。"""
-    key = hashlib.sha256(url.encode()).hexdigest()[:20]
-    today = datetime.now(LOCAL).date().isoformat()
-    p = OM_CACHE_DIR / f"{today}-{key}.json"
-    try:
-        if p.exists() and time.time() - p.stat().st_mtime < OM_CACHE_TTL:
-            return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        pass
-    with urlopen(url, timeout=30) as response:
-        data = json.load(response)
-    try:
-        OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(data), encoding="utf-8")
-    except Exception:
-        pass
-    return data
 
 try:  # Package import for FastAPI; script import for build_report.py.
     from .terrain_light import DirectLightCalculator
@@ -226,10 +197,22 @@ def _condition(
     ids = _event_window(hourly, centre)
     avg = lambda key: _mean([float(hourly[key][i] or 0) for i in ids])
     high, middle, low = avg("cloud_cover_high"), avg("cloud_cover_mid"), avg("cloud_cover_low")
-    precip = max(float(hourly["precipitation_probability"][i] or 0) for i in ids)
     wind = avg("wind_speed_10m")
-    gust = max(float(hourly["wind_gusts_10m"][i] or 0) for i in ids)
-    visibility = avg("visibility") / 1000
+
+    # v2.25.0：後備數據源（MET Norway）冇 gust／visibility／precip probability。
+    # 全部 None → 欄位 = None（誠實暫缺），唔好用 0 冒充實測。
+    def _max_or_none(key: str) -> float | None:
+        vals = [hourly[key][i] for i in ids if hourly[key][i] is not None]
+        return max(float(v) for v in vals) if vals else None
+
+    def _avg_or_none(key: str) -> float | None:
+        vals = [hourly[key][i] for i in ids if hourly[key][i] is not None]
+        return _mean([float(v) for v in vals]) if vals else None
+
+    precip = _max_or_none("precipitation_probability")
+    gust = _max_or_none("wind_gusts_10m")
+    visibility_raw = _avg_or_none("visibility")
+    visibility = (visibility_raw / 1000) if visibility_raw is not None else None
 
     # 煙塵（CAMS PM2.5／US AQI，同一事件窗口平均）
     pm_avg = aqi_avg = None
@@ -250,7 +233,7 @@ def _condition(
         gap = _gap_score(horizon_low + 0.5 * horizon_mid)
 
     cloud = round(_canvas_score(high) * 0.50 + _canvas_score(middle) * 0.25 + max(0, 100 - low) * 0.25)
-    if precip >= 30:
+    if precip is not None and precip >= 30:
         cloud = max(0, cloud - 25)
     if gap is not None:
         cloud = round(cloud * gap / 100)
@@ -276,11 +259,11 @@ def _condition(
     wind_detail = {
         "ecmwf_missing": ecmwf_missing,
         "best_mean": round(wind, 1),
-        "best_gust": round(gust),
+        "best_gust": (round(gust) if gust is not None else None),
         "ecmwf_mean": (round(ecm_wind, 1) if ecm_wind is not None else None),
         "ecmwf_gust": (round(ecm_gust) if ecm_gust is not None else None),
         "range": ([round(min(wind, ecm_wind), 1), round(max(wind, ecm_wind), 1)] if not ecmwf_missing else None),
-        "gust_range": ([round(min(gust, ecm_gust)), round(max(gust, ecm_gust))] if (not ecmwf_missing and ecm_gust is not None) else None),
+        "gust_range": ([round(min(gust, ecm_gust)), round(max(gust, ecm_gust))] if (not ecmwf_missing and ecm_gust is not None and gust is not None) else None),
         "divergent": divergent,
         "scoring": "conservative",
         "calm_best": _calm_from(curve, "best"),
@@ -305,8 +288,10 @@ def _condition(
         notes.append("煙塵資料暫缺，煙分以不確定值計算")
     elif pm_avg > 35:
         notes.append("煙塵偏高，霞光色彩可能明顯受抑制")
-    if precip >= 30:
+    if precip is not None and precip >= 30:
         notes.append("降水機率偏高，先以安全與能見度為優先")
+    if gust is None:
+        notes.append("陣風資料暫缺（後備數據源），大風日子請自行留意陣風")
     if scoring_wind > 10:
         notes.append("風速偏高，倒影成功率下降")
     if ecmwf_missing:
@@ -319,8 +304,8 @@ def _condition(
         "components": {"cloud": cloud, "wind": round(reflection), "smoke": smoke},
         "weather": {
             "high_cloud_pct": round(high), "mid_cloud_pct": round(middle), "low_cloud_pct": round(low),
-            "precip_probability_pct": round(precip), "wind_kmh": round(wind),
-            "gust_kmh": round(gust), "visibility_km": round(visibility, 1),
+            "precip_probability_pct": (round(precip) if precip is not None else None), "wind_kmh": round(wind),
+            "gust_kmh": (round(gust) if gust is not None else None), "visibility_km": (round(visibility, 1) if visibility is not None else None),
             "pm2_5": (round(pm_avg, 1) if pm_avg is not None else None),
             "us_aqi": (round(aqi_avg, 0) if aqi_avg is not None else None),
             "horizon_low_pct": (round(horizon_low) if horizon_low is not None else None),
@@ -434,8 +419,15 @@ def _fetch(coords: list[tuple[float, float]], hourly: str, daily: str | None = N
     if daily:
         params["daily"] = daily
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
-    raw = _cached_urlopen_json(url)
-    return raw if isinstance(raw, list) else [raw]
+    try:
+        with urlopen(url, timeout=30) as response:
+            raw = json.load(response)
+        return raw if isinstance(raw, list) else [raw]
+    except Exception:
+        # v2.25.0：Open-Meteo 失效（例如每日 quota 用盡）→ MET Norway 後備數據源。
+        # 免 key、加拿大區行 ECMWF IFS 9km；回傳已轉換做 Open-Meteo 形狀。
+        from met_norway_fallback import fetch_batch
+        return fetch_batch(coords, forecast_days=params["forecast_days"])
 
 
 def _fetch_air_quality(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | None:
@@ -448,7 +440,8 @@ def _fetch_air_quality(coords: list[tuple[float, float]]) -> list[dict[str, Any]
     }
     url = "https://air-quality-api.open-meteo.com/v1/air-quality?" + urlencode(params)
     try:
-        raw = _cached_urlopen_json(url)
+        with urlopen(url, timeout=30) as response:
+            raw = json.load(response)
         return raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -470,7 +463,8 @@ def _fetch_ecmwf(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | No
     }
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
     try:
-        raw = _cached_urlopen_json(url)
+        with urlopen(url, timeout=30) as response:
+            raw = json.load(response)
         forecasts = raw if isinstance(raw, list) else [raw]
     except Exception:
         return None
@@ -495,7 +489,8 @@ def _fetch_model(coords: list[tuple[float, float]], model: str, hourly: str) -> 
     }
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
     try:
-        raw = _cached_urlopen_json(url)
+        with urlopen(url, timeout=30) as response:
+            raw = json.load(response)
         forecasts = raw if isinstance(raw, list) else [raw]
     except Exception:
         return None

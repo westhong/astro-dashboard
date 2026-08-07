@@ -147,45 +147,9 @@ def grade_of(score):
     return "STAY_HOME", "留喺屋企"
 
 
-# ---------- Open-Meteo 結果快取（v2.24.0：quota 保護） ----------
-# 同一 URL 55 分鐘內重用結果。cron 每 30 分鐘一輪 → 每兩輪先真 fetch 一次，
-# 上游 call 量減 ~50 倍。key 埋當日日期：午夜後自動冷啟動（forecast 嘅「今日」向前移）。
-# 錯誤/429 永遠唔入 cache；cache 讀寫失敗靜默略過，唔影響正常 fetch。
-
-OM_CACHE_DIR = Path.home() / ".cache" / "astro-openmeteo"
-OM_CACHE_TTL = 55 * 60  # 秒
-
-
-def _om_cache_key(url, params) -> str:
-    raw = url + "?" + urlencode(sorted(params.items())) + "|" + dt.datetime.now(TZ).date().isoformat()
-    return hashlib.sha256(raw.encode()).hexdigest()[:20]
-
-
-def _om_cache_get(url, params):
-    try:
-        p = OM_CACHE_DIR / f"{_om_cache_key(url, params)}.json"
-        if p.exists() and time.time() - p.stat().st_mtime < OM_CACHE_TTL:
-            return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        pass
-    return None
-
-
-def _om_cache_put(url, params, data) -> None:
-    try:
-        OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        (OM_CACHE_DIR / f"{_om_cache_key(url, params)}.json").write_text(
-            json.dumps(data), encoding="utf-8")
-    except Exception:
-        pass
-
-
-# ---------- 數據抓取（429/5xx 自動 retry with backoff） ----------
+# ---------- 數據抓取（429/5xx 自動 retry with backoff；429 時自動 fallback GFS） ----------
 
 def _get_with_retry(url, params, attempts=4):
-    cached = _om_cache_get(url, params)
-    if cached is not None:
-        return cached
     delay = 5
     last = None
     for i in range(attempts):
@@ -197,9 +161,7 @@ def _get_with_retry(url, params, attempts=4):
                 delay *= 3
                 continue
             r.raise_for_status()
-            data = r.json()
-            _om_cache_put(url, params, data)
-            return data
+            return r.json()
         except requests.RequestException as e:
             last = e
             if i < attempts - 1:
