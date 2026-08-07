@@ -454,10 +454,10 @@ function smokeMini(loc){
 
 function windRow(loc){
   const hrs=windowHours(loc); if(!hrs.length) return '';
-  const w=Math.round(avg(hrs,'wind_kmh')), g=Math.round(Math.max(...hrs.map(h=>h.gust_kmh||0)));
+  const w=Math.round(avg(hrs,'wind_kmh')), gs=hrs.map(h=>h.gust_kmh).filter(v=>v!=null), g=gs.length?Math.round(Math.max(...gs)):null;
   const dir=hrs.find(h=>h.wind_dir)?.wind_dir||'';
   const refl = w<=6?'鏡面倒影':w<=10?'接近鏡面':w<=15?'微波':w<=20?'明顯波紋':'倒影無望';
-  return `<div class="brow"><span class="ico">💨</span><span class="txt">${dir}風 ${w} km/h · 陣風 ${g} <span class="dim">· 倒影：${refl}</span></span></div>`;
+  return `<div class="brow"><span class="ico">💨</span><span class="txt">${dir}風 ${w} km/h · 陣風 ${g==null?'—':g} <span class="dim">· 倒影：${refl}</span></span></div>`;
 }
 
 function gcRow(loc){
@@ -618,10 +618,10 @@ function dayWindMini(e){ const w=e.weather,c=e.components,wd=e.wind_detail;
   const descOf=v=>v<=6?'鏡面倒影':v<=10?'接近鏡面':v<=15?'微波':'明顯波紋';
   if(!wd||wd.ecmwf_missing){
     return `<div class="mini"><div class="mt">風 <span class="ml l-${labelOf(c.wind)}">${labelOf(c.wind)}</span></div><div class="graphic" style="font-size:1.45rem">💨</div>
-    <div class="ms">${c.wind}</div><div class="md">平均 ${w.wind_kmh} km/h<br>陣風 ${w.gust_kmh} · ${descOf(w.wind_kmh)}<br><span style="color:#fbbf24">ECMWF 資料暫缺</span></div></div>`;
+    <div class="ms">${c.wind}</div><div class="md">平均 ${w.wind_kmh} km/h<br>陣風 ${w.gust_kmh==null?'—':w.gust_kmh} · ${descOf(w.wind_kmh)}<br><span style="color:#fbbf24">ECMWF 資料暫缺</span></div></div>`;
   }
   const badge=wd.divergent?'<span style="font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(251,191,36,.15);color:#fbbf24">分歧</span>':'<span style="font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(52,211,153,.12);color:#34d399">一致</span>';
-  const gustTxt=wd.gust_range?`${wd.gust_range[0]}–${wd.gust_range[1]}`:`${wd.best_gust}`;
+  const gustTxt=wd.gust_range?`${wd.gust_range[0]}–${wd.gust_range[1]}`:(wd.best_gust==null?'—':`${wd.best_gust}`);
   return `<div class="mini"><div class="mt">風 <span class="ml l-${labelOf(c.wind)}">${labelOf(c.wind)}</span>${badge}</div><div class="graphic" style="font-size:1.45rem">💨</div>
     <div class="ms">${c.wind}</div><div class="md">平均 ${wd.range[0]}–${wd.range[1]} km/h<br>陣風 ${gustTxt} · ${descOf(wd.range[1])}</div></div>`;
 }
@@ -653,7 +653,7 @@ function daylightCard(p,e,isBest){
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${daySmokeMini(e)}</div>
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
     ${peakTxt}${satTxt}
-    <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}<br><span class="dim">能見度 ${e.weather.visibility_km} km · 降水 ${e.weather.precip_probability_pct}%</span></span></div></div>
+    <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}${(e.weather.visibility_km!=null||e.weather.precip_probability_pct!=null)?`<br><span class="dim">${[e.weather.visibility_km!=null?`能見度 ${e.weather.visibility_km} km`:null,e.weather.precip_probability_pct!=null?`降水 ${e.weather.precip_probability_pct}%`:null].filter(Boolean).join(' · ')}</span>`:''}</span></div></div>
     ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}${dayWindDetail(e)}</div>`;
 }
 
