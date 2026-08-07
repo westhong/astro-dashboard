@@ -226,10 +226,22 @@ def _condition(
     ids = _event_window(hourly, centre)
     avg = lambda key: _mean([float(hourly[key][i] or 0) for i in ids])
     high, middle, low = avg("cloud_cover_high"), avg("cloud_cover_mid"), avg("cloud_cover_low")
-    precip = max(float(hourly["precipitation_probability"][i] or 0) for i in ids)
     wind = avg("wind_speed_10m")
-    gust = max(float(hourly["wind_gusts_10m"][i] or 0) for i in ids)
-    visibility = avg("visibility") / 1000
+
+    # v2.25.0：後備數據源（MET Norway）冇 gust／visibility／precip probability。
+    # 全部 None → 欄位 = None（誠實暫缺），唔好用 0 冒充實測。
+    def _max_or_none(key: str) -> float | None:
+        vals = [hourly[key][i] for i in ids if hourly[key][i] is not None]
+        return max(float(v) for v in vals) if vals else None
+
+    def _avg_or_none(key: str) -> float | None:
+        vals = [hourly[key][i] for i in ids if hourly[key][i] is not None]
+        return _mean([float(v) for v in vals]) if vals else None
+
+    precip = _max_or_none("precipitation_probability")
+    gust = _max_or_none("wind_gusts_10m")
+    visibility_raw = _avg_or_none("visibility")
+    visibility = (visibility_raw / 1000) if visibility_raw is not None else None
 
     # 煙塵（CAMS PM2.5／US AQI，同一事件窗口平均）
     pm_avg = aqi_avg = None
@@ -250,7 +262,7 @@ def _condition(
         gap = _gap_score(horizon_low + 0.5 * horizon_mid)
 
     cloud = round(_canvas_score(high) * 0.50 + _canvas_score(middle) * 0.25 + max(0, 100 - low) * 0.25)
-    if precip >= 30:
+    if precip is not None and precip >= 30:
         cloud = max(0, cloud - 25)
     if gap is not None:
         cloud = round(cloud * gap / 100)
@@ -276,11 +288,11 @@ def _condition(
     wind_detail = {
         "ecmwf_missing": ecmwf_missing,
         "best_mean": round(wind, 1),
-        "best_gust": round(gust),
+        "best_gust": (round(gust) if gust is not None else None),
         "ecmwf_mean": (round(ecm_wind, 1) if ecm_wind is not None else None),
         "ecmwf_gust": (round(ecm_gust) if ecm_gust is not None else None),
         "range": ([round(min(wind, ecm_wind), 1), round(max(wind, ecm_wind), 1)] if not ecmwf_missing else None),
-        "gust_range": ([round(min(gust, ecm_gust)), round(max(gust, ecm_gust))] if (not ecmwf_missing and ecm_gust is not None) else None),
+        "gust_range": ([round(min(gust, ecm_gust)), round(max(gust, ecm_gust))] if (not ecmwf_missing and ecm_gust is not None and gust is not None) else None),
         "divergent": divergent,
         "scoring": "conservative",
         "calm_best": _calm_from(curve, "best"),
@@ -305,8 +317,10 @@ def _condition(
         notes.append("煙塵資料暫缺，煙分以不確定值計算")
     elif pm_avg > 35:
         notes.append("煙塵偏高，霞光色彩可能明顯受抑制")
-    if precip >= 30:
+    if precip is not None and precip >= 30:
         notes.append("降水機率偏高，先以安全與能見度為優先")
+    if gust is None:
+        notes.append("陣風資料暫缺（後備數據源），大風日子請自行留意陣風")
     if scoring_wind > 10:
         notes.append("風速偏高，倒影成功率下降")
     if ecmwf_missing:
@@ -319,8 +333,8 @@ def _condition(
         "components": {"cloud": cloud, "wind": round(reflection), "smoke": smoke},
         "weather": {
             "high_cloud_pct": round(high), "mid_cloud_pct": round(middle), "low_cloud_pct": round(low),
-            "precip_probability_pct": round(precip), "wind_kmh": round(wind),
-            "gust_kmh": round(gust), "visibility_km": round(visibility, 1),
+            "precip_probability_pct": (round(precip) if precip is not None else None), "wind_kmh": round(wind),
+            "gust_kmh": (round(gust) if gust is not None else None), "visibility_km": (round(visibility, 1) if visibility is not None else None),
             "pm2_5": (round(pm_avg, 1) if pm_avg is not None else None),
             "us_aqi": (round(aqi_avg, 0) if aqi_avg is not None else None),
             "horizon_low_pct": (round(horizon_low) if horizon_low is not None else None),
@@ -434,8 +448,15 @@ def _fetch(coords: list[tuple[float, float]], hourly: str, daily: str | None = N
     if daily:
         params["daily"] = daily
     url = "https://api.open-meteo.com/v1/forecast?" + urlencode(params)
-    raw = _cached_urlopen_json(url)
-    return raw if isinstance(raw, list) else [raw]
+    try:
+        raw = _cached_urlopen_json(url)
+        return raw if isinstance(raw, list) else [raw]
+    except Exception:
+        # v2.25.0：Open-Meteo 失效（例如每日 quota 用盡）→ MET Norway 後備數據源。
+        # 免 key、加拿大區行 ECMWF IFS 9km；回傳已轉換做 Open-Meteo 形狀。
+        # fallback 結果唔入 Open-Meteo cache——OM 恢復後下一輪即刻用返真數據。
+        from met_norway_fallback import fetch_batch
+        return fetch_batch(coords, forecast_days=params["forecast_days"])
 
 
 def _fetch_air_quality(coords: list[tuple[float, float]]) -> list[dict[str, Any]] | None:
@@ -534,6 +555,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
         return {"date": date_str, "error": True, "message": f"日出／日落天氣資料暫時無法取得：{exc}"}
     if len(forecasts) != len(points):
         return {"date": date_str, "error": True, "message": "日出／日落天氣資料數量不完整"}
+    fallback_mode = any(fc.get("_source") == "met_norway" for fc in forecasts)
 
     calculator = DirectLightCalculator()
 
@@ -645,5 +667,5 @@ def build_daylight(date_str: str) -> dict[str, Any]:
         "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
         "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
         "points": result,
-        "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM",
+        "sources": ("MET Norway Locationforecast（後備模式：ECMWF IFS 9km；缺陣風／能見度／降水機率）＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM" if fallback_mode else "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"),
     }
