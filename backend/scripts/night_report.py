@@ -208,14 +208,11 @@ def _get_with_retry(url, params, attempts=4):
     raise last
 
 
-def _met_norway_fetch_one(lat, lon, forecast_days=5):
-    """v2.25.0：Open-Meteo 完全失效時嘅後備數據源（免 key，加拿大區 = ECMWF IFS 9km）。
-
-    import 放喺入面：正常路徑零開銷；backend/scripts 同 skill scripts 兩個
-    擺位都work（搵唔到就將自己嘅 parent / grandparent 加入 sys.path）。
-    """
+def _met_norway_module():
+    """載入 MET Norway 轉換器；兼容 repo 與 skill 兩個腳本位置。"""
     try:
-        from met_norway_fallback import fetch_one
+        import met_norway_fallback as module
+        return module
     except ImportError:
         import sys as _s
         _here = Path(__file__).resolve()
@@ -223,43 +220,70 @@ def _met_norway_fetch_one(lat, lon, forecast_days=5):
             if (_cand / "met_norway_fallback.py").exists():
                 _s.path.insert(0, str(_cand))
                 break
-        from met_norway_fallback import fetch_one
-    return fetch_one(lat, lon, forecast_days)
+        import met_norway_fallback as module
+        return module
+
+
+def _met_norway_fetch_one(lat, lon, forecast_days=5):
+    """v2.25.0：Open-Meteo 完全失效時嘅後備數據源（免 key，加拿大區 = ECMWF IFS 9km）。
+
+    import 放喺入面：正常路徑零開銷；backend/scripts 同 skill scripts 兩個
+    擺位都work（搵唔到就將自己嘅 parent / grandparent 加入 sys.path）。
+    """
+    return _met_norway_module().fetch_one(lat, lon, forecast_days)
+
+
+def _met_norway_fetch_batch(coords, forecast_days=5):
+    """Open-Meteo 整批失效時逐點抓 MET Norway；只作後備，不寫 OM cache。"""
+    return _met_norway_module().fetch_batch(coords, forecast_days)
+
+
+def _batch_params(coords, hourly):
+    return {
+        "latitude": ",".join(str(lat) for lat, _lon in coords),
+        "longitude": ",".join(str(lon) for _lat, lon in coords),
+        "hourly": hourly,
+        "timezone": "America/Edmonton",
+        "forecast_days": 5,
+    }
+
+
+def fetch_weather_batch(coords):
+    """一次 Open-Meteo request 取得全部機位；增加機位不增加 API request 次數。"""
+    params = _batch_params(coords, ",".join([
+        "temperature_2m", "relative_humidity_2m", "dew_point_2m",
+        "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
+        "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m", "visibility", "freezing_level_height",
+    ]))
+    params["wind_speed_unit"] = "kmh"
+    try:
+        raw = _get_with_retry(FORECAST_URL, params)
+        forecasts = raw if isinstance(raw, list) else [raw]
+        if len(forecasts) != len(coords):
+            raise ValueError(f"天氣批次數量不完整：預期 {len(coords)}，收到 {len(forecasts)}")
+        return forecasts
+    except Exception as e:
+        print(f"[警告] Open-Meteo 批次失效（{e}）— 轉用 MET Norway 後備數據源", file=sys.stderr)
+        return _met_norway_fetch_batch(coords, forecast_days=params["forecast_days"])
+
+
+def fetch_air_quality_batch(coords):
+    """一次 Open-Meteo Air Quality request 取得全部機位。"""
+    params = _batch_params(coords, "pm2_5,us_aqi")
+    params["domains"] = "cams_global"
+    raw = _get_with_retry(AQ_URL, params)
+    forecasts = raw if isinstance(raw, list) else [raw]
+    if len(forecasts) != len(coords):
+        raise ValueError(f"空氣質素批次數量不完整：預期 {len(coords)}，收到 {len(forecasts)}")
+    return forecasts
 
 
 def fetch_weather(lat, lon):
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "hourly": ",".join([
-            "temperature_2m", "relative_humidity_2m", "dew_point_2m",
-            "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
-            "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m", "visibility", "freezing_level_height",
-        ]),
-        "timezone": "America/Edmonton",
-        "wind_speed_unit": "kmh",
-        "forecast_days": 5,  # v2.24.0：16→5。分析窗口只係當晚 18:00→翌日 10:00，5 日已覆蓋晒 3 晚 report；慳返嘅係 Open-Meteo quota（按 fetch 日數計）
-    }
-    try:
-        return _get_with_retry(FORECAST_URL, params)
-    except Exception as e:
-        # v2.25.0：Open-Meteo 失效（例如每日 quota 用盡）→ MET Norway 後備。
-        # 缺 gust/visibility/freezing_level/precip_probability → 全部 None，
-        # 下游評分用 wind_speed（有齊），gust 只用於 gear 提示（None-safe）。
-        print(f"[警告] Open-Meteo 失效（{e}）— 轉用 MET Norway 後備數據源", file=sys.stderr)
-        return _met_norway_fetch_one(lat, lon, forecast_days=params["forecast_days"])
+    return fetch_weather_batch([(lat, lon)])[0]
 
 
 def fetch_air_quality(lat, lon):
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "hourly": "pm2_5,us_aqi",
-        "timezone": "America/Edmonton",
-        "domains": "cams_global",
-        "forecast_days": 5,
-    }
-    return _get_with_retry(AQ_URL, params)
+    return fetch_air_quality_batch([(lat, lon)])[0]
 
 
 # ---------- 天文計算 ----------
@@ -327,19 +351,23 @@ def vertical_mw_note(month):
 
 # ---------- 主分析 ----------
 
-def analyze(loc_id, loc, date_str):
+_NOT_PREFETCHED = object()
+
+
+def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
     night_date = dt.date.fromisoformat(date_str)
     start = dt.datetime.combine(night_date, dt.time(NIGHT_START_HOUR), TZ)
     end = dt.datetime.combine(night_date + dt.timedelta(days=1), dt.time(NIGHT_END_HOUR), TZ)
 
-    wx = fetch_weather(loc["lat"], loc["lon"])
-    aq = None
-    aq_error = None
-    try:
-        aq = fetch_air_quality(loc["lat"], loc["lon"])
-    except Exception as e:
-        aq_error = str(e)
-        print(f"[警告] 空氣質素 API 失敗：{e} — 煙塵以「無資料」處理", file=sys.stderr)
+    if wx is None:
+        wx = fetch_weather(loc["lat"], loc["lon"])
+    if aq is _NOT_PREFETCHED:
+        aq = None
+        try:
+            aq = fetch_air_quality(loc["lat"], loc["lon"])
+        except Exception as e:
+            aq_error = str(e)
+            print(f"[警告] 空氣質素 API 失敗：{e} — 煙塵以「無資料」處理", file=sys.stderr)
 
     hourly = wx["hourly"]
     wx_by_time = {t: i for i, t in enumerate(hourly["time"])}
@@ -752,7 +780,20 @@ def main():
     locs = json.loads(LOCATIONS_FILE.read_text())
 
     if args.location == "all":
-        results = [analyze(lid, loc, date_str) for lid, loc in locs.items()]
+        items = list(locs.items())
+        coords = [(loc["lat"], loc["lon"]) for _lid, loc in items]
+        weather = fetch_weather_batch(coords)
+        aq_error = None
+        try:
+            air_quality = fetch_air_quality_batch(coords)
+        except Exception as e:
+            aq_error = str(e)
+            air_quality = [None] * len(items)
+            print(f"[警告] 空氣質素 API 批次失敗：{e} — 全部機位煙塵以「無資料」處理", file=sys.stderr)
+        results = [
+            analyze(lid, loc, date_str, wx=weather[i], aq=air_quality[i], aq_error=aq_error)
+            for i, (lid, loc) in enumerate(items)
+        ]
     else:
         if args.location not in locs:
             sys.exit(f"未知 location：{args.location}。可用：{', '.join(locs)} 或 all")

@@ -73,11 +73,12 @@ class AiAnalysisMergeTests(unittest.TestCase):
 
 
 class FrontendContractTests(unittest.TestCase):
-    def test_template_reads_ai_analysis_and_marks_missing_analysis(self):
+    def test_template_uses_fixed_formula_without_ai_analysis(self):
         html = (Path(__file__).resolve().parents[1] / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("data.ai_analysis", html)
-        self.assertIn("尚未經愛分析", html)
-        self.assertIn("locAnalysis", html)
+        self.assertIn("雲 45%", html)
+        self.assertIn("固定公式更新", html)
+        self.assertNotIn("data.ai_analysis", html)
+        self.assertNotIn("locAnalysis", html)
 
 
 class WorkflowContractTests(unittest.TestCase):

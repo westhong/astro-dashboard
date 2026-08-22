@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-build_report.py — GitHub Actions 用：跑 6 機位分析，寫 docs/report-{0,1,2}.json
-順序執行（避免 Open-Meteo 429），失敗嘅機位誠實記錄 error，絕不造假。
+build_report.py — 跑全部銀河機位分析，寫 docs/report-{0,1,2}.json
+天氣與空氣質素以多座標批次取得，失敗嘅機位誠實記錄 error，絕不造假。
 v2.1.0：加入 alpenglow（金山機位）+ 各點日出日落時間。
 """
 import datetime as dt
@@ -37,6 +37,32 @@ def run_one(loc_id, date_str):
         return {"location_id": loc_id, "error": True, "message": "分析超時——天氣數據服務可能冇回應"}
     except Exception as e:
         return {"location_id": loc_id, "error": True, "message": f"未預期錯誤：{e}"}
+
+
+def run_all(loc_ids, date_str):
+    """單一 subprocess + 兩個多座標 API requests 跑完整機位集。"""
+    try:
+        p = subprocess.run(
+            [sys.executable, str(SCRIPT), "--location", "all", "--date", date_str, "--json"],
+            capture_output=True, text=True, timeout=TIMEOUT,
+        )
+        if p.returncode != 0:
+            detail = p.stderr[-400:]
+            msg = ("天氣數據商暫時限流，下次更新會再試" if "429" in detail
+                   else f"批次分析程式錯誤（exit {p.returncode}）")
+            return [{"location_id": lid, "error": True, "message": msg, "detail": detail}
+                    for lid in loc_ids]
+        payload = json.loads(p.stdout)
+        results = payload.get("locations") or []
+        if len(results) != len(loc_ids):
+            raise ValueError(f"批次分析數量不完整：預期 {len(loc_ids)}，收到 {len(results)}")
+        return results
+    except subprocess.TimeoutExpired:
+        return [{"location_id": lid, "error": True, "message": "批次分析超時——天氣數據服務可能沒有回應"}
+                for lid in loc_ids]
+    except Exception as e:
+        return [{"location_id": lid, "error": True, "message": f"批次未預期錯誤：{e}"}
+                for lid in loc_ids]
 
 
 def sun_events_for(lat, lon, elev, y, m, d):
@@ -95,7 +121,7 @@ def main():
     for offset in range(3):
         date_str = (today + timedelta(days=offset)).isoformat()
         t0 = time.time()
-        results = [run_one(lid, date_str) for lid in locs]
+        results = run_all(list(locs), date_str)
         # 失敗重試一次
         for i, r in enumerate(results):
             if r.get("error"):
