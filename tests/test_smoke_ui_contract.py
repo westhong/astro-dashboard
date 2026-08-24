@@ -16,7 +16,8 @@ class SmokeUIContractTests(unittest.TestCase):
 
     def test_shared_helpers_and_required_chinese_contract_exist(self):
         for helper in (
-            "isFiniteNumber", "fmtNumber", "fmtRange", "unwrapSmokeAssessment",
+            "isFiniteNumber", "fmtNumber", "fmtRange", "fmtDistance", "sourceSupportZh",
+            "smokeNoteZh", "unwrapSmokeAssessment",
             "pollutantZh", "smokeStatusZh", "smokeClassZh",
             "photographySmokeZh", "transparencyZh", "smokeSummaryHTML", "smokeDetailHTML",
         ):
@@ -82,7 +83,10 @@ class SmokeUIContractTests(unittest.TestCase):
         section = re.search(r"function smokeDetailHTML\b[\s\S]*?function smokeMini", self.html).group(0)
         self.assertRegex(section, r"(?:esc|fmtBackendText)\([^\n]*status")
         self.assertIn("fmtBackendText(m.source)", section)
-        self.assertRegex(section, r"uncertainties[^\n]*map\(x=>esc\(x\)\)")
+        self.assertRegex(section, r"uncertainties[^\n]*map\(x=>smokeNoteZh\(x\)\)")
+        self.assertIn("sourceSupportZh(support.classification)", section)
+        self.assertIn("fmtDistance(support.nearest_confirmed_fire_km)", section)
+        self.assertIn("fmtDistance(support.nearest_satellite_hotspot_km)", section)
         self.assertIn("table-wrap", section)
         self.assertIn("cycle_status==='not_exposed_by_open_meteo'", section)
 
@@ -108,6 +112,11 @@ if(transparencyZh(assessment('VETO',70))!=='重煙造成攝影否決') throw new
 if(transparencyZh(assessment('SMOKE_RISK',30))!=='低空與遠山對比可能受影響') throw new Error('risk transparency');
 if(transparencyZh(assessment('LIKELY_CLEAN',18))==='未見明顯煙霧懲罰') throw new Error('haze transparency');
 if(transparencyZh(assessment('VERIFIED_CLEAN',7.7))!=='未見明顯煙霧懲罰') throw new Error('clean transparency');
+if(sourceSupportZh('SATELLITE_HOTSPOT_ONLY')!=='僅有衛星熱點佐證，未有官方大型火災確認') throw new Error('source support hotspot');
+if(sourceSupportZh('NO_IDENTIFIED_SOURCE')!=='暫未找到足以解釋濃度的火源') throw new Error('source support none');
+if(smokeNoteZh('Open-Meteo does not expose the CAMS model cycle/reference time.')!=='供應端未公開 CAMS 模型週期／參考時間') throw new Error('CAMS note');
+if(smokeNoteZh('Partial model coverage: 2/3 valid models.')!=='模型僅 2/3 覆蓋') throw new Error('coverage note');
+if(fmtDistance(null)!=='資料暫缺'||fmtDistance(53.8)!=='53.8 km') throw new Error('distance');
 const malformed=assessment('LIKELY_CLEAN',Infinity,3);
 malformed.window_local={start:Infinity,end:null,timezone:undefined};
 malformed.pollutants={us_aqi_health_context:NaN,dominant_pollutant:'ozone'};

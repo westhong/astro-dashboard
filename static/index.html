@@ -449,6 +449,21 @@ function fmtRange(range,digits=1){
   return values.length?values.map(v=>fmtNumber(v,digits)).join('–'):'—';
 }
 function fmtBackendText(v){ return typeof v==='string'&&v.trim()?esc(v):'—'; }
+function fmtDistance(km){ return isFiniteNumber(km)&&km>=0?`${fmtNumber(km,1)} km`:'資料暫缺'; }
+function sourceSupportZh(code){ return ({SATELLITE_HOTSPOT_ONLY:'僅有衛星熱點佐證，未有官方大型火災確認',NO_IDENTIFIED_SOURCE:'暫未找到足以解釋濃度的火源'})[code]||'資料暫缺'; }
+function smokeNoteZh(text){
+  if(typeof text!=='string'||!text.trim()) return '資料暫缺';
+  const known={
+    'Open-Meteo does not expose the CAMS model cycle/reference time.':'供應端未公開 CAMS 模型週期／參考時間',
+    'BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport.':'BlueSky 週期僅含衛星熱點，未確認火災或煙霧傳輸',
+    'BlueSky fire_locations.kml contained no parseable hotspots.':'BlueSky 熱點檔案沒有可解析的熱點',
+    'Hotspot support unavailable; model forecast remains intact.':'熱點佐證無法取得，模型預報不受影響'
+  };
+  if(known[text]) return known[text];
+  const m=text.match(/^Partial model coverage: (\d+)\/3 valid models\.$/);
+  if(m) return `模型僅 ${m[1]}/3 覆蓋`;
+  return esc(text);
+}
 function unwrapSmokeAssessment(value){
   if(!value || typeof value!=='object') return null;
   if(value.consensus && typeof value.consensus==='object') return value;
@@ -523,18 +538,18 @@ function smokeDetailHTML(assessment){
     const availability=ok?'有效':'無資料／超出有效時段';
     const cycle=key==='cams_global'&&m.cycle_status==='not_exposed_by_open_meteo'?'供應端未公開 CAMS 模型週期':fmtBackendText(m.cycle_status);
     const forecast=key==='bluesky_canada'?`<br>預報識別碼：${fmtBackendText(m.forecast_id)}`:'';
-    const modelUncertainty=Array.isArray(m.uncertainties)?m.uncertainties.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join('；')||'—':'—';
+    const modelUncertainty=Array.isArray(m.uncertainties)?m.uncertainties.filter(x=>typeof x==='string'&&x).map(x=>smokeNoteZh(x)).join('；')||'—':'—';
     return `<tr><td><b>${label}</b><br>${availability}<br>類別：${smokeClassZh(m.class)}</td>
       <td>窗口平均：${fmtNumber(m.window_avg_pm2_5,1)}<br>窗口範圍：${fmtRange(m.window_range)}<br>鄰近範圍：${fmtRange(m.neighbor_range)}</td>
       <td>參考時間：${fmtBackendText(m.reference_time)}<br>模型週期：${cycle}<br>有效時段：${Array.isArray(m.valid_range)?m.valid_range.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join(' – ')||'—':'—'}<br>擷取時間：${fmtBackendText(m.retrieval_time||m.provider_retrieval_time)}${forecast}</td>
       <td>來源：${fmtBackendText(m.source)}<br>不確定因素：${modelUncertainty}</td></tr>`;
   }).join('');
-  const support=a.source_support||{}, supportNotes=Array.isArray(support.notes)?support.notes.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join('；')||'—':'—';
-  const uncertainties=Array.isArray(a.uncertainties)?a.uncertainties.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join('；')||'—':'—';
+  const support=a.source_support||{}, supportNotes=Array.isArray(support.notes)?support.notes.filter(x=>typeof x==='string'&&x).map(x=>smokeNoteZh(x)).join('；')||'—':'—';
+  const uncertainties=Array.isArray(a.uncertainties)?a.uncertainties.filter(x=>typeof x==='string'&&x).map(x=>smokeNoteZh(x)).join('；')||'—':'—';
   return `<details class="smoke-detail"><summary>煙霧模型、覆蓋與資料時間（${valid}/${total}）</summary><div class="smoke-detail-body">
     <div class="smoke-detail-meta">窗口：${fmtBackendText(w.start)} – ${fmtBackendText(w.end)} ${typeof w.timezone==='string'?esc(w.timezone):''}<br>覆蓋：${valid}/${total} · 信心：${confidence}<br>狀態：${esc(smokeStatusZh(c.status))}（${fmtBackendText(c.status)}）</div>
     <div class="smoke-table-wrap table-wrap"><table class="smoke-model-table"><thead><tr><th>模型</th><th>PM2.5（µg/m³）</th><th>資料時間</th><th>來源與限制</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="smoke-detail-notes">來源佐證：${typeof support.classification==='string'?esc(support.classification):'資料暫缺'} · 最近確認火源 ${fmtNumber(support.nearest_confirmed_fire_km,1)} km · 衛星熱點 ${fmtNumber(support.nearest_satellite_hotspot_km,1)} km · 傳輸佐證 ${support.transport_supported===true?'有':support.transport_supported===false?'無':'資料暫缺'}<br>${supportNotes}<br>不確定因素：${uncertainties}</div>
+    <div class="smoke-detail-notes">來源佐證：${sourceSupportZh(support.classification)}${typeof support.classification==='string'?`（${esc(support.classification)}）`:''} · 最近確認火源 ${fmtDistance(support.nearest_confirmed_fire_km)} · 衛星熱點 ${fmtDistance(support.nearest_satellite_hotspot_km)} · 傳輸佐證 ${support.transport_supported===true?'有':support.transport_supported===false?'無':'資料暫缺'}<br>${supportNotes}<br>不確定因素：${uncertainties}</div>
   </div></details>`;
 }
 function smokeMini(loc){
