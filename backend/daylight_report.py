@@ -23,6 +23,11 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 from zoneinfo import ZoneInfo
 
+try:
+    from .smoke_pipeline import assess_smoke_window
+except ImportError:
+    from smoke_pipeline import assess_smoke_window
+
 # ---------- Open-Meteo 結果快取（v2.24.0：quota 保護，同 night_report.py 共用目錄） ----------
 # 同一 URL 55 分鐘內重用。一個 build 內 5 個 daylight offsets 嘅主 fetch／AQ／ECMWF／GFS
 # URL 完全相同 → 第一個 offset fetch 完，其餘 4 個全部命中 cache。
@@ -222,6 +227,7 @@ def _condition(
     horizon_hourly: dict[str, list[Any]] | None,
     horizon_azimuth: float | None,
     ecmwf_hourly: dict[str, list[Any]] | None = None,
+    smoke_assessment: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     ids = _event_window(hourly, centre)
     avg = lambda key: _mean([float(hourly[key][i] or 0) for i in ids])
@@ -251,7 +257,14 @@ def _condition(
         aqi_vals = [aq_hourly["us_aqi"][i] for i in aq_ids if aq_hourly["us_aqi"][i] is not None]
         pm_avg = _mean([float(v) for v in pm_vals]) if pm_vals else None
         aqi_avg = _mean([float(v) for v in aqi_vals]) if aqi_vals else None
-    smoke = _smoke_score(pm_avg)
+    if smoke_assessment:
+        smoke_assessment = smoke_assessment.get("smoke_assessment", smoke_assessment)
+        consensus = smoke_assessment["consensus"]
+        pm_avg = consensus.get("consensus_pm2_5")
+        aqi_avg = smoke_assessment.get("pollutants", {}).get("us_aqi_health_context")
+        smoke = int(consensus["photography_smoke_score"])
+    else:
+        smoke = _smoke_score(pm_avg)
 
     # 地平線開口（太陽方向 100km 外嘅低／中雲）
     horizon_low = horizon_mid = gap = None
@@ -327,7 +340,7 @@ def _condition(
         notes.append("ECMWF 風速資料暫缺，風分只按預設模型計算")
     elif divergent:
         notes.append(f"兩模型風速預報分歧（預設 {round(wind)} vs ECMWF {round(ecm_wind)} km/h），風分採較保守值")
-    return {
+    result = {
         "event": event,
         "centre_time": centre[11:16],
         "components": {"cloud": cloud, "wind": round(reflection), "smoke": smoke},
@@ -346,6 +359,9 @@ def _condition(
         "wind_detail": wind_detail,
         "window_hours": [hourly["time"][i][11:16] for i in ids],
     }
+    if smoke_assessment:
+        result["smoke_assessment"] = smoke_assessment
+    return result
 
 
 def _light_for_event(calculator: DirectLightCalculator, point: dict[str, Any], date_str: str, event: str, geometric: str) -> dict[str, Any]:
@@ -401,6 +417,37 @@ def _label(score: int) -> str:
     if score >= 45:
         return "條件普通"
     return "不建議專程前往"
+
+
+def _apply_smoke_condition_cap(condition: dict[str, Any]) -> None:
+    """Apply transparent confidence/risk caps after the weighted daylight score."""
+    consensus = condition["smoke_assessment"]["consensus"]
+    status = consensus.get("status")
+    coverage = int(consensus.get("coverage", {}).get("valid", 0))
+    maximum = reason = None
+    if consensus.get("veto") or status == "VETO":
+        maximum, reason = 44, "三模型煙霧共識 VETO"
+    elif status in {"RISKY_BOUNDARY", "SMOKE_RISK", "MODEL_SPLIT"}:
+        maximum, reason = 64, f"三模型煙霧共識 {status}"
+    elif status == "SINGLE_MODEL_ONLY" or coverage < 2:
+        maximum, reason = 79, f"煙霧模型覆蓋不足 {coverage}/3"
+    original = int(condition["score"])
+    if maximum is not None:
+        condition["score"] = min(original, maximum)
+        condition["label"] = _label(condition["score"])
+    condition["condition_cap"] = {
+        "applied": maximum is not None and original > maximum,
+        "max_score": maximum,
+        "reason": reason,
+    }
+
+
+def _smoke_window_datetimes(date_str: str, window: dict[str, str]) -> tuple[datetime, datetime]:
+    start = datetime.fromisoformat(f"{date_str}T{window['start']}").replace(tzinfo=LOCAL)
+    end = datetime.fromisoformat(f"{date_str}T{window['end']}").replace(tzinfo=LOCAL)
+    if end <= start:
+        end += timedelta(days=1)
+    return start, end
 
 
 def _peak_window(hourly: dict[str, list[Any]], window: dict[str, str] | None) -> str | None:
@@ -630,7 +677,12 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                         horizon_az = None
                 aq_hourly = aq_by_point.get(idx, {}).get("hourly")
                 ecmwf_hourly = ecmwf_by_point.get(idx, {}).get("hourly")
-                condition = _condition(event, centre, fc["hourly"], aq_hourly, horizon_hourly, horizon_az, ecmwf_hourly)
+                smoke_start, smoke_end = _smoke_window_datetimes(date_str, light["window"])
+                smoke_payload = assess_smoke_window(
+                    lat=point["lat"], lon=point["lon"],
+                    start_local=smoke_start, end_local=smoke_end,
+                )
+                condition = _condition(event, centre, fc["hourly"], aq_hourly, horizon_hourly, horizon_az, ecmwf_hourly, smoke_assessment=smoke_payload)
                 condition["light"] = light
                 condition["score"] = round(
                     condition["components"]["cloud"] * 0.50
@@ -638,6 +690,7 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                     + condition["components"]["wind"] * 0.20
                 )
                 condition["label"] = _label(condition["score"])
+                _apply_smoke_condition_cap(condition)
                 # R3：三模型雲量分歧計算保留喺數據層（v2.22.0 起 UI 唔顯示信心標示）
                 gfs_hourly = gfs_by_point.get(idx, {}).get("hourly")
                 model_clouds = {
@@ -664,8 +717,8 @@ def build_daylight(date_str: str) -> dict[str, Any]:
     return {
         "date": date_str,
         "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"),
-        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（PM2.5 大氣通透度）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
+        "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（ECCC FireWork＋CAMS global＋BlueSky Canada PM2.5 模型共識；健康 AQI 分列）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
         "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
         "points": result,
-        "sources": ("MET Norway Locationforecast（後備模式：ECMWF IFS 9km；缺陣風／能見度／降水機率）＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM" if fallback_mode else "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋Open-Meteo CAMS 空氣質素＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"),
+        "sources": (("MET Norway Locationforecast（後備模式：ECMWF IFS 9km；缺陣風／能見度／降水機率）" if fallback_mode else "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比") + "＋ECCC FireWork／CAMS global／BlueSky Canada 獨立煙霧模型共識（AQI 僅健康脈絡）＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"),
     }

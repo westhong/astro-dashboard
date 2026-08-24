@@ -19,6 +19,8 @@ from backend.smoke_sources import (
     fetch_bluesky_window,
     fetch_cams_window,
     fetch_firework_window,
+    load_bluesky_decoded,
+    clear_bluesky_decoded_cache,
     parse_bluesky_index,
     parse_firework_capabilities,
     parse_time_dimension,
@@ -462,6 +464,22 @@ class BlueSkySourceTests(unittest.TestCase):
         self.assertIn("full window", outside_time["status"])
         self.assertFalse(outside_grid["valid"])
         self.assertIn("3x3", outside_grid["status"])
+
+    def test_decoded_cycle_cache_reuses_load_and_invalidates_replaced_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "dispersion.nc"
+            self._netcdf(path)
+            clear_bluesky_decoded_cache()
+            first = load_bluesky_decoded(path)
+            second = load_bluesky_decoded(path)
+            self.assertIs(first, second)
+            # Replacement changes the stat key, so stale arrays are not retained.
+            replacement = Path(directory) / "replacement.nc"
+            self._netcdf(replacement)
+            replacement.write_bytes(replacement.read_bytes() + b"x")
+            replacement.replace(path)
+            third = load_bluesky_decoded(path)
+            self.assertIsNot(first, third)
 
     def test_end_to_end_source_metadata_and_network_failure_are_isolated(self):
         with tempfile.TemporaryDirectory() as directory:

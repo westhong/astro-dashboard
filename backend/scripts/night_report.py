@@ -29,6 +29,12 @@ from pathlib import Path
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 
+# Keep package imports working when this file is launched directly as a subprocess.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+from backend.smoke_pipeline import assess_smoke_window
+
 import requests
 from skyfield import almanac
 from skyfield.api import Star, load, wgs84
@@ -354,7 +360,7 @@ def vertical_mw_note(month):
 _NOT_PREFETCHED = object()
 
 
-def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
+def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, smoke_assessment=None):
     night_date = dt.date.fromisoformat(date_str)
     start = dt.datetime.combine(night_date, dt.time(NIGHT_START_HOUR), TZ)
     end = dt.datetime.combine(night_date + dt.timedelta(days=1), dt.time(NIGHT_END_HOUR), TZ)
@@ -405,6 +411,26 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
                          f"唔夠 -18°。窗口以最深 range 為準，評級封頂「可試」。")
 
     win_len_min = (dark_end - dark_start).total_seconds() / 60
+
+    if smoke_assessment is None:
+        try:
+            smoke_assessment = assess_smoke_window(
+                lat=loc["lat"], lon=loc["lon"],
+                start_local=dark_start, end_local=dark_end,
+            )
+        except Exception as exc:
+            print(f"[警告] 三模型煙霧評估失敗：{exc} — 以無資料／不確定處理", file=sys.stderr)
+            smoke_assessment = assess_smoke_window(
+                lat=loc["lat"], lon=loc["lon"],
+                start_local=dark_start, end_local=dark_end,
+                firework_fetch=lambda **_: (_ for _ in ()).throw(exc),
+                cams_fetch=lambda **_: (_ for _ in ()).throw(exc),
+                bluesky_fetch=lambda **_: (_ for _ in ()).throw(exc),
+            )
+    smoke_assessment = smoke_assessment.get("smoke_assessment", smoke_assessment)
+    smoke_consensus = smoke_assessment["consensus"]
+    consensus_smoke_score = int(smoke_consensus["photography_smoke_score"])
+    smoke_coverage = int(smoke_consensus.get("coverage", {}).get("valid", 0))
 
     # --- 月亮 ---
     illum = astro.moon_illum(min_alt_t)
@@ -512,7 +538,7 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
         malt, _ = astro.moon_alt_az(h)
         moon_s = 100 if malt <= 0 else moon_up_score(illum)
         cs = cloud_score(total, low, mid, high)
-        ss = smoke_score(pm)
+        ss = consensus_smoke_score
         ws = wind_reflection_score(wind)
         astro_score = cs * 0.45 + moon_s * 0.25 + ss * 0.20 + ws * 0.10
         rows.append({
@@ -521,7 +547,7 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
             "pm": pm, "aqi": aqi_val, "moon_alt": malt,
             "cloud_score": cs, "cloud_label": label(cs),
             "moon_score": moon_s, "moon_label": label(moon_s),
-            "smoke_score": ss, "smoke_label": (label(ss) if pm is not None else "無資料"),
+            "smoke_score": ss, "smoke_label": (label(ss) if smoke_coverage else "無資料／不確定"),
             "wind_score": ws, "wind_label": label(ws),
             "score": astro_score,
         })
@@ -544,17 +570,18 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
     caps = []     # (rank_cap, reason)
     if best3:
         avg_cs = sum(r["cloud_score"] for r in best3[1]) / len(best3[1])
-        pms = [r["pm"] for r in best3[1] if r["pm"] is not None]
-        avg_pm = sum(pms) / len(pms) if pms else None
+
         if avg_cs <= 15:
             vetoes.append(f"雲量否決：建議窗口平均雲分 {avg_cs:.0f}（≤15，基本冚唪唥）")
         elif avg_cs <= 35:
             caps.append((GRADE_RANK["RISKY"], f"雲量封頂：平均雲分 {avg_cs:.0f}（≤35）"))
-        if avg_pm is not None:
-            if avg_pm > 55:
-                vetoes.append(f"煙塵否決：建議窗口 PM2.5 平均 {avg_pm:.0f}（>55，AQI 重度污染級）")
-            elif avg_pm > 35:
-                caps.append((GRADE_RANK["RISKY"], f"煙塵封頂：PM2.5 平均 {avg_pm:.0f}（>35）"))
+        smoke_status = smoke_consensus.get("status")
+        if smoke_consensus.get("veto") or smoke_status == "VETO":
+            vetoes.append("三模型煙霧共識否決：至少兩套模型支持重煙風險")
+        elif smoke_status in {"RISKY_BOUNDARY", "SMOKE_RISK", "MODEL_SPLIT"}:
+            caps.append((GRADE_RANK["RISKY"], f"三模型煙霧共識封頂：{smoke_status}"))
+        if smoke_status == "SINGLE_MODEL_ONLY" or smoke_coverage < 2:
+            caps.append((GRADE_RANK["MARGINAL"], f"煙霧模型覆蓋不足封頂：{smoke_coverage}/3"))
     if overlap_min > 0:
         if moon_free_min < 30 and illum >= 85:
             vetoes.append(f"月亮否決：照明 {illum:.0f}%（≥85%），窗口內無月時段 = {moon_free_min:.0f} 分鐘（成晚月光晒住）")
@@ -660,6 +687,7 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
             "above_10deg_period": [fmt(gc_visible_hours[0]), fmt(gc_visible_hours[-1])] if gc_visible_hours else None,
         },
         "season_angle": season_angle,
+        "smoke_assessment": smoke_assessment,
         "weights": {"cloud": 0.45, "moon": 0.25, "smoke": 0.20, "wind_reflection": 0.10},
         "night": {
             "score": round(night_score, 1),
@@ -692,7 +720,7 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None):
         "gear_advice": gear,
         "sources": {
             "weather": ("MET Norway Locationforecast（後備：ECMWF IFS 9km；缺 gust/visibility）" if wx.get("_source") == "met_norway" else "Open-Meteo Forecast API（GEM 系 model，lat/lon 精確點）"),
-            "air_quality": ("Open-Meteo Air Quality API（CAMS global ~40km 網格）" if aq else f"失敗：{aq_error}"),
+            "air_quality": (("Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）" if aq else f"兼容空氣質素失敗：{aq_error}") + "；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識"),
             "astronomy": "skyfield + de421（本地計算）",
         },
         "fetched_at": fetched_at,

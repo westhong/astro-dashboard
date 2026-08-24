@@ -11,6 +11,7 @@ import math
 import os
 import re
 import xml.etree.ElementTree as ET
+from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
@@ -501,28 +502,59 @@ def _tflag_datetime(date_code: int, time_code: int) -> datetime:
     )
 
 
+_BLUESKY_DECODED_CACHE: OrderedDict[tuple[str, int, int], dict[str, object]] = OrderedDict()
+_BLUESKY_DECODED_CACHE_MAX = 2
+
+
+def clear_bluesky_decoded_cache() -> None:
+    _BLUESKY_DECODED_CACHE.clear()
+
+
+def load_bluesky_decoded(path: Path) -> dict[str, object]:
+    """Decode a cycle once per process, invalidating replaced files by stat key."""
+    resolved = Path(path).resolve()
+    stat = resolved.stat()
+    key = (str(resolved), stat.st_size, stat.st_mtime_ns)
+    cached = _BLUESKY_DECODED_CACHE.get(key)
+    if cached is not None:
+        _BLUESKY_DECODED_CACHE.move_to_end(key)
+        return cached
+    try:
+        from scipy.io import netcdf_file
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("scipy is unavailable") from exc
+    with netcdf_file(str(resolved), "r", mmap=False) as dataset:
+        for attribute in ("XORIG", "YORIG", "XCELL", "YCELL"):
+            if not hasattr(dataset, attribute):
+                raise ValueError(f"BlueSky NetCDF missing {attribute}")
+        if "PM25" not in dataset.variables or "TFLAG" not in dataset.variables:
+            raise ValueError("BlueSky NetCDF missing PM25 or TFLAG")
+        decoded = {
+            "pm25": dataset.variables["PM25"].data.copy(),
+            "tflag": dataset.variables["TFLAG"].data.copy(),
+            "units": getattr(dataset.variables["PM25"], "units", b"ug/m^3"),
+            "xorig": float(dataset.XORIG), "yorig": float(dataset.YORIG),
+            "xcell": float(dataset.XCELL), "ycell": float(dataset.YCELL),
+        }
+    for old_key in [item for item in _BLUESKY_DECODED_CACHE if item[0] == key[0]]:
+        del _BLUESKY_DECODED_CACHE[old_key]
+    _BLUESKY_DECODED_CACHE[key] = decoded
+    while len(_BLUESKY_DECODED_CACHE) > _BLUESKY_DECODED_CACHE_MAX:
+        _BLUESKY_DECODED_CACHE.popitem(last=False)
+    return decoded
+
+
 def extract_bluesky_netcdf(
     path: Path, *, lat: float, lon: float, start: datetime, end: datetime,
 ) -> dict[str, object]:
     """Extract aligned BlueSky interval-start frames and a complete 3×3 grid."""
     source = "BlueSky Canada HYSPLIT dispersion.nc"
     try:
-        try:
-            from scipy.io import netcdf_file
-        except ImportError as exc:  # pragma: no cover - environment-dependent
-            raise RuntimeError("scipy is unavailable") from exc
         requested = _hourly_window(start, end)
-        with netcdf_file(str(path), "r", mmap=False) as dataset:
-            for attribute in ("XORIG", "YORIG", "XCELL", "YCELL"):
-                if not hasattr(dataset, attribute):
-                    raise ValueError(f"BlueSky NetCDF missing {attribute}")
-            if "PM25" not in dataset.variables or "TFLAG" not in dataset.variables:
-                raise ValueError("BlueSky NetCDF missing PM25 or TFLAG")
-            pm25 = dataset.variables["PM25"].data.copy()
-            tflag = dataset.variables["TFLAG"].data.copy()
-            units = getattr(dataset.variables["PM25"], "units", b"ug/m^3")
-            xorig, yorig = float(dataset.XORIG), float(dataset.YORIG)
-            xcell, ycell = float(dataset.XCELL), float(dataset.YCELL)
+        decoded = load_bluesky_decoded(path)
+        pm25, tflag, units = decoded["pm25"], decoded["tflag"], decoded["units"]
+        xorig, yorig = decoded["xorig"], decoded["yorig"]
+        xcell, ycell = decoded["xcell"], decoded["ycell"]
         if pm25.ndim != 4 or pm25.shape[1] < 1:
             raise ValueError("BlueSky PM25 has an unexpected shape")
         raw_ends = [_tflag_datetime(row[0][0], row[0][1]) for row in tflag]

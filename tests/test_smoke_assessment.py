@@ -1,6 +1,8 @@
 import json
 import unittest
 
+import numpy as np
+
 from backend.smoke_assessment import (
     build_smoke_assessment,
     classify_pm25,
@@ -360,6 +362,21 @@ class SmokeAssessmentSchemaTests(unittest.TestCase):
         )["smoke_assessment"]["consensus"]
         for key in ("status", "photography_smoke_score", "veto"):
             self.assertEqual(low_ozone[key], high_ozone[key])
+
+    def test_normalizes_numpy_measurements_to_json_scalars_and_rejects_numpy_bool(self):
+        payload = build_smoke_assessment(
+            shooting_point={}, window_local={},
+            models={
+                "eccc_firework": {"valid": True, "window_avg_pm2_5": np.float32(7.7), "window_range": [np.int64(4), np.float32(9)]},
+                "cams_global": {"valid": True, "window_avg_pm2_5": np.int64(8)},
+                "bluesky_canada": {"valid": True, "window_avg_pm2_5": np.bool_(True)},
+            },
+        )
+        assessment = payload["smoke_assessment"]
+        self.assertIsInstance(assessment["models"]["eccc_firework"]["window_avg_pm2_5"], float)
+        self.assertTrue(all(isinstance(v, float) for v in assessment["models"]["eccc_firework"]["window_range"]))
+        self.assertFalse(assessment["models"]["bluesky_canada"]["valid"])
+        json.dumps(payload, allow_nan=False)
 
 
 if __name__ == "__main__":

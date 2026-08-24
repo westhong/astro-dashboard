@@ -18,7 +18,7 @@ SCRIPT = HERE / "scripts" / "night_report.py"
 DOCS = HERE.parent / "docs"
 STATIC = HERE.parent / "static" / "index.html"
 TZ = ZoneInfo("America/Edmonton")
-TIMEOUT = 180
+TIMEOUT = 420
 
 
 def run_one(loc_id, date_str):

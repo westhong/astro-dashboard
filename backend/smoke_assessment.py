@@ -18,18 +18,24 @@ STATUS_SEVERITY = {
 
 
 def _valid_measurement(value: object) -> bool:
-    return (
+    return bool(
         isinstance(value, Real)
         and not isinstance(value, bool)
+        and type(value).__name__ != "bool_"
         and math.isfinite(value)
         and value >= 0
     )
 
 
+def _measurement(value: object) -> float | None:
+    """Normalize accepted numeric-library scalars to JSON-safe floats."""
+    return float(value) if _valid_measurement(value) else None
+
+
 def _sanitize_range(value: object) -> list[object]:
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
         return [None, None]
-    return [item if _valid_measurement(item) else None for item in value]
+    return [_measurement(item) for item in value]
 
 
 def _at_least_status(current: str, minimum: str) -> str:
@@ -62,7 +68,7 @@ def classify_pm25(pm2_5: object) -> str:
 
 def evaluate_model(pm2_5: object) -> dict[str, object]:
     """Return the per-model photography classification and uncertainty."""
-    value = pm2_5 if _valid_measurement(pm2_5) else None
+    value = _measurement(pm2_5)
     if value is not None and value > 55:
         vote = "VETO"
     elif value is not None and value > 35:
@@ -82,7 +88,7 @@ def evaluate_consensus(values: Sequence[object]) -> dict[str, object]:
     if len(values) != 3:
         raise ValueError("Three model slots are required")
 
-    valid = [value for value in values if _valid_measurement(value)]
+    valid = [normalized for value in values if (normalized := _measurement(value)) is not None]
     classes = [classify_pm25(value) for value in valid]
     counts = Counter(classes)
     valid_count = len(valid)
@@ -189,7 +195,7 @@ def build_smoke_assessment(
         raw = models.get(name, {})
         value = raw.get("window_avg_pm2_5")
         valid = bool(raw.get("valid", value is not None)) and _valid_measurement(value)
-        effective_value = value if valid else None
+        effective_value = _measurement(value) if valid else None
         model = {
             "source": raw.get("source"),
             "retrieval_time": raw.get("retrieval_time"),
