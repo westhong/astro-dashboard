@@ -1,6 +1,8 @@
 import json
 import tempfile
+import threading
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -103,13 +105,15 @@ class PipelineTests(unittest.TestCase):
 
         self.assertEqual(bluesky.call_args.kwargs["fetch_text"], http.html)
 
-    def test_invalid_default_source_binary_is_evicted_before_next_assessment(self):
+    def test_only_reported_bad_firework_binary_is_evicted(self):
         calls = []
-        binary_url = "https://geo.weather.gc.ca/corrupt.tif"
+        valid_url = "https://geo.weather.gc.ca/valid.tif"
+        bad_url = "https://geo.weather.gc.ca/corrupt.tif"
         with tempfile.TemporaryDirectory() as directory:
             def opener(request, timeout=0):
                 calls.append(request.full_url)
-                return HttpCacheTests.Response(b"truncated", 200, "image/tiff")
+                body = b"valid" if request.full_url == valid_url else b"truncated"
+                return HttpCacheTests.Response(body, 200, "image/tiff")
 
             http = CachedHttpFetcher(
                 Path(directory), opener=opener, sleep=lambda _: None,
@@ -117,8 +121,13 @@ class PipelineTests(unittest.TestCase):
             )
 
             def invalid_firework(**kwargs):
-                kwargs["fetch_bytes"](binary_url)
-                return model(None, status="FireWork unavailable: corrupt GeoTIFF")
+                kwargs["fetch_bytes"](valid_url)
+                kwargs["fetch_bytes"](bad_url)
+                return model(
+                    None,
+                    status="FireWork unavailable: corrupt GeoTIFF",
+                    failed_urls=[bad_url],
+                )
 
             common = dict(
                 lat=51, lon=-115,
@@ -132,8 +141,72 @@ class PipelineTests(unittest.TestCase):
                 assess_smoke_window(**common)
                 assess_smoke_window(**common)
 
-            self.assertEqual(calls, [binary_url, binary_url])
-            self.assertFalse(list(Path(directory).glob("*.cache")))
+            self.assertEqual(calls, [valid_url, bad_url, bad_url])
+            self.assertTrue(http._path(valid_url).exists())
+            self.assertFalse(http._path(bad_url).exists())
+
+    def test_out_of_range_bluesky_result_keeps_valid_cycle_binary_cached(self):
+        calls = []
+        dispersion_url = "https://firesmoke.ca/cycle/dispersion.nc"
+        with tempfile.TemporaryDirectory() as directory:
+            def opener(request, timeout=0):
+                calls.append(request.full_url)
+                return HttpCacheTests.Response(b"valid-cycle", 200, "application/octet-stream")
+
+            http = CachedHttpFetcher(
+                Path(directory), opener=opener, sleep=lambda _: None,
+                today=lambda: "2026-08-24",
+            )
+
+            def outside_window(**kwargs):
+                kwargs["fetch_bytes"](dispersion_url)
+                return model(None, status="BlueSky does not cover the full window")
+
+            common = dict(
+                lat=51, lon=-115,
+                start_local=datetime(2026, 8, 24, 22, tzinfo=LOCAL),
+                end_local=datetime(2026, 8, 24, 23, tzinfo=LOCAL),
+                firework_fetch=lambda **kw: model(8),
+                cams_fetch=lambda **kw: model(8),
+                http_fetcher=http,
+            )
+            with patch("backend.smoke_pipeline.fetch_bluesky_window", side_effect=outside_window):
+                assess_smoke_window(**common)
+                assess_smoke_window(**common)
+
+            self.assertEqual(calls, [dispersion_url])
+            self.assertTrue(http._path(dispersion_url).exists())
+
+    def test_malformed_adapter_results_are_isolated_and_normalized(self):
+        calls = []
+
+        def malformed(name, value):
+            def fetch(**_kwargs):
+                calls.append(name)
+                return value
+            return fetch
+
+        result = assess_smoke_window(
+            lat=51.0, lon=-115.0,
+            start_local=datetime(2026, 8, 24, 22, tzinfo=LOCAL),
+            end_local=datetime(2026, 8, 24, 23, tzinfo=LOCAL),
+            firework_fetch=malformed("fire", None),
+            cams_fetch=malformed("cams", []),
+            bluesky_fetch=malformed("blue", {"valid": True}),
+        )["smoke_assessment"]
+
+        self.assertEqual(calls, ["fire", "cams", "blue"])
+        self.assertEqual(result["consensus"]["coverage"]["valid"], 0)
+        for source in result["models"].values():
+            self.assertFalse(source["valid"])
+            self.assertIsNone(source["window_avg_pm2_5"])
+            self.assertEqual(source["window_range"], [None, None])
+            self.assertEqual(source["neighbor_range"], [None, None])
+            self.assertIn("malformed", source["status"].lower())
+        self.assertEqual(
+            sum("malformed" in item.lower() for item in result["uncertainties"]),
+            3,
+        )
 
     def test_all_models_unavailable_is_no_data_not_exception(self):
         def fail(**kw):
@@ -213,6 +286,37 @@ class HttpCacheTests(unittest.TestCase):
             self.assertEqual(len(list(Path(directory).glob("*.cache"))), 1)
             self.assertFalse(list(Path(directory).glob("*.tmp")))
 
+    def test_concurrent_same_url_fetches_do_not_race_on_temporary_file(self):
+        url = "https://x.test/concurrent"
+        fetch_barrier = threading.Barrier(2)
+        replace_sources = []
+        source_lock = threading.Lock()
+        with tempfile.TemporaryDirectory() as directory:
+            def opener(*_args, **_kwargs):
+                fetch_barrier.wait(timeout=2)
+                return self.Response(b"complete", 200, "application/octet-stream")
+
+            fetcher = CachedHttpFetcher(
+                Path(directory), opener=opener, sleep=lambda _: None,
+                today=lambda: "2026-08-24", attempts=1,
+            )
+            real_replace = __import__("os").replace
+
+            def tracked_replace(source, destination):
+                with source_lock:
+                    replace_sources.append(Path(source))
+                return real_replace(source, destination)
+
+            with patch("backend.smoke_pipeline.os.replace", side_effect=tracked_replace):
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    futures = [executor.submit(fetcher.bytes, url) for _ in range(2)]
+                    results = [future.result(timeout=3) for future in futures]
+
+            self.assertEqual(results, [b"complete", b"complete"])
+            self.assertEqual(len(set(replace_sources)), 2)
+            self.assertEqual(fetcher._path(url).read_bytes(), b"complete")
+            self.assertFalse(list(Path(directory).glob("*.tmp")))
+
     def test_validated_bluesky_index_html_is_cached_in_explicit_html_mode(self):
         calls = []
         payload = b'''<!doctype html><html><body>
@@ -282,6 +386,19 @@ class HttpCacheTests(unittest.TestCase):
                 fetcher.bytes("https://x.test/missing")
             self.assertEqual(calls, ["https://x.test/missing"])
             self.assertFalse(list(Path(directory).glob("*.cache")))
+
+
+class WorkflowTests(unittest.TestCase):
+    def test_fallback_installs_and_preflights_smoke_runtime_dependencies(self):
+        workflow = (Path(__file__).parents[1] / ".github" / "workflows" / "update.yml").read_text(
+            encoding="utf-8"
+        )
+        install = "pip install skyfield requests -r requirements-smoke.txt"
+        preflight = 'python -c "import numpy, scipy, tifffile"'
+        self.assertIn(install, workflow)
+        self.assertIn(preflight, workflow)
+        self.assertLess(workflow.index(install), workflow.index(preflight))
+        self.assertLess(workflow.index(preflight), workflow.index("python backend/build_report.py"))
 
 
 if __name__ == "__main__":

@@ -136,6 +136,34 @@ class FireWorkSourceTests(unittest.TestCase):
         self.assertEqual(result["retrieval_time"], "2026-08-24T05:30:00Z")
         self.assertEqual(result["valid_range"], ["2026-08-24T06:00:00Z", "2026-08-24T07:00:00Z"])
 
+    def test_parse_failure_identifies_only_the_bad_firework_hour(self):
+        capabilities = """<Layer><Name>RAQDPS.SFC_PM2.5</Name>
+          <Dimension name="time">2026-08-24T06:00:00Z,2026-08-24T07:00:00Z</Dimension>
+          <Dimension name="reference_time" default="2026-08-24T00:00:00Z" />
+        </Layer>"""
+        requested = []
+
+        def fetch_bytes(url):
+            requested.append(url)
+            hour = int(parse_qs(urlparse(url).query)["time"][0][11:13])
+            return self._geotiff() if hour == 6 else b"corrupt"
+
+        result = fetch_firework_window(
+            lat=51.0,
+            lon=-115.0,
+            start=datetime(2026, 8, 24, 6, tzinfo=UTC),
+            end=datetime(2026, 8, 24, 7, tzinfo=UTC),
+            fetch_text=lambda _url: capabilities,
+            fetch_bytes=fetch_bytes,
+        )
+
+        self.assertFalse(result["valid"])
+        self.assertEqual(result["failed_urls"], [requested[1]])
+        self.assertEqual(
+            parse_qs(urlparse(result["failed_urls"][0]).query)["time"],
+            ["2026-08-24T07:00:00Z"],
+        )
+
     def test_missing_hour_or_network_failure_is_invalid_without_last_frame_reuse(self):
         capabilities = """<Layer><Name>RAQDPS.SFC_PM2.5</Name>
           <Dimension name="time">2026-08-24T06:00:00Z,2026-08-24T08:00:00Z</Dimension>
@@ -519,6 +547,36 @@ class BlueSkySourceTests(unittest.TestCase):
             replacement.replace(path)
             third = load_bluesky_decoded(path)
             self.assertIsNot(first, third)
+
+    def test_binary_failure_reports_dispersion_url_but_out_of_range_does_not(self):
+        with tempfile.TemporaryDirectory() as directory:
+            metadata = parse_bluesky_index(
+                self.INDEX_HTML, "https://firesmoke.ca/forecasts/current/"
+            )
+            corrupt = fetch_bluesky_window(
+                lat=50.25,
+                lon=-116.75,
+                start=datetime(2026, 8, 24, 6, tzinfo=UTC),
+                end=datetime(2026, 8, 24, 7, tzinfo=UTC),
+                cache_dir=Path(directory) / "corrupt-cache",
+                fetch_text=lambda _url: self.INDEX_HTML,
+                fetch_bytes=lambda _url: b"corrupt",
+            )
+            self.assertEqual(corrupt["failed_urls"], [metadata["dispersion_url"]])
+
+            source = Path(directory) / "fixture.nc"
+            self._netcdf(source)
+            outside = fetch_bluesky_window(
+                lat=50.25,
+                lon=-116.75,
+                start=datetime(2026, 8, 24, 5, tzinfo=UTC),
+                end=datetime(2026, 8, 24, 6, tzinfo=UTC),
+                cache_dir=Path(directory) / "valid-cache",
+                fetch_text=lambda _url: self.INDEX_HTML,
+                fetch_bytes=lambda _url: source.read_bytes(),
+            )
+            self.assertFalse(outside["valid"])
+            self.assertNotIn("failed_urls", outside)
 
     def test_end_to_end_source_metadata_and_network_failure_are_isolated(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -18,7 +18,10 @@ jobs:
           python-version: "3.12"
 
       - name: Install deps
-        run: pip install skyfield requests
+        run: pip install skyfield requests -r requirements-smoke.txt
+
+      - name: Preflight smoke runtime
+        run: python -c "import numpy, scipy, tifffile"
 
       - name: Build report JSON（暫時性失敗自動重試）
         shell: bash

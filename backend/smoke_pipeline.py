@@ -5,8 +5,11 @@ import hashlib
 import json
 import math
 import os
+import threading
 import time
+import uuid
 import xml.etree.ElementTree as ET
+from collections.abc import Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -23,6 +26,13 @@ UTC = timezone.utc
 HTTP_CACHE_DIR = Path.home() / ".cache" / "astro-smoke-http"
 BLUESKY_CACHE_DIR = Path.home() / ".cache" / "astro-smoke-bluesky"
 HTTP_CACHE_TTL = 55 * 60
+_CACHE_WRITE_LOCKS: dict[Path, threading.Lock] = {}
+_CACHE_WRITE_LOCKS_GUARD = threading.Lock()
+
+
+def _cache_write_lock(path: Path) -> threading.Lock:
+    with _CACHE_WRITE_LOCKS_GUARD:
+        return _CACHE_WRITE_LOCKS.setdefault(path, threading.Lock())
 
 
 def aligned_utc_window(start_local: datetime, end_local: datetime) -> tuple[datetime, datetime]:
@@ -98,13 +108,18 @@ class CachedHttpFetcher:
                 if allow_html:
                     self._validate_bluesky_index_html(payload, url)
                 self.cache_dir.mkdir(parents=True, exist_ok=True)
-                temporary = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+                temporary = path.with_name(
+                    f"{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
+                )
                 try:
                     temporary.write_bytes(payload)
-                    os.replace(temporary, path)
+                    with _cache_write_lock(path):
+                        os.replace(temporary, path)
                 finally:
-                    if temporary.exists():
+                    try:
                         temporary.unlink()
+                    except OSError:
+                        pass
                 return payload
             except (HTTPError, URLError, OSError) as exc:
                 last = exc
@@ -187,6 +202,36 @@ def _failed_model(name: str, exc: Exception) -> dict[str, object]:
     }
 
 
+def _coerce_model_result(name: str, result: object) -> dict[str, object]:
+    """Keep adapter validation inside the per-source failure boundary."""
+    required = ("valid", "window_avg_pm2_5", "window_range", "neighbor_range")
+    if not isinstance(result, Mapping) or any(field not in result for field in required):
+        return _failed_model(name, ValueError("malformed adapter result"))
+    normalized = dict(result)
+    valid = normalized["valid"]
+    ranges = (normalized["window_range"], normalized["neighbor_range"])
+    ranges_are_shaped = all(
+        isinstance(value, Sequence)
+        and not isinstance(value, (str, bytes, bytearray))
+        and len(value) == 2
+        for value in ranges
+    )
+    average = normalized["window_avg_pm2_5"]
+    average_is_valid = (
+        isinstance(average, (int, float))
+        and not isinstance(average, bool)
+        and math.isfinite(average)
+        and average >= 0
+    )
+    if not isinstance(valid, bool) or not ranges_are_shaped or (valid and not average_is_valid):
+        return _failed_model(name, ValueError("malformed adapter result"))
+    if not valid and average is not None:
+        return _failed_model(name, ValueError("malformed adapter result"))
+    normalized.setdefault("source", name)
+    normalized.setdefault("status", "ok" if valid else f"{name} unavailable")
+    return normalized
+
+
 def assess_smoke_window(
     *,
     lat: float,
@@ -205,29 +250,16 @@ def assess_smoke_window(
     start_utc, end_utc = aligned_utc_window(start_local, end_local)
     http = http_fetcher or CachedHttpFetcher()
     text_fetch = fetch_text or http.text
-    tracked_binary_urls: dict[str, list[str]] = {}
     if firework_fetch is None:
-        tracked_binary_urls["eccc_firework"] = []
-
-        def firework_bytes(url: str) -> bytes:
-            tracked_binary_urls["eccc_firework"].append(url)
-            return http.bytes(url)
-
         firework_fetch = lambda **kw: fetch_firework_window(
-            **kw, fetch_text=http.text, fetch_bytes=firework_bytes
+            **kw, fetch_text=http.text, fetch_bytes=http.bytes
         )
     cams_fetch = cams_fetch or (
         lambda **kw: fetch_cams_window(**kw, fetch_json=http.json)
     )
     if bluesky_fetch is None:
-        tracked_binary_urls["bluesky_canada"] = []
-
-        def bluesky_bytes(url: str) -> bytes:
-            tracked_binary_urls["bluesky_canada"].append(url)
-            return http.bytes(url)
-
         bluesky_fetch = lambda **kw: fetch_bluesky_window(
-            **kw, cache_dir=bluesky_cache_dir, fetch_text=http.html, fetch_bytes=bluesky_bytes
+            **kw, cache_dir=bluesky_cache_dir, fetch_text=http.html, fetch_bytes=http.bytes
         )
     common = {"lat": lat, "lon": lon, "start": start_utc, "end": end_utc}
     models: dict[str, dict[str, object]] = {}
@@ -237,11 +269,11 @@ def assess_smoke_window(
         ("bluesky_canada", "BlueSky Canada", bluesky_fetch),
     ):
         try:
-            models[key] = function(**common)
+            models[key] = _coerce_model_result(label, function(**common))
         except Exception as exc:
             models[key] = _failed_model(label, exc)
-        if not models[key].get("valid"):
-            for url in tracked_binary_urls.get(key, ()):
+        for url in models[key].get("failed_urls", ()):
+            if isinstance(url, str):
                 http.invalidate(url)
 
     cams = models["cams_global"]

@@ -217,7 +217,15 @@ def fetch_firework_window(
                 valid_time=frame,
                 reference_time=reference,
             )
-            sample = extract_firework_geotiff(fetch_bytes(url), lat=lat, lon=lon)
+            try:
+                sample = extract_firework_geotiff(fetch_bytes(url), lat=lat, lon=lon)
+            except Exception as exc:
+                return _invalid_result(
+                    source,
+                    f"FireWork unavailable: {exc}",
+                    **metadata,
+                    failed_urls=[url],
+                )
             points.append(sample["point_pm2_5"])
             neighbors.extend(sample["neighbors_pm2_5"])
         return {
@@ -623,7 +631,12 @@ def extract_bluesky_netcdf(
             neighborhood = raster[row - 1 : row + 2, col - 1 : col + 2].astype(float)
             values = neighborhood.ravel().tolist()
             if len(values) != 9 or not all(math.isfinite(value) for value in values):
-                return _invalid_result(source, "BlueSky 3x3 window contains missing values", **metadata)
+                return _invalid_result(
+                    source,
+                    "BlueSky 3x3 window contains missing values",
+                    **metadata,
+                    binary_failure=True,
+                )
             points.append(float(neighborhood[1, 1]))
             neighbors.extend(values)
         if isinstance(units, bytes):
@@ -639,7 +652,7 @@ def extract_bluesky_netcdf(
             "neighbor_range": [min(neighbors), max(neighbors)],
         }
     except Exception as exc:
-        return _invalid_result(source, f"BlueSky unavailable: {exc}")
+        return _invalid_result(source, f"BlueSky unavailable: {exc}", binary_failure=True)
 
 
 def fetch_bluesky_window(
@@ -659,18 +672,30 @@ def fetch_bluesky_window(
     retrieved = _utc_z(retrieval_time or datetime.now(UTC))
     try:
         metadata = parse_bluesky_index(fetch_text(index_url), index_url)
-        path = ensure_cached_bluesky(metadata, Path(cache_dir), fetch_bytes)
-        result = extract_bluesky_netcdf(path, lat=lat, lon=lon, start=start, end=end)
-        result.update(
-            {
-                "source": source,
-                "retrieval_time": retrieved,
-                "reference_time": _utc_z(metadata["reference_time"]),
-                "forecast_id": metadata["forecast_id"],
-                "dispersion_url": metadata["dispersion_url"],
-                "fire_locations_url": metadata["fire_locations_url"],
-            }
-        )
-        return result
     except Exception as exc:
         return _invalid_result(source, f"BlueSky unavailable: {exc}", retrieval_time=retrieved)
+    dispersion_url = str(metadata["dispersion_url"])
+    try:
+        path = ensure_cached_bluesky(metadata, Path(cache_dir), fetch_bytes)
+    except Exception as exc:
+        return _invalid_result(
+            source,
+            f"BlueSky unavailable: {exc}",
+            retrieval_time=retrieved,
+            failed_urls=[dispersion_url],
+        )
+    result = extract_bluesky_netcdf(path, lat=lat, lon=lon, start=start, end=end)
+    binary_failure = bool(result.pop("binary_failure", False))
+    result.update(
+        {
+            "source": source,
+            "retrieval_time": retrieved,
+            "reference_time": _utc_z(metadata["reference_time"]),
+            "forecast_id": metadata["forecast_id"],
+            "dispersion_url": metadata["dispersion_url"],
+            "fire_locations_url": metadata["fire_locations_url"],
+        }
+    )
+    if binary_failure:
+        result["failed_urls"] = [dispersion_url]
+    return result
