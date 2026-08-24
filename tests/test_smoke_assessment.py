@@ -65,6 +65,19 @@ class ModelEvaluationTests(unittest.TestCase):
         self.assertEqual(evaluate_model(55)["vote"], "RISKY_CAP")
         self.assertEqual(evaluate_model(55.01)["vote"], "VETO")
 
+    def test_invalid_measurements_are_no_data_across_public_domain_functions(self):
+        for invalid in (True, "8", -1, float("nan"), float("inf"), float("-inf")):
+            with self.subTest(invalid=repr(invalid)):
+                self.assertEqual(classify_pm25(invalid), "NO_DATA")
+                self.assertEqual(pm25_score(invalid), 60)
+                model = evaluate_model(invalid)
+                self.assertEqual(model["class"], "NO_DATA")
+                self.assertTrue(model["uncertain"])
+                self.assertIsNone(model["vote"])
+                consensus = evaluate_consensus([4, 8, invalid])
+                self.assertEqual(consensus["coverage"], {"valid": 2, "total": 3})
+                self.assertEqual(consensus["status"], "LIKELY_CLEAN")
+
 
 class ConsensusTests(unittest.TestCase):
     def test_assigns_three_model_consensus_statuses(self):
@@ -225,6 +238,63 @@ class SmokeAssessmentSchemaTests(unittest.TestCase):
                 self.assertEqual(model["class"], "NO_DATA")
         for key in ("forecast_id", "raw_tflag_range", "tflag_semantics", "fire_locations_url"):
             self.assertEqual(models["bluesky_canada"][key], bluesky[key])
+
+    def test_preserves_cams_cycle_limitation_and_source_uncertainties(self):
+        cams = {
+            "source": "CAMS global via Open-Meteo",
+            "retrieval_time": "2026-08-24T05:30:00Z",
+            "provider_retrieval_time": "2026-08-24T05:30:00Z",
+            "reference_time": None,
+            "cycle_status": "not_exposed_by_open_meteo",
+            "uncertainties": ["Open-Meteo does not expose the CAMS model cycle/reference time."],
+            "valid": True,
+            "window_avg_pm2_5": 8,
+        }
+        payload = build_smoke_assessment(
+            shooting_point={},
+            window_local={},
+            models={
+                "eccc_firework": {},
+                "cams_global": cams,
+                "bluesky_canada": {},
+            },
+        )
+        published = payload["smoke_assessment"]["models"]["cams_global"]
+        self.assertIsNone(published["reference_time"])
+        self.assertEqual(published["cycle_status"], "not_exposed_by_open_meteo")
+        self.assertEqual(published["provider_retrieval_time"], "2026-08-24T05:30:00Z")
+        self.assertEqual(published["uncertainties"], cams["uncertainties"])
+        json.dumps(payload)
+
+    def test_invalid_model_data_is_no_data_and_never_serialized(self):
+        for invalid in (True, "8", -1, float("nan"), float("inf"), float("-inf")):
+            with self.subTest(invalid=repr(invalid)):
+                payload = build_smoke_assessment(
+                    shooting_point={},
+                    window_local={},
+                    models={
+                        "eccc_firework": {
+                            "valid": True,
+                            "status": "source supplied this status",
+                            "window_avg_pm2_5": invalid,
+                            "window_range": [float("-inf"), "bad"],
+                            "neighbor_range": [float("nan"), -2, 30],
+                        },
+                        "cams_global": {"valid": True, "window_avg_pm2_5": 7},
+                        "bluesky_canada": {"valid": True, "window_avg_pm2_5": 8},
+                    },
+                )
+                assessment = payload["smoke_assessment"]
+                model = assessment["models"]["eccc_firework"]
+                self.assertFalse(model["valid"])
+                self.assertIsNone(model["window_avg_pm2_5"])
+                self.assertEqual(model["class"], "NO_DATA")
+                self.assertEqual(model["status"], "source supplied this status")
+                self.assertEqual(model["window_range"], [None, None])
+                self.assertEqual(model["neighbor_range"], [None, None, 30])
+                self.assertEqual(assessment["consensus"]["coverage"], {"valid": 2, "total": 3})
+                self.assertEqual(assessment["consensus"]["status"], "LIKELY_CLEAN")
+                json.dumps(payload, allow_nan=False)
 
     def test_clean_average_with_smoky_window_or_neighbor_is_risky_boundary(self):
         for range_key in ("window_range", "neighbor_range"):

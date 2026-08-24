@@ -233,6 +233,10 @@ def fetch_firework_window(
 
 
 CAMS_GRID_DEGREES = 0.4
+CAMS_CYCLE_STATUS = "not_exposed_by_open_meteo"
+CAMS_CYCLE_UNCERTAINTY = (
+    "Open-Meteo does not expose the CAMS model cycle/reference time."
+)
 CAMS_HOURLY_FIELDS = (
     "pm2_5",
     "pm10",
@@ -292,6 +296,13 @@ def fetch_cams_window(
     """Fetch and aggregate one aligned CAMS center/window and 3×3 grid."""
     source = "CAMS global via Open-Meteo"
     retrieved = _utc_z(retrieval_time or datetime.now(UTC))
+    metadata = {
+        "retrieval_time": retrieved,
+        "provider_retrieval_time": retrieved,
+        "reference_time": None,
+        "cycle_status": CAMS_CYCLE_STATUS,
+        "uncertainties": [CAMS_CYCLE_UNCERTAINTY],
+    }
     try:
         requested = _hourly_window(start, end)
         url = build_cams_url(lat=lat, lon=lon, start=start, end=end)
@@ -335,7 +346,7 @@ def fetch_cams_window(
         if any(value is None for value in center_pm + all_pm):
             raise ValueError("CAMS response lacks a complete 9-cell hourly PM2.5 value")
 
-        uncertainties: list[str] = []
+        uncertainties = list(metadata["uncertainties"])
 
         def available_mean(values: list[float | None], field: str) -> float | None:
             available = [value for value in values if value is not None]
@@ -362,11 +373,10 @@ def fetch_cams_window(
             raise ValueError("CAMS has no common PM2.5 valid range")
         return {
             "source": source,
-            "retrieval_time": retrieved,
-            "reference_time": None,
+            **metadata,
             "valid_range": [_utc_z(coverage_times[0]), _utc_z(coverage_times[-1])],
             "valid": True,
-            "status": "ok" if not uncertainties else "ok; health context incomplete",
+            "status": "ok" if len(uncertainties) == 1 else "ok; health context incomplete",
             "uncertainties": uncertainties,
             "units": "µg/m³",
             "window_avg_pm2_5": fmean(center_pm),
@@ -376,7 +386,7 @@ def fetch_cams_window(
             "health_subindices": subindices,
         }
     except Exception as exc:
-        return _invalid_result(source, f"CAMS unavailable: {exc}", retrieval_time=retrieved)
+        return _invalid_result(source, f"CAMS unavailable: {exc}", **metadata)
 
 
 class _IndexParser(HTMLParser):
@@ -548,7 +558,7 @@ def extract_bluesky_netcdf(
             **metadata,
             "valid": True,
             "status": "ok",
-            "units": str(units),
+            "units": str(units).strip(),
             "window_avg_pm2_5": fmean(points),
             "window_range": [min(points), max(points)],
             "neighbor_range": [min(neighbors), max(neighbors)],

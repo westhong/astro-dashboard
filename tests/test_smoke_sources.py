@@ -225,6 +225,34 @@ class CamsSourceTests(unittest.TestCase):
         self.assertEqual(result["source"], "CAMS global via Open-Meteo")
         self.assertEqual(result["valid_range"], ["2026-08-24T06:00:00Z", "2026-08-24T07:00:00Z"])
 
+    def test_exposes_retrieval_time_but_never_invents_cams_cycle(self):
+        retrieved = datetime(2026, 8, 24, 5, 30, tzinfo=UTC)
+        result = fetch_cams_window(
+            lat=51.0,
+            lon=-115.0,
+            start=datetime(2026, 8, 24, 6, tzinfo=UTC),
+            end=datetime(2026, 8, 24, 7, tzinfo=UTC),
+            fetch_json=lambda _url: self._payload(),
+            retrieval_time=retrieved,
+        )
+        self.assertIsNone(result["reference_time"])
+        self.assertEqual(result["cycle_status"], "not_exposed_by_open_meteo")
+        self.assertEqual(result["provider_retrieval_time"], "2026-08-24T05:30:00Z")
+        self.assertTrue(any("cycle" in note.lower() for note in result["uncertainties"]))
+
+        failed = fetch_cams_window(
+            lat=51.0,
+            lon=-115.0,
+            start=datetime(2026, 8, 24, 6, tzinfo=UTC),
+            end=datetime(2026, 8, 24, 7, tzinfo=UTC),
+            fetch_json=lambda _url: (_ for _ in ()).throw(OSError("offline")),
+            retrieval_time=retrieved,
+        )
+        self.assertIsNone(failed["reference_time"])
+        self.assertEqual(failed["cycle_status"], "not_exposed_by_open_meteo")
+        self.assertEqual(failed["provider_retrieval_time"], "2026-08-24T05:30:00Z")
+        self.assertTrue(any("cycle" in note.lower() for note in failed["uncertainties"]))
+
     def test_missing_health_fields_do_not_invalidate_complete_pm25(self):
         payload = self._payload()
         for response in payload:
@@ -394,6 +422,23 @@ class BlueSkySourceTests(unittest.TestCase):
         self.assertEqual(result["valid_range"], ["2026-08-24T06:00:00Z", "2026-08-24T07:00:00Z"])
         self.assertEqual(result["raw_tflag_range"], ["2026-08-24T07:00:00Z", "2026-08-24T08:00:00Z"])
         self.assertEqual(result["tflag_semantics"], "interval_end; valid_time = TFLAG - PT1H")
+
+    def test_strips_padded_netcdf_units(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "dispersion.nc"
+            self._netcdf(path)
+            from scipy.io import netcdf_file
+
+            with netcdf_file(path, "a") as dataset:
+                dataset.variables["PM25"].units = "  ug/m^3  "
+            result = extract_bluesky_netcdf(
+                path,
+                lat=50.25,
+                lon=-116.75,
+                start=datetime(2026, 8, 24, 6, tzinfo=UTC),
+                end=datetime(2026, 8, 24, 7, tzinfo=UTC),
+            )
+        self.assertEqual(result["units"], "ug/m^3")
 
     def test_out_of_range_or_incomplete_spatial_window_is_invalid(self):
         with tempfile.TemporaryDirectory() as directory:

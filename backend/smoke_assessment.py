@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
 from collections import Counter
 from collections.abc import Mapping, Sequence
+from numbers import Real
 
 
 MODEL_CLASSES = ("CLEAN", "HAZE", "SMOKY", "HEAVY", "NO_DATA")
@@ -13,6 +15,21 @@ STATUS_SEVERITY = {
     "SMOKE_RISK": 2,
     "VETO": 3,
 }
+
+
+def _valid_measurement(value: object) -> bool:
+    return (
+        isinstance(value, Real)
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+        and value >= 0
+    )
+
+
+def _sanitize_range(value: object) -> list[object]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+        return [None, None]
+    return [item if _valid_measurement(item) else None for item in value]
 
 
 def _at_least_status(current: str, minimum: str) -> str:
@@ -30,9 +47,9 @@ def dominant_pollutant(health_subindices: Mapping[str, float | None]) -> str | N
     return max(available, key=available.__getitem__)
 
 
-def classify_pm25(pm2_5: float | None) -> str:
+def classify_pm25(pm2_5: object) -> str:
     """Classify a model's aligned window-average PM2.5 value."""
-    if pm2_5 is None:
+    if not _valid_measurement(pm2_5):
         return "NO_DATA"
     if pm2_5 <= 10:
         return "CLEAN"
@@ -43,28 +60,29 @@ def classify_pm25(pm2_5: float | None) -> str:
     return "HEAVY"
 
 
-def evaluate_model(pm2_5: float | None) -> dict[str, object]:
+def evaluate_model(pm2_5: object) -> dict[str, object]:
     """Return the per-model photography classification and uncertainty."""
-    if pm2_5 is not None and pm2_5 > 55:
+    value = pm2_5 if _valid_measurement(pm2_5) else None
+    if value is not None and value > 55:
         vote = "VETO"
-    elif pm2_5 is not None and pm2_5 > 35:
+    elif value is not None and value > 35:
         vote = "RISKY_CAP"
     else:
         vote = None
     return {
-        "class": classify_pm25(pm2_5),
-        "score": pm25_score(pm2_5),
+        "class": classify_pm25(value),
+        "score": pm25_score(value),
         "vote": vote,
-        "uncertain": pm2_5 is None,
+        "uncertain": value is None,
     }
 
 
-def evaluate_consensus(values: Sequence[float | None]) -> dict[str, object]:
+def evaluate_consensus(values: Sequence[object]) -> dict[str, object]:
     """Derive a photography consensus without averaging model PM2.5."""
     if len(values) != 3:
         raise ValueError("Three model slots are required")
 
-    valid = [value for value in values if value is not None]
+    valid = [value for value in values if _valid_measurement(value)]
     classes = [classify_pm25(value) for value in valid]
     counts = Counter(classes)
     valid_count = len(valid)
@@ -170,19 +188,22 @@ def build_smoke_assessment(
     for name in ("eccc_firework", "cams_global", "bluesky_canada"):
         raw = models.get(name, {})
         value = raw.get("window_avg_pm2_5")
-        valid = bool(raw.get("valid", value is not None)) and value is not None
+        valid = bool(raw.get("valid", value is not None)) and _valid_measurement(value)
         effective_value = value if valid else None
         model = {
             "source": raw.get("source"),
             "retrieval_time": raw.get("retrieval_time"),
+            "provider_retrieval_time": raw.get("provider_retrieval_time"),
             "reference_time": raw.get("reference_time"),
+            "cycle_status": raw.get("cycle_status"),
             "valid_range": raw.get("valid_range", [None, None]),
             "status": raw.get("status"),
             "units": raw.get("units"),
+            "uncertainties": list(raw.get("uncertainties", [])),
             "valid": valid,
             "window_avg_pm2_5": effective_value,
-            "window_range": raw.get("window_range", [None, None]),
-            "neighbor_range": raw.get("neighbor_range", [None, None]),
+            "window_range": _sanitize_range(raw.get("window_range", [None, None])),
+            "neighbor_range": _sanitize_range(raw.get("neighbor_range", [None, None])),
             "class": classify_pm25(effective_value),
         }
         if name == "bluesky_canada":
@@ -251,13 +272,13 @@ def build_smoke_assessment(
         "uncertainties": all_uncertainties,
     }
     payload = {"smoke_assessment": assessment}
-    json.dumps(payload)
+    json.dumps(payload, allow_nan=False)
     return payload
 
 
-def pm25_score(pm2_5: float | None) -> int:
+def pm25_score(pm2_5: object) -> int:
     """Map PM2.5 µg/m³ to West's photography smoke score ladder."""
-    if pm2_5 is None:
+    if not _valid_measurement(pm2_5):
         return 60
     if pm2_5 <= 5:
         return 100
