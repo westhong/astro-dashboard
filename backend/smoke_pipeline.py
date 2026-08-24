@@ -56,12 +56,25 @@ class CachedHttpFetcher:
         self.today = today or (lambda: datetime.now().astimezone().date().isoformat())
         self.attempts = attempts
 
-    def _path(self, url: str) -> Path:
-        key = hashlib.sha256(f"{url}|{self.today()}".encode()).hexdigest()
+    def _path(self, url: str, *, allow_html: bool = False) -> Path:
+        cache_key = f"{url}|{self.today()}"
+        if allow_html:
+            cache_key += "|bluesky-html"
+        key = hashlib.sha256(cache_key.encode()).hexdigest()
         return self.cache_dir / f"{key}.cache"
 
-    def bytes(self, url: str) -> bytes:
-        path = self._path(url)
+    @staticmethod
+    def _validate_bluesky_index_html(payload: bytes, url: str) -> None:
+        try:
+            text = payload.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise ValueError(f"Invalid BlueSky index HTML from {url}") from exc
+        lowered = text.lower()
+        if "forecast id" not in lowered or "dispersion.nc" not in lowered:
+            raise ValueError(f"Invalid BlueSky index HTML from {url}")
+
+    def _bytes(self, url: str, *, allow_html: bool = False) -> bytes:
+        path = self._path(url, allow_html=allow_html)
         try:
             if path.exists() and self.now() - path.stat().st_mtime < HTTP_CACHE_TTL:
                 return path.read_bytes()
@@ -79,8 +92,11 @@ class CachedHttpFetcher:
                     raise HTTPError(url, status, "transient upstream response", None, None)
                 if status >= 400:
                     raise ValueError(f"HTTP {status} from {url}")
-                if "text/html" in content_type or payload.lstrip().lower().startswith((b"<html", b"<!doctype html")):
+                is_html = "text/html" in content_type or payload.lstrip().lower().startswith((b"<html", b"<!doctype html"))
+                if is_html and not allow_html:
                     raise ValueError(f"HTML response rejected from {url}")
+                if allow_html:
+                    self._validate_bluesky_index_html(payload, url)
                 self.cache_dir.mkdir(parents=True, exist_ok=True)
                 temporary = path.with_name(f"{path.name}.{os.getpid()}.tmp")
                 try:
@@ -100,6 +116,20 @@ class CachedHttpFetcher:
                     raise
                 self.sleep(min(2 ** attempt, 4))
         raise last or RuntimeError("HTTP fetch failed")
+
+    def bytes(self, url: str) -> bytes:
+        return self._bytes(url)
+
+    def invalidate(self, url: str) -> None:
+        """Remove a generic cached response that failed source-level validation."""
+        try:
+            self._path(url).unlink()
+        except OSError:
+            pass
+
+    def html(self, url: str) -> str:
+        """Fetch a validated BlueSky forecast index without weakening default safety."""
+        return self._bytes(url, allow_html=True).decode("utf-8")
 
     def text(self, url: str) -> str:
         return self.bytes(url).decode("utf-8")
@@ -175,17 +205,30 @@ def assess_smoke_window(
     start_utc, end_utc = aligned_utc_window(start_local, end_local)
     http = http_fetcher or CachedHttpFetcher()
     text_fetch = fetch_text or http.text
-    firework_fetch = firework_fetch or (
-        lambda **kw: fetch_firework_window(**kw, fetch_text=http.text, fetch_bytes=http.bytes)
-    )
+    tracked_binary_urls: dict[str, list[str]] = {}
+    if firework_fetch is None:
+        tracked_binary_urls["eccc_firework"] = []
+
+        def firework_bytes(url: str) -> bytes:
+            tracked_binary_urls["eccc_firework"].append(url)
+            return http.bytes(url)
+
+        firework_fetch = lambda **kw: fetch_firework_window(
+            **kw, fetch_text=http.text, fetch_bytes=firework_bytes
+        )
     cams_fetch = cams_fetch or (
         lambda **kw: fetch_cams_window(**kw, fetch_json=http.json)
     )
-    bluesky_fetch = bluesky_fetch or (
-        lambda **kw: fetch_bluesky_window(
-            **kw, cache_dir=bluesky_cache_dir, fetch_text=http.text, fetch_bytes=http.bytes
+    if bluesky_fetch is None:
+        tracked_binary_urls["bluesky_canada"] = []
+
+        def bluesky_bytes(url: str) -> bytes:
+            tracked_binary_urls["bluesky_canada"].append(url)
+            return http.bytes(url)
+
+        bluesky_fetch = lambda **kw: fetch_bluesky_window(
+            **kw, cache_dir=bluesky_cache_dir, fetch_text=http.html, fetch_bytes=bluesky_bytes
         )
-    )
     common = {"lat": lat, "lon": lon, "start": start_utc, "end": end_utc}
     models: dict[str, dict[str, object]] = {}
     for key, label, function in (
@@ -197,6 +240,9 @@ def assess_smoke_window(
             models[key] = function(**common)
         except Exception as exc:
             models[key] = _failed_model(label, exc)
+        if not models[key].get("valid"):
+            for url in tracked_binary_urls.get(key, ()):
+                http.invalidate(url)
 
     cams = models["cams_global"]
     pollutants = dict(cams.get("pollutants") or {})

@@ -10,6 +10,7 @@ import io
 import math
 import os
 import re
+import time
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
@@ -466,32 +467,74 @@ def _validate_bluesky_netcdf(path: Path) -> None:
         raise ValueError(f"BlueSky NetCDF structure is invalid: {exc}") from exc
 
 
+def _cached_bluesky_is_valid(path: Path) -> bool:
+    try:
+        with path.open("rb") as cached:
+            if not _valid_netcdf_header(cached.read(128)):
+                return False
+        _validate_bluesky_netcdf(path)
+        return True
+    except (OSError, ValueError):
+        return False
+
+
+def _acquire_cache_lock(
+    lock_path: Path, *, timeout: float = 300, stale_after: float = 900
+) -> None:
+    """Acquire an atomic directory lock, recovering abandoned stale locks."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            lock_path.mkdir()
+            return
+        except FileExistsError:
+            try:
+                stale = time.time() - lock_path.stat().st_mtime > stale_after
+            except OSError:
+                continue
+            if stale:
+                try:
+                    lock_path.rmdir()
+                except OSError:
+                    pass
+                continue
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f"Timed out waiting for BlueSky cache lock {lock_path}")
+            time.sleep(0.05)
+
+
 def ensure_cached_bluesky(metadata: dict[str, object], cache_dir: Path, fetch_bytes) -> Path:
-    """Download dispersion.nc once per cycle using an atomic rename."""
+    """Download dispersion.nc once per cycle with a stale-safe process lock."""
     path = bluesky_cache_path(Path(cache_dir), metadata)
     path.parent.mkdir(parents=True, exist_ok=True)
-    if path.exists():
-        with path.open("rb") as cached:
-            header_valid = _valid_netcdf_header(cached.read(128))
-        if header_valid:
-            try:
-                _validate_bluesky_netcdf(path)
-                return path
-            except ValueError:
-                pass
-        path.unlink()
-    payload = fetch_bytes(metadata["dispersion_url"])
-    if not isinstance(payload, bytes) or not _valid_netcdf_header(payload):
-        raise ValueError("BlueSky download is not a valid NetCDF classic file")
-    temporary = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+    if _cached_bluesky_is_valid(path):
+        return path
+    lock_path = path.with_name(f"{path.name}.lock")
+    _acquire_cache_lock(lock_path)
     try:
-        temporary.write_bytes(payload)
-        _validate_bluesky_netcdf(temporary)
-        os.replace(temporary, path)
+        if _cached_bluesky_is_valid(path):
+            return path
+        try:
+            path.unlink()
+        except OSError:
+            pass
+        payload = fetch_bytes(metadata["dispersion_url"])
+        if not isinstance(payload, bytes) or not _valid_netcdf_header(payload):
+            raise ValueError("BlueSky download is not a valid NetCDF classic file")
+        temporary = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+        try:
+            temporary.write_bytes(payload)
+            _validate_bluesky_netcdf(temporary)
+            os.replace(temporary, path)
+        finally:
+            if temporary.exists():
+                temporary.unlink()
+        return path
     finally:
-        if temporary.exists():
-            temporary.unlink()
-    return path
+        try:
+            lock_path.rmdir()
+        except OSError:
+            pass
 
 
 def _tflag_datetime(date_code: int, time_code: int) -> datetime:

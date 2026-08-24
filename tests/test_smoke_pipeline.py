@@ -83,6 +83,58 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(assessment["pollutants"]["dominant_pollutant"], "ozone")
         self.assertTrue(all(v is None for v in assessment["observed_now"].values()))
 
+    def test_default_bluesky_discovery_uses_validated_html_fetcher_only(self):
+        class Http:
+            def html(self, url): return "validated index"
+            def text(self, url): return "generic text"
+            def bytes(self, url): return b"binary"
+            def json(self, url): return {}
+
+        http = Http()
+        with patch("backend.smoke_pipeline.fetch_bluesky_window", return_value=model(8)) as bluesky:
+            assess_smoke_window(
+                lat=51, lon=-115,
+                start_local=datetime(2026, 8, 24, 22, tzinfo=LOCAL),
+                end_local=datetime(2026, 8, 24, 23, tzinfo=LOCAL),
+                firework_fetch=lambda **kw: model(8),
+                cams_fetch=lambda **kw: model(8),
+                http_fetcher=http,
+            )
+
+        self.assertEqual(bluesky.call_args.kwargs["fetch_text"], http.html)
+
+    def test_invalid_default_source_binary_is_evicted_before_next_assessment(self):
+        calls = []
+        binary_url = "https://geo.weather.gc.ca/corrupt.tif"
+        with tempfile.TemporaryDirectory() as directory:
+            def opener(request, timeout=0):
+                calls.append(request.full_url)
+                return HttpCacheTests.Response(b"truncated", 200, "image/tiff")
+
+            http = CachedHttpFetcher(
+                Path(directory), opener=opener, sleep=lambda _: None,
+                today=lambda: "2026-08-24",
+            )
+
+            def invalid_firework(**kwargs):
+                kwargs["fetch_bytes"](binary_url)
+                return model(None, status="FireWork unavailable: corrupt GeoTIFF")
+
+            common = dict(
+                lat=51, lon=-115,
+                start_local=datetime(2026, 8, 24, 22, tzinfo=LOCAL),
+                end_local=datetime(2026, 8, 24, 23, tzinfo=LOCAL),
+                cams_fetch=lambda **kw: model(8),
+                bluesky_fetch=lambda **kw: model(8),
+                http_fetcher=http,
+            )
+            with patch("backend.smoke_pipeline.fetch_firework_window", side_effect=invalid_firework):
+                assess_smoke_window(**common)
+                assess_smoke_window(**common)
+
+            self.assertEqual(calls, [binary_url, binary_url])
+            self.assertFalse(list(Path(directory).glob("*.cache")))
+
     def test_all_models_unavailable_is_no_data_not_exception(self):
         def fail(**kw):
             raise OSError("offline")
@@ -161,6 +213,41 @@ class HttpCacheTests(unittest.TestCase):
             self.assertEqual(len(list(Path(directory).glob("*.cache"))), 1)
             self.assertFalse(list(Path(directory).glob("*.tmp")))
 
+    def test_validated_bluesky_index_html_is_cached_in_explicit_html_mode(self):
+        calls = []
+        payload = b'''<!doctype html><html><body>
+          Forecast ID: BSC00CA12-01
+          <a href="dispersion.nc">dispersion.nc</a>
+        </body></html>'''
+        with tempfile.TemporaryDirectory() as directory:
+            def opener(request, timeout=0):
+                calls.append(request.full_url)
+                return self.Response(payload, 200, "text/html; charset=UTF-8")
+            fetcher = CachedHttpFetcher(
+                Path(directory), opener=opener, sleep=lambda _: None,
+                today=lambda: "2026-08-24",
+            )
+
+            self.assertEqual(fetcher.html("https://firesmoke.ca/forecasts/current/"), payload.decode())
+            self.assertEqual(fetcher.html("https://firesmoke.ca/forecasts/current/"), payload.decode())
+            self.assertEqual(calls, ["https://firesmoke.ca/forecasts/current/"])
+            self.assertEqual(len(list(Path(directory).glob("*.cache"))), 1)
+            self.assertFalse(list(Path(directory).glob("*.tmp")))
+
+    def test_bluesky_html_mode_rejects_unmarked_error_page_without_caching(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fetcher = CachedHttpFetcher(
+                Path(directory),
+                opener=lambda *a, **k: self.Response(
+                    b"<!doctype html><html>Access denied</html>", 200, "text/html"
+                ),
+                sleep=lambda _: None,
+            )
+
+            with self.assertRaisesRegex(ValueError, "Invalid BlueSky index HTML"):
+                fetcher.html("https://firesmoke.ca/forecasts/current/")
+            self.assertFalse(list(Path(directory).glob("*.cache")))
+
     def test_errors_and_html_are_never_cached(self):
         with tempfile.TemporaryDirectory() as directory:
             fetcher = CachedHttpFetcher(
@@ -168,6 +255,20 @@ class HttpCacheTests(unittest.TestCase):
                 sleep=lambda _: None,
             )
             with self.assertRaises(ValueError): fetcher.bytes("https://x.test/a")
+            self.assertFalse(list(Path(directory).glob("*.cache")))
+
+    def test_json_api_html_error_is_rejected_without_caching(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fetcher = CachedHttpFetcher(
+                Path(directory),
+                opener=lambda *a, **k: self.Response(
+                    b"<!doctype html><html>upstream error</html>", 200, "text/html"
+                ),
+                sleep=lambda _: None,
+            )
+
+            with self.assertRaisesRegex(ValueError, "HTML response rejected"):
+                fetcher.json("https://api.test/data.json")
             self.assertFalse(list(Path(directory).glob("*.cache")))
 
     def test_non_transient_4xx_is_not_retried_or_cached(self):

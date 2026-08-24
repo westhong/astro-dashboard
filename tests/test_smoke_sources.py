@@ -1,7 +1,10 @@
 import io
 import json
 import tempfile
+import threading
+import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -405,6 +408,42 @@ class BlueSkySourceTests(unittest.TestCase):
                     Path(directory) / "cache",
                     lambda _url: b"CDF\x01" + b"\0" * 200,
                 )
+
+    def test_concurrent_waiter_rechecks_completed_cycle_cache_without_downloading(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "fixture.nc"
+            self._netcdf(source)
+            payload = source.read_bytes()
+            metadata = parse_bluesky_index(
+                self.INDEX_HTML, "https://firesmoke.ca/forecasts/current/"
+            )
+            cache_dir = Path(directory) / "cache"
+            owner_started = threading.Event()
+            release_owner = threading.Event()
+            calls = []
+
+            def owner_fetch(_url):
+                calls.append("owner")
+                owner_started.set()
+                self.assertTrue(release_owner.wait(2))
+                return payload
+
+            def waiter_fetch(_url):
+                calls.append("waiter")
+                return payload
+
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                owner = executor.submit(ensure_cached_bluesky, metadata, cache_dir, owner_fetch)
+                self.assertTrue(owner_started.wait(2))
+                waiter = executor.submit(ensure_cached_bluesky, metadata, cache_dir, waiter_fetch)
+                time.sleep(0.05)
+                release_owner.set()
+                owner_path = owner.result(timeout=2)
+                waiter_path = waiter.result(timeout=2)
+
+            self.assertEqual(owner_path, waiter_path)
+            self.assertEqual(calls, ["owner"])
+            self.assertFalse(any(cache_dir.glob("*.lock")))
 
     def test_extracts_tflag_interval_starts_point_and_complete_neighbors(self):
         with tempfile.TemporaryDirectory() as directory:
