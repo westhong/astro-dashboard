@@ -8,6 +8,18 @@ from collections.abc import Mapping, Sequence
 
 
 MODEL_CLASSES = ("CLEAN", "HAZE", "SMOKY", "HEAVY", "NO_DATA")
+STATUS_SEVERITY = {
+    "RISKY_BOUNDARY": 1,
+    "SMOKE_RISK": 2,
+    "VETO": 3,
+}
+
+
+def _at_least_status(current: str, minimum: str) -> str:
+    """Apply a safety floor without downgrading a stronger smoke verdict."""
+    if STATUS_SEVERITY.get(current, 0) >= STATUS_SEVERITY[minimum]:
+        return current
+    return minimum
 
 
 def dominant_pollutant(health_subindices: Mapping[str, float | None]) -> str | None:
@@ -55,22 +67,23 @@ def evaluate_consensus(values: Sequence[float | None]) -> dict[str, object]:
     valid = [value for value in values if value is not None]
     classes = [classify_pm25(value) for value in valid]
     counts = Counter(classes)
-    coverage = len(valid)
-    partial = coverage < 3
+    valid_count = len(valid)
+    partial = valid_count < 3
     uncertainties = []
     if partial:
-        uncertainties.append(f"Partial model coverage: {coverage}/3 valid models.")
+        uncertainties.append(f"Partial model coverage: {valid_count}/3 valid models.")
 
-    if coverage <= 1:
+    non_clean_count = sum(counts[name] for name in ("HAZE", "SMOKY", "HEAVY"))
+    if valid_count <= 1:
         status, confidence = "SINGLE_MODEL_ONLY", "low"
     elif counts["HEAVY"] >= 2:
         status = "VETO"
-        confidence = "high" if coverage == 3 else "medium"
-    elif coverage == 2:
-        if len(counts) == 1:
-            agreed_class = classes[0]
-            status = "VERIFIED_CLEAN" if agreed_class == "CLEAN" else "SMOKE_RISK"
-            confidence = "medium"
+        confidence = "high" if valid_count == 3 else "medium"
+    elif non_clean_count >= 2:
+        status, confidence = "SMOKE_RISK", "medium"
+    elif valid_count == 2:
+        if counts["CLEAN"] == 2:
+            status, confidence = "LIKELY_CLEAN", "medium"
         else:
             status, confidence = "MODEL_SPLIT", "low"
     elif counts["CLEAN"] == 3:
@@ -86,7 +99,7 @@ def evaluate_consensus(values: Sequence[float | None]) -> dict[str, object]:
     else:
         status, confidence = "MODEL_SPLIT", "low"
 
-    if coverage == 3:
+    if valid_count == 3:
         consensus_pm2_5 = sorted(valid)[-2]
     elif valid:
         consensus_pm2_5 = max(valid)
@@ -97,8 +110,14 @@ def evaluate_consensus(values: Sequence[float | None]) -> dict[str, object]:
     if status == "VETO":
         score = 5
     elif valid and max(valid) > 55 and max(valid) - min(valid) > 30:
-        status = "RISKY_BOUNDARY"
+        status = _at_least_status(status, "RISKY_BOUNDARY")
         score = min(score, 55)
+
+    reason = (
+        f"Model classes: {', '.join(classes)}."
+        if classes
+        else "No model data are available for the requested window."
+    )
 
     return {
         "status": status,
@@ -106,7 +125,8 @@ def evaluate_consensus(values: Sequence[float | None]) -> dict[str, object]:
         "consensus_pm2_5": consensus_pm2_5,
         "photography_smoke_score": score,
         "veto": status == "VETO",
-        "reason": f"Model classes: {', '.join(classes) or 'NO_DATA'}.",
+        "reason": reason,
+        "coverage": {"valid": valid_count, "total": 3},
         "partial": partial,
         "uncertain": partial,
         "uncertainties": uncertainties,
@@ -153,7 +173,12 @@ def build_smoke_assessment(
         valid = bool(raw.get("valid", value is not None)) and value is not None
         effective_value = value if valid else None
         model = {
+            "source": raw.get("source"),
+            "retrieval_time": raw.get("retrieval_time"),
             "reference_time": raw.get("reference_time"),
+            "valid_range": raw.get("valid_range", [None, None]),
+            "status": raw.get("status"),
+            "units": raw.get("units"),
             "valid": valid,
             "window_avg_pm2_5": effective_value,
             "window_range": raw.get("window_range", [None, None]),
@@ -161,11 +186,46 @@ def build_smoke_assessment(
             "class": classify_pm25(effective_value),
         }
         if name == "bluesky_canada":
-            model = {"forecast_id": raw.get("forecast_id"), **model}
+            model = {
+                "forecast_id": raw.get("forecast_id"),
+                "raw_tflag_range": raw.get("raw_tflag_range", [None, None]),
+                "tflag_semantics": raw.get("tflag_semantics"),
+                "fire_locations_url": raw.get("fire_locations_url"),
+                **model,
+            }
         normalized_models[name] = model
         consensus_values.append(effective_value)  # type: ignore[arg-type]
 
     consensus = evaluate_consensus(consensus_values)
+    boundary_models = []
+    for name, model in normalized_models.items():
+        average = model["window_avg_pm2_5"]
+        if average is None or average > 10:
+            continue
+        range_values = [
+            value
+            for key in ("window_range", "neighbor_range")
+            for value in model[key]
+            if isinstance(value, (int, float))
+        ]
+        if range_values and max(range_values) > 25:
+            boundary_models.append(name)
+    if boundary_models:
+        note = (
+            "Spatial/temporal boundary exceeds 25 µg/m³ despite a clean model average: "
+            + ", ".join(boundary_models)
+            + "."
+        )
+        consensus["status"] = _at_least_status(str(consensus["status"]), "RISKY_BOUNDARY")
+        consensus["photography_smoke_score"] = min(
+            int(consensus["photography_smoke_score"]), 55
+        )
+        consensus["veto"] = consensus["status"] == "VETO"
+        consensus["uncertain"] = True
+        if consensus["status"] == "RISKY_BOUNDARY":
+            consensus["confidence"] = "medium"
+        consensus["reason"] = f"{consensus['reason']} {note}"
+        consensus["uncertainties"].append(note)
     all_uncertainties = [*uncertainties, *consensus["uncertainties"]]
     assessment = {
         "shooting_point": {
