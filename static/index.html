@@ -163,6 +163,21 @@
   .mini .ms { font-size:1.05rem; font-weight:700; }
   .mini .md { font-size:.64rem; color:var(--text-dim); margin-top:4px; line-height:1.55; }
   .mini .md a { color:var(--accent); text-decoration:none; }
+  .smoke-summary { width:100%; margin-top:10px; padding:10px 12px; border:1px solid rgba(125,211,252,.3); border-left:4px solid var(--accent); border-radius:12px; background:rgba(125,211,252,.055); font-size:.76rem; line-height:1.55; overflow-wrap:anywhere; }
+  .smoke-summary.risk { border-color:rgba(251,146,60,.65); border-left-color:var(--risky); background:rgba(251,146,60,.09); }
+  .smoke-summary.veto { border-color:rgba(248,113,113,.75); border-left-color:var(--stay); background:rgba(248,113,113,.10); }
+  .smoke-health { color:var(--text-dim); }
+  .smoke-photo { color:var(--text); font-weight:700; }
+  .smoke-transparency { color:var(--text); }
+  .smoke-coverage { margin-top:3px; color:#fcd34d; font-size:.7rem; }
+  .smoke-detail { margin-top:8px; color:var(--text-dim); font-size:.7rem; max-width:100%; }
+  .smoke-detail summary { min-height:44px; display:flex; align-items:center; color:var(--accent); cursor:pointer; line-height:1.35; overflow-wrap:anywhere; }
+  .smoke-detail-body { padding:2px 0 6px; overflow-wrap:anywhere; }
+  .smoke-detail-meta { line-height:1.6; margin-bottom:7px; }
+  .smoke-table-wrap { max-width:100%; overflow-x:auto; border:1px solid var(--card-border); border-radius:10px; }
+  .smoke-model-table { min-width:720px; white-space:normal; }
+  .smoke-model-table th,.smoke-model-table td { vertical-align:top; text-align:left; overflow-wrap:anywhere; word-break:break-word; }
+  .smoke-detail-notes { margin-top:7px; line-height:1.6; overflow-wrap:anywhere; }
   .wind-detail { margin-top:8px; font-size:.72rem; color:var(--text-dim); }
   .wind-detail summary { color:var(--accent); cursor:pointer; font-size:.72rem; }
   .wind-detail table { width:100%; border-collapse:collapse; margin-top:6px; text-align:center; }
@@ -427,29 +442,110 @@ function moonMini(loc){
     <div class="md">照明 ${Math.round(m.illumination_pct)}%<br>${detail}</div></div>`;
 }
 
-function aqiSVG(aqi){
-  const color = aqi==null?'#9ca3af':aqi<=50?'#34d399':aqi<=100?'#fbbf24':aqi<=150?'#fb923c':'#f87171';
-  const r=13, c=2*Math.PI*r, frac=Math.min(aqi||0,200)/200;
-  return `<svg width="32" height="32" viewBox="0 0 32 32" style="transform:rotate(-90deg)">
-    <circle cx="16" cy="16" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
-    <circle cx="16" cy="16" r="${r}" fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-frac)}"/></svg>`;
+function isFiniteNumber(v){ return typeof v==='number' && Number.isFinite(v); }
+function fmtNumber(v,digits=0){ return isFiniteNumber(v)?v.toFixed(digits):'—'; }
+function fmtRange(range,digits=1){
+  const values=Array.isArray(range)?range.filter(v=>isFiniteNumber(v)&&v>=0):[];
+  return values.length?values.map(v=>fmtNumber(v,digits)).join('–'):'—';
+}
+function fmtBackendText(v){ return typeof v==='string'&&v.trim()?esc(v):'—'; }
+function unwrapSmokeAssessment(value){
+  if(!value || typeof value!=='object') return null;
+  if(value.consensus && typeof value.consensus==='object') return value;
+  return value.smoke_assessment?unwrapSmokeAssessment(value.smoke_assessment):null;
+}
+function pollutantZh(code){ return ({pm2_5:'PM2.5',pm10:'PM10',ozone:'O₃',nitrogen_dioxide:'NO₂'})[code]||'資料暫缺'; }
+function smokeStatusZh(code){ return ({
+  VERIFIED_CLEAN:'已由三模型驗證乾淨', LIKELY_CLEAN:'大致乾淨', RISKY_BOUNDARY:'煙帶邊界，有變動風險',
+  SMOKE_RISK:'有實質煙霧風險', VETO:'重煙，攝影否決', MODEL_SPLIT:'模型分歧，結果不確定',
+  SINGLE_MODEL_ONLY:'僅單一模型覆蓋，結果不確定'
+})[code]||'煙霧資料不足，不能判定乾淨'; }
+function smokeClassZh(code){ return ({CLEAN:'乾淨',HAZE:'霧霾',SMOKY:'煙霧',HEAVY:'重煙',NO_DATA:'無資料'})[code]||'無資料'; }
+function smokeClassFromPM(pm,status){
+  if(status==='VETO') return 'HEAVY';
+  if(!isFiniteNumber(pm)||pm<0) return 'NO_DATA';
+  return pm<=10?'CLEAN':pm<=25?'HAZE':pm<=55?'SMOKY':'HEAVY';
+}
+function photographySmokeZh(assessment,legacy){
+  const a=unwrapSmokeAssessment(assessment);
+  if(a){
+    const c=a.consensus||{}, valid=isFiniteNumber(c.coverage?.valid)?c.coverage.valid:0;
+    if(valid===0) return '煙霧資料不足，不能判定乾淨';
+    const priority={MODEL_SPLIT:'模型分歧，結果不確定',RISKY_BOUNDARY:'位於煙帶邊界',SMOKE_RISK:'有實質煙霧風險',VETO:'重煙，攝影否決',SINGLE_MODEL_ONLY:'僅單一模型覆蓋，結果不確定'};
+    return priority[c.status]||smokeClassZh(smokeClassFromPM(c.consensus_pm2_5,c.status));
+  }
+  const pm=legacy?.pm2_5;
+  return smokeClassZh(smokeClassFromPM(pm,''));
+}
+function transparencyZh(assessment){
+  const a=unwrapSmokeAssessment(assessment), c=a?.consensus||{}, status=c.status, pm=c.consensus_pm2_5;
+  if(status==='MODEL_SPLIT') return '各模型對煙帶位置判斷不一致，出發前需重新確認';
+  if(status==='RISKY_BOUNDARY') return '煙帶輕微移動即可改變拍攝條件';
+  if(status==='VETO') return '重煙造成攝影否決';
+  if(status==='SMOKE_RISK') return '低空與遠山對比可能受影響';
+  if(!a || status==='SINGLE_MODEL_ONLY' || (c.coverage?.valid??0)===0 || !isFiniteNumber(pm)) return '煙霧資料不足，不能判定乾淨';
+  const pmClass=smokeClassFromPM(pm,status);
+  if(pmClass==='HAZE') return '霧霾可能降低遠景對比';
+  if(pmClass==='SMOKY') return '低空與遠山對比可能受影響';
+  if(pmClass==='HEAVY') return '重煙會顯著降低通透度';
+  return '未見明顯煙霧懲罰';
+}
+function smokeCoverageText(valid,total=3){
+  if(valid===2) return '2/3 模型覆蓋，屬部分資料';
+  if(valid===1) return '1/3 模型覆蓋，不能判定乾淨';
+  if(valid===0) return '0/3 模型覆蓋，無法評估';
+  return valid===total?'':`${valid}/${total} 模型覆蓋`;
+}
+function smokeSummaryHTML(assessment,legacy={}){
+  const a=unwrapSmokeAssessment(assessment), c=a?.consensus||{}, p=a?.pollutants||{};
+  const status=a?c.status:null, valid=a&&isFiniteNumber(c.coverage?.valid)?c.coverage.valid:0;
+  const total=a&&isFiniteNumber(c.coverage?.total)?c.coverage.total:3;
+  const pm=a?c.consensus_pm2_5:legacy.pm2_5, aqi=a?p.us_aqi_health_context:legacy.us_aqi;
+  const dominant=a?pollutantZh(p.dominant_pollutant):'資料暫缺';
+  const health=`健康 AQI：${fmtNumber(aqi)}${a?`（主要污染物 ${dominant}）`:''}`;
+  const photo=`攝影煙霧：${photographySmokeZh(a,legacy)}（PM2.5 ${fmtNumber(pm,1)}）`;
+  const risk=['MODEL_SPLIT','RISKY_BOUNDARY','SMOKE_RISK'].includes(status), veto=status==='VETO';
+  const warning=a&&(risk||veto)?`<div class="smoke-photo">${veto?'⛔':'⚠️'} ${esc(smokeStatusZh(status))}</div>`:'';
+  const coverage=a?smokeCoverageText(valid,total):'尚無三模型覆蓋資料 · 單一舊版資料推估';
+  return `<div class="smoke-summary${veto?' veto':risk?' risk':''}">
+    <div class="smoke-health">${health}</div><div class="smoke-photo">${photo}</div>
+    <div class="smoke-transparency">通透度：${transparencyZh(a)}</div>${warning}
+    ${coverage?`<div class="smoke-coverage">${esc(coverage)}</div>`:''}</div>`;
+}
+function smokeDetailHTML(assessment){
+  const a=unwrapSmokeAssessment(assessment); if(!a) return '';
+  const c=a.consensus||{}, coverage=c.coverage||{}, w=a.window_local||{};
+  const valid=isFiniteNumber(coverage.valid)?coverage.valid:0, total=isFiniteNumber(coverage.total)?coverage.total:3;
+  const confidence=({high:'高',medium:'中',low:'低',none:'無'})[c.confidence]||'資料暫缺';
+  const names=[['eccc_firework','ECCC FireWork'],['cams_global','CAMS global'],['bluesky_canada','BlueSky Canada']];
+  const rows=names.map(([key,label])=>{
+    const m=a.models?.[key]||{}, ok=m.valid===true;
+    const availability=ok?'有效':'無資料／超出有效時段';
+    const cycle=key==='cams_global'&&m.cycle_status==='not_exposed_by_open_meteo'?'供應端未公開 CAMS 模型週期':fmtBackendText(m.cycle_status);
+    const forecast=key==='bluesky_canada'?`<br>預報識別碼：${fmtBackendText(m.forecast_id)}`:'';
+    const modelUncertainty=Array.isArray(m.uncertainties)?m.uncertainties.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join('；')||'—':'—';
+    return `<tr><td><b>${label}</b><br>${availability}<br>類別：${smokeClassZh(m.class)}</td>
+      <td>窗口平均：${fmtNumber(m.window_avg_pm2_5,1)}<br>窗口範圍：${fmtRange(m.window_range)}<br>鄰近範圍：${fmtRange(m.neighbor_range)}</td>
+      <td>參考時間：${fmtBackendText(m.reference_time)}<br>模型週期：${cycle}<br>有效時段：${Array.isArray(m.valid_range)?m.valid_range.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join(' – ')||'—':'—'}<br>擷取時間：${fmtBackendText(m.retrieval_time||m.provider_retrieval_time)}${forecast}</td>
+      <td>來源：${fmtBackendText(m.source)}<br>不確定因素：${modelUncertainty}</td></tr>`;
+  }).join('');
+  const support=a.source_support||{}, supportNotes=Array.isArray(support.notes)?support.notes.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join('；')||'—':'—';
+  const uncertainties=Array.isArray(a.uncertainties)?a.uncertainties.filter(x=>typeof x==='string'&&x).map(x=>esc(x)).join('；')||'—':'—';
+  return `<details class="smoke-detail"><summary>煙霧模型、覆蓋與資料時間（${valid}/${total}）</summary><div class="smoke-detail-body">
+    <div class="smoke-detail-meta">窗口：${fmtBackendText(w.start)} – ${fmtBackendText(w.end)} ${typeof w.timezone==='string'?esc(w.timezone):''}<br>覆蓋：${valid}/${total} · 信心：${confidence}<br>狀態：${esc(smokeStatusZh(c.status))}（${fmtBackendText(c.status)}）</div>
+    <div class="smoke-table-wrap table-wrap"><table class="smoke-model-table"><thead><tr><th>模型</th><th>PM2.5（µg/m³）</th><th>資料時間</th><th>來源與限制</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="smoke-detail-notes">來源佐證：${typeof support.classification==='string'?esc(support.classification):'資料暫缺'} · 最近確認火源 ${fmtNumber(support.nearest_confirmed_fire_km,1)} km · 衛星熱點 ${fmtNumber(support.nearest_satellite_hotspot_km,1)} km · 傳輸佐證 ${support.transport_supported===true?'有':support.transport_supported===false?'無':'資料暫缺'}<br>${supportNotes}<br>不確定因素：${uncertainties}</div>
+  </div></details>`;
 }
 function smokeMini(loc){
-  const hrs=windowHours(loc);
-  const s=Math.round(avg(hrs,'smoke_score'));
-  const noData = hrs.some(h=>h.smoke_label==='無資料') || hrs.every(h=>h.pm2_5==null);
-  const l = noData?'無資料':labelOf(s);
-  const pm = hrs.length?avg(hrs,'pm2_5'):null;
-  const aqi = hrs.length?avg(hrs,'us_aqi'):null;
-  const dir = hrs.find(h=>h.wind_dir)?.wind_dir;
-  let infer;
-  if (noData) infer='無煙塵數據';
-  else if (pm<=10) infer='空氣大致乾淨';
-  else infer=`盛行${dir||'—'}風——煙或來自上風方向山火（推測）`;
-  return `<div class="mini"><div class="mt">煙 <span class="ml l-${l}">${l}</span></div>
-    <div class="graphic">${aqiSVG(aqi)}</div>
-    <div class="ms">${noData?'—':s}</div>
-    <div class="md">${noData?'稍後再更新':`PM2.5 ${pm.toFixed(0)} · AQI ${Math.round(aqi)}<br>${infer}`}</div></div>`;
+  const a=unwrapSmokeAssessment(loc), c=a?.consensus||{};
+  if(a){
+    const pm=c.consensus_pm2_5, s=c.photography_smoke_score, l=photographySmokeZh(a);
+    return `<div class="mini"><div class="mt">攝影煙霧</div><div class="graphic" style="font-size:1.45rem">🌫️</div><div class="ms">${fmtNumber(s)}</div><div class="md">${l} · PM2.5 ${fmtNumber(pm,1)}<br>${esc(smokeStatusZh(c.status))}</div></div>`;
+  }
+  const hrs=windowHours(loc), vals=hrs.map(h=>h.pm2_5).filter(isFiniteNumber), pm=vals.length?vals.reduce((x,y)=>x+y,0)/vals.length:null;
+  const scores=hrs.map(h=>h.smoke_score).filter(isFiniteNumber), score=scores.length?scores.reduce((x,y)=>x+y,0)/scores.length:null;
+  return `<div class="mini"><div class="mt">攝影煙霧</div><div class="graphic" style="font-size:1.45rem">🌫️</div><div class="ms">${fmtNumber(score)}</div><div class="md">${vals.length?`單一舊版資料推估 · PM2.5 ${fmtNumber(pm,1)}`:'尚無三模型覆蓋資料'}</div></div>`;
 }
 
 function windRow(loc){
@@ -513,15 +609,18 @@ function cardHTML(loc, isBest){
     ${flags?`<div class="flags">${flags}</div>`:''}
     ${loc.night.vetoes.length?'':timelineSVG(loc)}
     <div class="mini3">${cloudMini(loc)}${moonMini(loc)}${smokeMini(loc)}</div>
+    ${smokeSummaryHTML(loc, {pm2_5:windowHours(loc).map(h=>h.pm2_5).filter(isFiniteNumber)[0],us_aqi:windowHours(loc).map(h=>h.us_aqi).filter(isFiniteNumber)[0]})}
     <div class="bonus">${windRow(loc)}${gcRow(loc)}${seasonRow(loc)}</div>
+    ${smokeDetailHTML(loc)}
     ${gearWarn(loc)}
     <button class="expand-btn" onclick="toggle('${loc.location_id}')">${open?'▲ 收起':'▼ 逐小時 · 器材 · 詳情'}</button>
     <div class="detail ${open?'open':''}">
       ${flagDetail}
       ${loc.hourly&&loc.hourly.length?`<h3>逐小時</h3>
       <div class="htable"><table>
-        <tr><th>時間</th><th>雲</th><th>PM2.5</th><th>AQI</th><th>風</th><th>月</th><th>分</th><th>雲/月/煙/風</th></tr>${rows}
+        <tr><th>時間</th><th>雲</th><th>PM2.5</th><th>健康 AQI</th><th>風</th><th>月</th><th>分</th><th>雲/月/煙/風</th></tr>${rows}
       </table></div>`:'<p class="gear">沒有逐小時數據（可能超出預報範圍）</p>'}
+      ${unwrapSmokeAssessment(loc)?'<p class="src">逐小時 PM2.5 與健康 AQI 為舊版 CAMS 時序參考；正式攝影煙霧判讀請以上方三模型共識為準。</p>':''}
       <h3>器材保護（整晚）</h3>
       <div class="gear">${(loc.gear_advice||[]).map(g=>`<div>${esc(zh(g))}</div>`).join('')}</div>
       <div class="src">座標 ${loc.lat}, ${loc.lon} · ${esc(loc.coord_source)}<br>${esc(loc.sources?.weather||'')}<br>${esc(loc.sources?.air_quality||'')}<br>${esc(loc.sources?.astronomy||'')}</div>
@@ -632,10 +731,11 @@ function dayWindDetail(e){ const wd=e.wind_detail; if(!wd||wd.ecmwf_missing||!wd
     <table><thead><tr><th>時間</th><th>預設</th><th>ECMWF</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="calm">鏡面（≤6 km/h）：預設 ${calm(wd.calm_best)} · ECMWF ${calm(wd.calm_ecmwf)}<br>單位 km/h · Open-Meteo best_match ＋ ecmwf_ifs025</div></details>`;
 }
-function daySmokeMini(e){ const w=e.weather,c=e.components;
-  const detail=w.pm2_5!=null?`PM2.5 ${w.pm2_5} µg/m³<br>US AQI ${w.us_aqi??'—'}`:'煙塵資料暫缺<br>以不確定值計算';
-  return `<div class="mini"><div class="mt">煙 <span class="ml l-${labelOf(c.smoke)}">${labelOf(c.smoke)}</span></div><div class="graphic" style="font-size:1.45rem">🌫️</div>
-    <div class="ms">${c.smoke}</div><div class="md">${detail}</div></div>`;
+function daySmokeMini(e){ const w=e.weather,c=e.components,a=unwrapSmokeAssessment(e);
+  if(a){ const x=a.consensus||{},pm=x.consensus_pm2_5;
+    return `<div class="mini"><div class="mt">攝影煙霧</div><div class="graphic" style="font-size:1.45rem">🌫️</div><div class="ms">${fmtNumber(x.photography_smoke_score)}</div><div class="md">${photographySmokeZh(a,w)} · PM2.5 ${fmtNumber(pm,1)}<br>${esc(smokeStatusZh(x.status))}</div></div>`;
+  }
+  return `<div class="mini"><div class="mt">攝影煙霧</div><div class="graphic" style="font-size:1.45rem">🌫️</div><div class="ms">${fmtNumber(c.smoke)}</div><div class="md">${isFiniteNumber(w.pm2_5)?`單一舊版資料推估 · PM2.5 ${fmtNumber(w.pm2_5,1)}`:'尚無三模型覆蓋資料'}</div></div>`;
 }
 function daylightCard(p,e,isBest){
   if(p.error || e.error) return `<div class="sorry"><h2>🙇 ${esc(p.name)} 暫時無法評估</h2><p>${esc(p.message||e.message||'未知原因')}</p></div>`;
@@ -646,15 +746,17 @@ function daylightCard(p,e,isBest){
   const peakTxt=e.peak_window?`<div class="brow"><span class="ico">🔥</span><span class="txt">預計最濃 <b>${e.peak_window}</b><span class="dim"> · 逐小時預報推估，僅供參考</span></span></div>`:'';
   const sat=e.satellite;
   const satTxt=sat&&sat.status==='ok'?`<div class="brow"><span class="ico">🛰️</span><span class="txt">衛星實測修正：原始 ${sat.raw_score} → <b>${sat.adjusted_score}</b><span class="dim"> · 觀測雲量 ${sat.observed_sector_cloud_pct}% vs 預報 ${sat.forecast_horizon_block_pct}%（GOES-18 趨勢校正）</span></span></div>`:'';
+  const capTxt=e.condition_cap?.applied?`<div class="flag cap">🔒 煙霧資料狀態已將評分上限套用為 ${fmtNumber(e.condition_cap.max_score)} 分</div>`:'';
   return `<div class="card day-card">
     <div class="card-top"><div class="ring">${ringSVG(e.score,color)}<div class="num"><b style="color:${color}">${e.score}</b><span>分</span></div></div>
       <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(zh(p.name))}</h2><div class="mtn">${dateText} · ${eventName} · 雲／風／煙 · 火燒雲機率</div></div><span class="badge b-${g}">${esc(e.label)}</span></div>
     <div class="day-window"><span>📷 建議到場</span><b>${l.window.start}</b><small>幾何${eventName} ${l.geometric_time} · 提前 75 分到場 · 拍攝至 ${l.window.end} · ${l.label} ${l.time}（山體受光參考）</small></div>
     <div class="mini3">${dayCloudMini(e)}${dayWindMini(e)}${daySmokeMini(e)}</div>
+    ${smokeSummaryHTML(e,e.weather)}${capTxt}
     <div class="bonus"><div class="brow"><span class="ico">☀️</span><span class="txt">${l.confidence==='field'?'West 實測／判讀':'地形模型'}：${esc(l.basis)}</span></div>
     ${peakTxt}${satTxt}
     <div class="brow"><span class="ico">🌤️</span><span class="txt">${e.notes.map(esc).join(' · ')}${(e.weather.visibility_km!=null||e.weather.precip_probability_pct!=null)?`<br><span class="dim">${[e.weather.visibility_km!=null?`能見度 ${e.weather.visibility_km} km`:null,e.weather.precip_probability_pct!=null?`降水 ${e.weather.precip_probability_pct}%`:null].filter(Boolean).join(' · ')}</span>`:''}</span></div></div>
-    ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}${dayWindDetail(e)}</div>`;
+    ${model?`<div class="src" style="margin-top:8px">${esc(model)}</div>`:''}${smokeDetailHTML(e)}${dayWindDetail(e)}</div>`;
 }
 
 function renderDaylight(data){
@@ -684,7 +786,7 @@ function renderSpots(data){
   }).join('') || '<div class="nt" style="padding:20px">此日期沒有拍攝點資料</div>';
 }
 
-const FOOT_MW='雲45% · 月25% · 煙20% · 風10%（倒影）<br>Open-Meteo · CAMS · skyfield — 只使用機位本身座標<br><a href="https://firesmoke.ca" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">煙霧預報圖 ↗</a>';
+const FOOT_MW='雲45% · 月25% · 煙20% · 風10%（倒影）<br>健康 AQI 與攝影煙霧分開顯示 · 煙霧模型：ECCC FireWork／CAMS global／BlueSky Canada<br>Open-Meteo · skyfield — 只使用機位本身座標<br><a href="https://firesmoke.ca" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">煙霧預報圖 ↗</a>';
 function render(data){
   lastData=data;
   document.getElementById('ver').textContent='v'+(data.version||'—');
@@ -783,7 +885,7 @@ document.getElementById('mode').addEventListener('click',e=>{
   if(mode==='spots'){ loadSpots(); }
   if(mode==='sunrise' || mode==='sunset'){
     daylightEvent=mode;
-    document.getElementById('foot').innerHTML='雲50%（色彩雲層×地平線開口） · 煙30%（PM2.5） · 風20%（倒影 · 雙模型對比取保守）<br>Open-Meteo（best_match ＋ ECMWF IFS） · CAMS 空氣質素 · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
+    document.getElementById('foot').innerHTML='雲50%（色彩雲層×地平線開口） · 煙30%（PM2.5 三模型共識） · 風20%（倒影 · 雙模型對比取保守）<br>健康 AQI 與攝影煙霧分開顯示 · ECCC FireWork／CAMS global／BlueSky Canada<br>Open-Meteo（best_match ＋ ECMWF IFS） · Skyfield · AWS Terrain Tiles SRTM DEM · 現場實測優先';
     if(lastData) renderDaylight(lastData);
   } else {
     document.getElementById('foot').innerHTML=FOOT_MW;
