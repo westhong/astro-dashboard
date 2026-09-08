@@ -1,5 +1,7 @@
 import unittest
 from datetime import datetime, timedelta
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from backend.scripts import night_report
@@ -49,6 +51,19 @@ class NightSmokeIntegrationTests(unittest.TestCase):
 
     def test_report_subprocess_timeout_allows_first_bluesky_cycle_download(self):
         self.assertEqual(build_report.TIMEOUT, 420)
+
+    def test_repo_root_falls_back_to_home_dashboard_when_script_is_in_skill_tree(self):
+        with TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            dashboard = home / "astro-dashboard"
+            smoke_module = dashboard / "backend" / "smoke_pipeline.py"
+            smoke_module.parent.mkdir(parents=True)
+            smoke_module.touch()
+            skill_script = home / "profile" / "skills" / "photography" / "rockies" / "scripts" / "night_report.py"
+
+            resolved = night_report._resolve_repo_root(skill_script, home=home)
+
+        self.assertEqual(resolved, dashboard)
 
     def run_analyze(self, smoke):
         wx, aq = weather_and_aq("2026-08-24")

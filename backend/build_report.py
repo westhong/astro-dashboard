@@ -19,6 +19,99 @@ DOCS = HERE.parent / "docs"
 STATIC = HERE.parent / "static" / "index.html"
 TZ = ZoneInfo("America/Edmonton")
 TIMEOUT = 420
+GRADE_RANK = {"STAY_HOME": 0, "RISKY": 1, "MARGINAL": 2, "GOOD": 3, "GO": 4}
+GRADE_ZH = {"STAY_HOME": "留在家中", "RISKY": "不太建議", "MARGINAL": "可試但有風險", "GOOD": "值得前往", "GO": "立即出發"}
+
+
+def select_best_location(results):
+    eligible = [
+        item for item in results
+        if not item.get("error") and GRADE_RANK.get(item.get("night", {}).get("grade_code"), -1) >= GRADE_RANK["MARGINAL"]
+    ]
+    return max(
+        eligible,
+        key=lambda item: (GRADE_RANK[item["night"]["grade_code"]], item["night"]["score"]),
+        default=None,
+    )
+
+
+def _clock_minutes(value):
+    hour, minute = map(int, value.split(":"))
+    return hour * 60 + minute
+
+
+def _window_clock_hours(window):
+    if not window or not window.get("start"):
+        return set()
+    start = _clock_minutes(window["start"])
+    return {
+        f"{((start // 60) + offset) % 24:02d}:{start % 60:02d}"
+        for offset in range(window.get("hours", 3))
+    }
+
+
+def apply_forecast_revision(results, prior_payload, night_date):
+    """用同一晚上一版 report-0 偵測預報大幅改變；舊日期完全忽略。"""
+    if not prior_payload or prior_payload.get("night_date") != night_date:
+        return results
+    prior_by_id = {
+        item.get("location_id"): item for item in prior_payload.get("locations", [])
+        if not item.get("error")
+    }
+    for current in results:
+        prior = prior_by_id.get(current.get("location_id"))
+        window = current.get("best_window")
+        if current.get("error") or not prior or not window:
+            continue
+        current_hours = {row.get("time"): row.get("cloud_total_pct") for row in current.get("hourly", [])}
+        prior_hours = {row.get("time"): row.get("cloud_total_pct") for row in prior.get("hourly", [])}
+        prior_window = prior.get("best_window")
+        wanted = _window_clock_hours(window) | _window_clock_hours(prior_window)
+        shifts = [
+            abs(current_hours[hour] - prior_hours[hour]) for hour in wanted
+            if current_hours.get(hour) is not None and prior_hours.get(hour) is not None
+        ]
+        max_shift = max(shifts) if shifts else None
+        start_shift = None
+        if prior_window and prior_window.get("start"):
+            delta = abs(_clock_minutes(window["start"]) - _clock_minutes(prior_window["start"]))
+            start_shift = min(delta, 24 * 60 - delta) / 60
+        reasons = []
+        if max_shift is not None and max_shift >= 40:
+            reasons.append("cloud_shift")
+        if start_shift is not None and start_shift >= 2:
+            reasons.append("best_window_shift")
+
+        if not reasons:
+            continue
+        current["forecast_revision"] = {
+            "low_confidence": True,
+            "reasons": reasons,
+            "max_cloud_shift_pct": max_shift,
+            "best_window_start_shift_hours": start_shift,
+            "prior_generated_utc": prior_payload.get("generated_utc"),
+        }
+        night = current["night"]
+        if "預報修訂不穩定" not in night.setdefault("caps", []):
+            night["caps"].append("預報修訂不穩定")
+        if GRADE_RANK.get(night.get("grade_code"), -1) > GRADE_RANK["MARGINAL"]:
+            night["grade_code"] = "MARGINAL"
+            night["grade_zh"] = GRADE_ZH["MARGINAL"]
+    return results
+
+
+def load_prior_reports(docs_dir):
+    """Index existing reports by night date across date rollover and offsets."""
+    reports = {}
+    for path in Path(docs_dir).glob("report-*.json"):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        night_date = payload.get("night_date")
+        if night_date:
+            reports[night_date] = payload
+    return reports
 
 
 def run_one(loc_id, date_str):
@@ -116,6 +209,7 @@ def main():
     locs = json.loads((HERE / "references" / "locations.json").read_text())
     today = dt.datetime.now(TZ).date()
     DOCS.mkdir(exist_ok=True)
+    prior_reports = load_prior_reports(DOCS)
     daylight_full: dict[str, dict] = {}
 
     for offset in range(3):
@@ -129,11 +223,9 @@ def main():
                 retry = run_one(r["location_id"], date_str)
                 if not retry.get("error"):
                     results[i] = retry
+        apply_forecast_revision(results, prior_reports.get(date_str), date_str)
         ok = [r for r in results if not r.get("error")]
-        best = None
-        scored = [r for r in ok if r.get("night", {}).get("grade_code") != "NO_DATA"]
-        if scored:
-            best = max(scored, key=lambda r: r["night"]["score"])
+        best = select_best_location(ok)
         spots = build_spots(date_str)
         daylight = build_daylight_report(date_str)
         daylight_full[date_str] = daylight

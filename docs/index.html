@@ -405,7 +405,12 @@ function attachScrub(loc){
 /* ── 指標小卡資料 ── */
 function windowHours(loc){
   const bw=loc.best_window, hrs=loc.hourly||[];
-  let inWin = bw ? hrs.filter(h=>h.time>=bw.start && h.time<bw.end) : hrs;
+  const mins=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
+  let inWin=hrs;
+  if(bw){
+    const start=mins(bw.start),end=mins(bw.end);
+    inWin=hrs.filter(h=>{const t=mins(h.time);return start<end?t>=start&&t<end:t>=start||t<end});
+  }
   return inWin.length?inWin:hrs;
 }
 const avg=(arr,k)=>arr.length?arr.reduce((a,h)=>a+(h[k]??0),0)/arr.length:0;
@@ -594,12 +599,24 @@ function gearWarn(loc){
 
 const VERDICT_COLOR={'值得去':'#4ade80','可以去':'#a3e635','邊緣':'#fbbf24','留在家':'#9ca3af'};
 function localVerdict(loc){
+  if(NIGHT_GRADE_RANK[loc.night.grade_code]<NIGHT_GRADE_RANK.MARGINAL) return '';
   const la=lastData?.local_analysis;
   if(!la||la.source_generated_utc!==lastData.generated_utc) return '';
   const v=la.locations?.[loc.location_id]?.verdict;
   if(!v||!VERDICT_COLOR[v]) return '';
   return `<span class="badge" style="color:${VERDICT_COLOR[v]};border-color:${VERDICT_COLOR[v]}">${v}</span>`;
 }
+
+const NIGHT_GRADE_RANK={NO_DATA:-1,STAY_HOME:0,RISKY:1,MARGINAL:2,GOOD:3,GO:4};
+function rankNightLocations(locations){
+  return [...locations].filter(l=>!l.error&&NIGHT_GRADE_RANK[l.night?.grade_code]!=null)
+    .sort((a,b)=>NIGHT_GRADE_RANK[b.night.grade_code]-NIGHT_GRADE_RANK[a.night.grade_code]||b.night.score-a.night.score);
+}
+function nightRecommendation(locations){
+  const candidate=rankNightLocations(locations).find(l=>l.night?.grade_code!=='NO_DATA')||null;
+  return {candidate,recommended:!!candidate&&NIGHT_GRADE_RANK[candidate.night.grade_code]>=NIGHT_GRADE_RANK.MARGINAL};
+}
+function nightStar(loc){ return ['GOOD','GO'].includes(loc?.night?.grade_code); }
 
 function cardHTML(loc, isBest){
   const g=loc.night.grade_code, color=GRADE_COLOR[g];
@@ -618,7 +635,7 @@ function cardHTML(loc, isBest){
   return `<div class="card">
     <div class="card-top">
       <div class="ring">${ringSVG(loc.night.score,color)}<div class="num"><b style="color:${color}">${g==='NO_DATA'?'—':Math.round(loc.night.score)}</b><span>分</span></div></div>
-      <div class="card-title"><h2>${isBest?'⭐ ':''}${esc(loc.name_zh)}</h2><div class="mtn">${esc(loc.mountain)}</div></div>
+      <div class="card-title"><h2>${isBest&&nightStar(loc)?'⭐ ':isBest?'有風險選項 · ':''}${esc(loc.name_zh)}</h2><div class="mtn">${esc(loc.mountain)}</div></div>
       <span class="badge b-${g}">${GRADE_ZH[g]||g}</span>${localVerdict(loc)}
     </div>
     ${flags?`<div class="flags">${flags}</div>`:''}
@@ -654,13 +671,10 @@ function sorryHTML(loc){
 function heroHTML(data){
   const dateWord=['今晚','明晚','後晚'][currentOffset]||'當晚';
   const why='雲 45%（雲量遮蔽）／月 25%（月光照射）／煙 20%（PM2.5 大氣通透度）／風 10%（倒影）。評分取天文黑夜窗口內最佳連續 3 小時，只使用機位本身座標。';
-  const la=data.local_analysis;
-  if(la && la.source_generated_utc===data.generated_utc){
-    return `<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}銀河結論</div><div class="v">${esc(la.headline)}</div><div class="why">${why}</div></div>`;
-  }
-  const ok=data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
-  const best=ok[0];
-  const v=best?`⭐ ${esc(best.name_zh)} — ${Math.round(best.night.score)} 分`:'🙇 暫時無法評估';
+  const rec=nightRecommendation(data.locations||[]),best=rec.candidate;
+  const v=!best?'🙇 暫時無法評估':!rec.recommended?`${dateWord}不建議拍攝 · 相對較佳：${esc(best.name_zh)} — ${Math.round(best.night.score)} 分`:
+    best.night.grade_code==='MARGINAL'?`有風險選項：${esc(best.name_zh)} — ${Math.round(best.night.score)} 分`:
+    `⭐ ${esc(best.name_zh)} — ${Math.round(best.night.score)} 分`;
   const color=best?GRADE_COLOR[best.night.grade_code]:'#9ca3af';
   return `<div class="hero" style="padding:13px 14px"><div class="k">${dateWord}銀河結論</div><div class="v" style="color:${color}">${v}</div><div class="why">${why}</div></div>`;
 }
@@ -806,9 +820,9 @@ function render(data){
   lastData=data;
   document.getElementById('ver').textContent='v'+(data.version||'—');
   document.getElementById('hero').innerHTML=heroHTML(data);
-  const ok=data.locations.filter(l=>!l.error).sort((a,b)=>b.night.score-a.night.score);
+  const ok=rankNightLocations(data.locations||[]);
   const bad=data.locations.filter(l=>l.error);
-  const analysisBestId=data.best_location_id;
+  const analysisBestId=nightRecommendation(ok).recommended?nightRecommendation(ok).candidate.location_id:null;
   const anyTimeline=ok.some(l=>!l.night.vetoes.length);
   const seasonNote=ok.map(l=>l.vertical_mw).find(Boolean);
   document.getElementById('cards').innerHTML =

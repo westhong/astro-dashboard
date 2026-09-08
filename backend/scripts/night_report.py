@@ -29,8 +29,17 @@ from pathlib import Path
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 
-# Keep package imports working when this file is launched directly as a subprocess.
-REPO_ROOT = Path(__file__).resolve().parents[2]
+# Keep package imports working from both the repo copy and the skill source.
+def _resolve_repo_root(script_path, home=None):
+    script_path = Path(script_path).resolve()
+    local_root = script_path.parents[2]
+    if (local_root / "backend" / "smoke_pipeline.py").exists():
+        return local_root
+    dashboard_root = Path(home) / "astro-dashboard" if home is not None else Path.home() / "astro-dashboard"
+    return dashboard_root if (dashboard_root / "backend" / "smoke_pipeline.py").exists() else local_root
+
+
+REPO_ROOT = _resolve_repo_root(__file__)
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 from backend.smoke_pipeline import assess_smoke_window
@@ -49,6 +58,7 @@ GEAR_END_HOUR = 8       # 器材建議統計到翌日 08:00
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 AQ_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
+CLOUD_MODELS = ("ecmwf_ifs025", "gem_seamless", "icon_seamless", "gfs_seamless")
 
 GRADES = [
     (85, "GO", "立即出發"),
@@ -254,6 +264,107 @@ def _batch_params(coords, hourly):
     }
 
 
+def _conservative_cloud(values):
+    """保守聚合，但容許四模型中有一個離群值。"""
+    valid = sorted((value for value in values if value is not None), reverse=True)
+    if len(valid) >= 3:
+        return valid[1]
+    if len(valid) == 2:
+        return valid[0]
+    return valid[0] if valid else None
+
+
+def _normalize_cloud_models(forecast):
+    hourly = forecast.get("hourly", {})
+    times = hourly.get("time", [])
+    consensus = {key: [] for key in (
+        "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high"
+    )}
+    model_hours = []
+    counts, spreads, confidences = [], [], []
+    for index in range(len(times)):
+        models = {}
+        for model in CLOUD_MODELS:
+            values = {}
+            for short, field in (
+                ("total", "cloud_cover"), ("low", "cloud_cover_low"),
+                ("mid", "cloud_cover_mid"), ("high", "cloud_cover_high"),
+            ):
+                series = hourly.get(f"{field}_{model}", [])
+                values[short] = series[index] if index < len(series) else None
+            present = [value for value in values.values() if value is not None]
+            values["effective"] = max(present) if present else None
+            values["usable"] = bool(present)
+            values["available"] = len(present) == 4
+            models[model] = values
+
+        effective = [entry["effective"] for entry in models.values() if entry["usable"]]
+        count = sum(1 for entry in models.values() if entry["available"])
+        spread = max(effective) - min(effective) if len(effective) >= 2 else None
+        confidence = "low" if count < 3 or (spread is not None and spread >= 40) else "medium" if spread is not None and spread > 20 else "high"
+        consensus["cloud_cover"].append(_conservative_cloud(effective))
+        for short, field in (("low", "cloud_cover_low"), ("mid", "cloud_cover_mid"), ("high", "cloud_cover_high")):
+            consensus[field].append(_conservative_cloud([
+                entry[short] for entry in models.values() if entry[short] is not None
+            ]))
+        model_hours.append(models)
+        counts.append(count)
+        spreads.append(spread)
+        confidences.append(confidence)
+
+    hourly.update(consensus)
+    hourly["_cloud_models"] = model_hours
+    hourly["_cloud_available_models"] = counts
+    hourly["_cloud_spread"] = spreads
+    hourly["_cloud_confidence"] = confidences
+    hourly["_cloud_source"] = "open_meteo_explicit_models"
+    for field in (
+        "temperature_2m", "relative_humidity_2m", "dew_point_2m",
+        "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m",
+        "visibility", "freezing_level_height",
+    ):
+        if field in hourly:
+            continue
+        merged = []
+        for index in range(len(times)):
+            value = None
+            for model in CLOUD_MODELS:
+                series = hourly.get(f"{field}_{model}", [])
+                candidate = series[index] if index < len(series) else None
+                if candidate is not None:
+                    value = candidate
+                    break
+            merged.append(value)
+        hourly[field] = merged
+    return forecast
+
+
+def _normalize_met_norway_clouds(forecast):
+    hourly = forecast.get("hourly", {})
+    model_hours, counts = [], []
+    for index, _time in enumerate(hourly.get("time", [])):
+        values = {
+            short: (hourly.get(field, [])[index] if index < len(hourly.get(field, [])) else None)
+            for short, field in (
+                ("total", "cloud_cover"), ("low", "cloud_cover_low"),
+                ("mid", "cloud_cover_mid"), ("high", "cloud_cover_high"),
+            )
+        }
+        present = [value for value in values.values() if value is not None]
+        values["effective"] = max(present) if present else None
+        values["usable"] = bool(present)
+        values["available"] = len(present) == 4
+        model_hours.append({"met_norway": values})
+        counts.append(1 if values["available"] else 0)
+        hourly["cloud_cover"][index] = values["effective"] if values["usable"] else None
+    hourly["_cloud_models"] = model_hours
+    hourly["_cloud_available_models"] = counts
+    hourly["_cloud_spread"] = [None] * len(model_hours)
+    hourly["_cloud_confidence"] = ["low"] * len(model_hours)
+    hourly["_cloud_source"] = "met_norway"
+    return forecast
+
+
 def fetch_weather_batch(coords):
     """一次 Open-Meteo request 取得全部機位；增加機位不增加 API request 次數。"""
     params = _batch_params(coords, ",".join([
@@ -262,15 +373,19 @@ def fetch_weather_batch(coords):
         "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m", "visibility", "freezing_level_height",
     ]))
     params["wind_speed_unit"] = "kmh"
+    params["models"] = ",".join(CLOUD_MODELS)
     try:
         raw = _get_with_retry(FORECAST_URL, params)
         forecasts = raw if isinstance(raw, list) else [raw]
         if len(forecasts) != len(coords):
             raise ValueError(f"天氣批次數量不完整：預期 {len(coords)}，收到 {len(forecasts)}")
-        return forecasts
+        return [_normalize_cloud_models(forecast) for forecast in forecasts]
     except Exception as e:
         print(f"[警告] Open-Meteo 批次失效（{e}）— 轉用 MET Norway 後備數據源", file=sys.stderr)
-        return _met_norway_fetch_batch(coords, forecast_days=params["forecast_days"])
+        return [
+            _normalize_met_norway_clouds(forecast)
+            for forecast in _met_norway_fetch_batch(coords, forecast_days=params["forecast_days"])
+        ]
 
 
 def fetch_air_quality_batch(coords):
@@ -520,10 +635,12 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
         i = wx_by_time.get(key)
         if i is None:
             continue
-        total = hourly["cloud_cover"][i] or 0
-        low = hourly["cloud_cover_low"][i] or 0
-        mid = hourly["cloud_cover_mid"][i] or 0
-        high = hourly["cloud_cover_high"][i] or 0
+        total = hourly["cloud_cover"][i]
+        low = hourly["cloud_cover_low"][i]
+        mid = hourly["cloud_cover_mid"][i]
+        high = hourly["cloud_cover_high"][i]
+        if any(value is None for value in (total, low, mid, high)):
+            continue
         temp = hourly["temperature_2m"][i]
         rh = hourly["relative_humidity_2m"][i]
         dew = hourly["dew_point_2m"][i]
@@ -541,6 +658,11 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
         ss = consensus_smoke_score
         ws = wind_reflection_score(wind)
         astro_score = cs * 0.45 + moon_s * 0.25 + ss * 0.20 + ws * 0.10
+        cloud_models = hourly.get("_cloud_models", [{}] * len(hourly["time"]))[i]
+        cloud_count = hourly.get("_cloud_available_models", [None] * len(hourly["time"]))[i]
+        cloud_spread = hourly.get("_cloud_spread", [None] * len(hourly["time"]))[i]
+        cloud_confidence = hourly.get("_cloud_confidence", [None] * len(hourly["time"]))[i]
+        cloud_source = hourly.get("_cloud_source", "legacy_unspecified")
         rows.append({
             "hour": h, "total_cloud": total, "low": low, "mid": mid, "high": high,
             "temp": temp, "rh": rh, "dew": dew, "wind": wind, "wind_dir": wind_dir, "gust": gust,
@@ -550,19 +672,33 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
             "smoke_score": ss, "smoke_label": (label(ss) if smoke_coverage else "無資料／不確定"),
             "wind_score": ws, "wind_label": label(ws),
             "score": astro_score,
+            "cloud_models": cloud_models, "cloud_available_models": cloud_count,
+            "cloud_spread": cloud_spread, "cloud_confidence": cloud_confidence,
+            "cloud_source": cloud_source,
         })
 
     # --- 最佳連續 3 小時 ---
+    # 缺失雲資料會令 rows 有時間缺口；不可把缺口兩邊拼成假的連續窗口。
+    runs = []
+    for row in rows:
+        if not runs or row["hour"] - runs[-1][-1]["hour"] != dt.timedelta(hours=1):
+            runs.append([row])
+        else:
+            runs[-1].append(row)
+
+    candidates = []
+    for run in runs:
+        if len(run) >= 3:
+            candidates.extend(run[k:k + 3] for k in range(len(run) - 2))
+    if not candidates and runs:
+        longest = max(len(run) for run in runs)
+        candidates = [run for run in runs if len(run) == longest]
+
     best3 = None
-    if len(rows) >= 3:
-        for k in range(len(rows) - 2):
-            chunk = rows[k:k + 3]
-            avg = sum(r["score"] for r in chunk) / 3
-            if best3 is None or avg > best3[0]:
-                best3 = (avg, chunk)
-    elif rows:
-        avg = sum(r["score"] for r in rows) / len(rows)
-        best3 = (avg, rows)
+    for chunk in candidates:
+        avg = sum(r["score"] for r in chunk) / len(chunk)
+        if best3 is None or avg > best3[0]:
+            best3 = (avg, chunk)
     night_score = best3[0] if best3 else 0
 
     # --- 否決三項 + 封頂（風永遠唔會否決） ---
@@ -570,6 +706,23 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
     caps = []     # (rank_cap, reason)
     if best3:
         avg_cs = sum(r["cloud_score"] for r in best3[1]) / len(best3[1])
+
+        window_hours = len(best3[1])
+        if window_hours == 1:
+            caps.append((GRADE_RANK["RISKY"], "連續拍攝窗口封頂：只有 1 小時"))
+        elif window_hours == 2:
+            caps.append((GRADE_RANK["MARGINAL"], "連續拍攝窗口封頂：不足 3 小時"))
+
+        covered = [r["cloud_available_models"] for r in best3[1] if r["cloud_available_models"] is not None]
+        spreads_in_window = [r["cloud_spread"] for r in best3[1] if r["cloud_spread"] is not None]
+
+        if covered and min(covered) < 2:
+            caps.append((GRADE_RANK["RISKY"], f"雲模型覆蓋不足封頂：最低 {min(covered)}/4"))
+        elif covered and min(covered) < 3:
+            caps.append((GRADE_RANK["MARGINAL"], f"雲模型覆蓋不足封頂：最低 {min(covered)}/4"))
+        if spreads_in_window and max(spreads_in_window) >= 40:
+            caps.append((GRADE_RANK["MARGINAL"], f"雲模型分歧封頂：最大差距 {max(spreads_in_window):.0f} 個百分點"))
+
 
         if avg_cs <= 15:
             vetoes.append(f"雲量否決：建議窗口平均雲分 {avg_cs:.0f}（≤15，基本冚唪唥）")
@@ -706,6 +859,11 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
             "cloud_total_pct": r["total_cloud"], "cloud_low_pct": r["low"],
             "cloud_mid_pct": r["mid"], "cloud_high_pct": r["high"],
             "cloud_score": r["cloud_score"], "cloud_label": r["cloud_label"],
+            "cloud_models": r["cloud_models"],
+            "cloud_available_models": r["cloud_available_models"],
+            "cloud_spread_pct": r["cloud_spread"],
+            "cloud_confidence": r["cloud_confidence"],
+            "cloud_source": r["cloud_source"],
             "pm2_5": (round(r["pm"], 1) if r["pm"] is not None else None),
             "us_aqi": (round(r["aqi"], 0) if r["aqi"] is not None else None),
             "smoke_score": r["smoke_score"], "smoke_label": r["smoke_label"],
@@ -719,7 +877,7 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
         } for r in rows],
         "gear_advice": gear,
         "sources": {
-            "weather": ("MET Norway Locationforecast（後備：ECMWF IFS 9km；缺 gust/visibility）" if wx.get("_source") == "met_norway" else "Open-Meteo Forecast API（GEM 系 model，lat/lon 精確點）"),
+            "weather": ("MET Norway Locationforecast（單模型後備：ECMWF IFS 9km；缺 gust/visibility）" if wx.get("_source") == "met_norway" else "Open-Meteo 四模型雲預報（ECMWF IFS 0.25°／GEM／ICON／GFS）"),
             "air_quality": (("Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）" if aq else f"兼容空氣質素失敗：{aq_error}") + "；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識"),
             "astronomy": "skyfield + de421（本地計算）",
         },

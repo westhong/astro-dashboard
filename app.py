@@ -80,7 +80,7 @@ async def _run_one_inner(loc_id: str, date_str: str) -> dict:
         return {"location_id": loc_id, "error": True, "message": f"未預期錯誤：{e}"}
 
 
-async def build_report(date_str: str) -> dict:
+async def build_report(date_str: str, prior_payload: dict | None = None) -> dict:
     t0 = time.time()
     ids = location_ids()
     sem = asyncio.Semaphore(2)  # 唔好一次過轰 12 個 API call（Open-Meteo 免費額會 429）
@@ -94,13 +94,11 @@ async def build_report(date_str: str) -> dict:
                 retry = await _run_one_inner(r["location_id"], date_str)
                 if not retry.get("error"):
                     results[results.index(r)] = retry
+    from backend.build_report import apply_forecast_revision, select_best_location
+    apply_forecast_revision(results, prior_payload, date_str)
     ok = [r for r in results if not r.get("error")]
     failed = [r for r in results if r.get("error")]
-    best = None
-    if ok:
-        scored = [r for r in ok if r.get("night", {}).get("grade_code") != "NO_DATA"]
-        if scored:
-            best = max(scored, key=lambda r: r["night"]["score"])
+    best = select_best_location(ok)
     return {
         "version": VERSION,
         "night_date": date_str,
@@ -122,7 +120,8 @@ async def report(date: str = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
         payload = dict(cached[1])
         payload["cache_age_seconds"] = round(time.time() - cached[0])
         return JSONResponse(payload)
-    payload = await build_report(date_str)
+    prior_payload = cached[1] if cached else None
+    payload = await build_report(date_str, prior_payload=prior_payload)
     _cache[date_str] = (time.time(), payload)
     payload["cache_age_seconds"] = 0
     return JSONResponse(payload)
@@ -139,6 +138,7 @@ async def index():
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/icons", StaticFiles(directory=STATIC_DIR / "icons"), name="icons")
 
 if __name__ == "__main__":
     import uvicorn
