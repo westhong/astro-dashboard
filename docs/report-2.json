@@ -1,9 +1,9 @@
 {
   "version": "2.28.3",
   "night_date": "2026-09-16",
-  "generated_at": "2026-09-14 09:39:47 MDT",
-  "generated_utc": "2026-09-14T15:39:47+00:00",
-  "elapsed_seconds": 29.7,
+  "generated_at": "2026-09-14 10:02:43 MDT",
+  "generated_utc": "2026-09-14T16:02:43+00:00",
+  "elapsed_seconds": 37.5,
   "locations": [
     {
       "location_id": "vermilion_lakes",
@@ -226,33 +226,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:17Z",
+            "retrieval_time": "2026-09-14T16:02:06Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.8392777584020905,
             "window_range": [
-              null,
-              null
+              0.6559999765620717,
+              0.9294999769871026
             ],
             "neighbor_range": [
-              null,
-              null
+              0.3750000032720635,
+              0.9294999769871026
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:17Z",
-            "provider_retrieval_time": "2026-09-14T15:39:17Z",
+            "retrieval_time": "2026-09-14T16:02:10Z",
+            "provider_retrieval_time": "2026-09-14T16:02:10Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -277,21 +277,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:17Z",
+            "retrieval_time": "2026-09-14T16:02:10Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -310,35 +310,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.788888888888889,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 415.1,
+          "nearest_satellite_hotspot_km": 415.0,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -349,12 +348,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -974,7 +971,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "two_jack_lake",
@@ -1197,33 +1194,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:18Z",
+            "retrieval_time": "2026-09-14T16:02:11Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.8392777584020905,
             "window_range": [
-              null,
-              null
+              0.6559999765620717,
+              0.9294999769871026
             ],
             "neighbor_range": [
-              null,
-              null
+              0.3750000032720635,
+              0.9294999769871026
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:18Z",
-            "provider_retrieval_time": "2026-09-14T15:39:18Z",
+            "retrieval_time": "2026-09-14T16:02:11Z",
+            "provider_retrieval_time": "2026-09-14T16:02:11Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -1248,21 +1245,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:18Z",
+            "retrieval_time": "2026-09-14T16:02:11Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -1281,35 +1278,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.788888888888889,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 423.6,
+          "nearest_satellite_hotspot_km": 423.5,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -1320,12 +1316,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -1945,7 +1939,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "herbert_lake",
@@ -2168,33 +2162,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:18Z",
+            "retrieval_time": "2026-09-14T16:02:12Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.6112500089416883,
             "window_range": [
-              null,
-              null
+              0.5940000158410896,
+              0.6249999962015806
             ],
             "neighbor_range": [
-              null,
-              null
+              0.4219999905075156,
+              1.2340000132837758
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:18Z",
-            "provider_retrieval_time": "2026-09-14T15:39:18Z",
+            "retrieval_time": "2026-09-14T16:02:12Z",
+            "provider_retrieval_time": "2026-09-14T16:02:12Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -2219,21 +2213,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:18Z",
+            "retrieval_time": "2026-09-14T16:02:12Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -2252,35 +2246,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.2,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 383.5,
+          "nearest_satellite_hotspot_km": 383.4,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -2291,12 +2284,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -2850,7 +2841,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "lake_louise",
@@ -3073,33 +3064,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:13Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 1.0311249978856019,
             "window_range": [
-              null,
-              null
+              0.8125000117154002,
+              1.2340000132837758
             ],
             "neighbor_range": [
-              null,
-              null
+              0.35899999639710245,
+              1.2340000132837758
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:19Z",
-            "provider_retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:13Z",
+            "provider_retrieval_time": "2026-09-14T16:02:13Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -3124,21 +3115,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:13Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -3157,35 +3148,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.2,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 382.1,
+          "nearest_satellite_hotspot_km": 382.0,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -3196,12 +3186,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -3755,7 +3743,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "bow_lake",
@@ -3978,33 +3966,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:14Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.6319375023267071,
             "window_range": [
-              null,
-              null
+              0.5940000158410896,
+              0.7029999915530993
             ],
             "neighbor_range": [
-              null,
-              null
+              0.5310000217306765,
+              0.7339999719135903
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:19Z",
-            "provider_retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:14Z",
+            "provider_retrieval_time": "2026-09-14T16:02:14Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -4029,21 +4017,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:14Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -4062,35 +4050,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.2,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 377.5,
+          "nearest_satellite_hotspot_km": 377.4,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -4101,12 +4088,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -4660,7 +4645,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "lake_minnewanka",
@@ -4883,33 +4868,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:15Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.6197777784815943,
             "window_range": [
-              null,
-              null
+              0.6015000164616424,
+              0.6559999765620717
             ],
             "neighbor_range": [
-              null,
-              null
+              0.38299999283175623,
+              0.9294999769871026
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:19Z",
-            "provider_retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:15Z",
+            "provider_retrieval_time": "2026-09-14T16:02:15Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -4934,21 +4919,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:19Z",
+            "retrieval_time": "2026-09-14T16:02:15Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -4967,20 +4952,20 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.788888888888889,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
@@ -4993,9 +4978,8 @@
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -5006,12 +4990,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -5631,7 +5613,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "three_sisters",
@@ -5854,33 +5836,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:20Z",
+            "retrieval_time": "2026-09-14T16:02:16Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.5215555518331725,
             "window_range": [
-              null,
-              null
+              0.49199999629934155,
+              0.577999981210553
             ],
             "neighbor_range": [
-              null,
-              null
+              0.3750000032720635,
+              1.469000032727763
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:20Z",
-            "provider_retrieval_time": "2026-09-14T15:39:20Z",
+            "retrieval_time": "2026-09-14T16:02:16Z",
+            "provider_retrieval_time": "2026-09-14T16:02:16Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -5905,21 +5887,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:20Z",
+            "retrieval_time": "2026-09-14T16:02:16Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -5938,35 +5920,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.911111111111111,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 430.4,
+          "nearest_satellite_hotspot_km": 430.3,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -5977,12 +5958,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -6603,7 +6582,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "bow_lake_east",
@@ -6826,33 +6805,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:21Z",
+            "retrieval_time": "2026-09-14T16:02:17Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.6319375023267071,
             "window_range": [
-              null,
-              null
+              0.5940000158410896,
+              0.7029999915530993
             ],
             "neighbor_range": [
-              null,
-              null
+              0.5310000217306765,
+              0.7339999719135903
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:21Z",
-            "provider_retrieval_time": "2026-09-14T15:39:21Z",
+            "retrieval_time": "2026-09-14T16:02:17Z",
+            "provider_retrieval_time": "2026-09-14T16:02:17Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -6877,21 +6856,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:21Z",
+            "retrieval_time": "2026-09-14T16:02:17Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -6910,35 +6889,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.2,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 378.2,
+          "nearest_satellite_hotspot_km": 378.1,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -6949,12 +6927,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -7508,7 +7484,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "rundle_forebay",
@@ -7724,33 +7700,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:21Z",
+            "retrieval_time": "2026-09-14T16:02:18Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.5215555518331725,
             "window_range": [
-              null,
-              null
+              0.49199999629934155,
+              0.577999981210553
             ],
             "neighbor_range": [
-              null,
-              null
+              0.3750000032720635,
+              1.469000032727763
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:21Z",
-            "provider_retrieval_time": "2026-09-14T15:39:21Z",
+            "retrieval_time": "2026-09-14T16:02:18Z",
+            "provider_retrieval_time": "2026-09-14T16:02:18Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -7775,21 +7751,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:21Z",
+            "retrieval_time": "2026-09-14T16:02:18Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -7808,35 +7784,34 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.911111111111111,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
           "classification": "SATELLITE_HOTSPOT_ONLY",
           "nearest_confirmed_fire_km": null,
-          "nearest_satellite_hotspot_km": 427.1,
+          "nearest_satellite_hotspot_km": 427.0,
           "transport_supported": null,
           "notes": [
             "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -7847,12 +7822,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "02:00",
@@ -8472,7 +8445,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     },
     {
       "location_id": "upper_kananaskis",
@@ -8688,33 +8661,33 @@
         "models": {
           "eccc_firework": {
             "source": "ECCC FireWork RAQDPS WCS",
-            "retrieval_time": "2026-09-14T15:39:22Z",
+            "retrieval_time": "2026-09-14T16:02:18Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T00:00:00Z",
+            "reference_time": "2026-09-14T12:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T00:00:00Z",
-              "2026-09-17T00:00:00Z"
+              "2026-09-14T12:00:00Z",
+              "2026-09-17T12:00:00Z"
             ],
-            "status": "FireWork does not cover the full window",
-            "units": null,
+            "status": "ok",
+            "units": "µg/m³",
             "uncertainties": [],
-            "valid": false,
-            "window_avg_pm2_5": null,
+            "valid": true,
+            "window_avg_pm2_5": 0.44611110793112296,
             "window_range": [
-              null,
-              null
+              0.40600001138813013,
+              0.49999998585903427
             ],
             "neighbor_range": [
-              null,
-              null
+              0.39100001014702457,
+              0.547000000850062
             ],
-            "class": "NO_DATA"
+            "class": "CLEAN"
           },
           "cams_global": {
             "source": "CAMS global via Open-Meteo",
-            "retrieval_time": "2026-09-14T15:39:22Z",
-            "provider_retrieval_time": "2026-09-14T15:39:22Z",
+            "retrieval_time": "2026-09-14T16:02:18Z",
+            "provider_retrieval_time": "2026-09-14T16:02:18Z",
             "reference_time": null,
             "cycle_status": "not_exposed_by_open_meteo",
             "valid_range": [
@@ -8739,21 +8712,21 @@
             "class": "CLEAN"
           },
           "bluesky_canada": {
-            "forecast_id": "BSC00CA12-07",
+            "forecast_id": "BSC06CA12-07",
             "raw_tflag_range": [
-              "2026-09-14T09:00:00Z",
-              "2026-09-16T11:00:00Z"
+              "2026-09-14T15:00:00Z",
+              "2026-09-16T17:00:00Z"
             ],
             "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
             "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
             "source": "BlueSky Canada HYSPLIT dispersion.nc",
-            "retrieval_time": "2026-09-14T15:39:22Z",
+            "retrieval_time": "2026-09-14T16:02:18Z",
             "provider_retrieval_time": null,
-            "reference_time": "2026-09-14T08:00:00Z",
+            "reference_time": "2026-09-14T14:00:00Z",
             "cycle_status": null,
             "valid_range": [
-              "2026-09-14T08:00:00Z",
-              "2026-09-16T10:00:00Z"
+              "2026-09-14T14:00:00Z",
+              "2026-09-16T16:00:00Z"
             ],
             "status": "BlueSky does not cover the full window",
             "units": null,
@@ -8772,20 +8745,20 @@
           }
         },
         "consensus": {
-          "status": "SINGLE_MODEL_ONLY",
-          "confidence": "low",
+          "status": "LIKELY_CLEAN",
+          "confidence": "medium",
           "consensus_pm2_5": 1.2888888888888888,
           "photography_smoke_score": 100,
           "veto": false,
-          "reason": "Model classes: CLEAN.",
+          "reason": "Model classes: CLEAN, CLEAN.",
           "coverage": {
-            "valid": 1,
+            "valid": 2,
             "total": 3
           },
           "partial": true,
           "uncertain": true,
           "uncertainties": [
-            "Partial model coverage: 1/3 valid models."
+            "Partial model coverage: 2/3 valid models."
           ]
         },
         "source_support": {
@@ -8798,9 +8771,8 @@
           ]
         },
         "uncertainties": [
-          "FireWork does not cover the full window",
           "BlueSky does not cover the full window",
-          "Partial model coverage: 1/3 valid models."
+          "Partial model coverage: 2/3 valid models."
         ]
       },
       "weights": {
@@ -8811,12 +8783,10 @@
       },
       "night": {
         "score": 100.0,
-        "grade_code": "MARGINAL",
-        "grade_zh": "可試有風險",
+        "grade_code": "GO",
+        "grade_zh": "立即出發",
         "vetoes": [],
-        "caps": [
-          "煙霧模型覆蓋不足封頂：1/3"
-        ]
+        "caps": []
       },
       "best_window": {
         "start": "22:00",
@@ -9436,7 +9406,7 @@
         "air_quality": "Open-Meteo Air Quality API（CAMS global ~40km 網格；僅兼容健康脈絡）；攝影煙霧採 ECCC FireWork＋CAMS global＋BlueSky Canada 獨立模型共識",
         "astronomy": "skyfield + de421（本地計算）"
       },
-      "fetched_at": "2026-09-14 09:39 MDT"
+      "fetched_at": "2026-09-14 10:02 MDT"
     }
   ],
   "best_location_id": "vermilion_lakes",
@@ -10597,7 +10567,7 @@
   ],
   "daylight": {
     "date": "2026-09-16",
-    "generated_at": "2026-09-14 09:39 美加山區日光節約時間",
+    "generated_at": "2026-09-14 10:02 美加山區日光節約時間",
     "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（ECCC FireWork＋CAMS global＋BlueSky Canada PM2.5 模型共識；健康 AQI 分列）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
     "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
     "points": [
@@ -10626,7 +10596,7 @@
               "wind_kmh": 6,
               "gust_kmh": 5,
               "visibility_km": 24.1,
-              "pm2_5": 0.8,
+              "pm2_5": 0.4,
               "us_aqi": 21.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -10703,33 +10673,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:25Z",
+                  "retrieval_time": "2026-09-14T16:02:21Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.8437500143010368,
+                  "window_avg_pm2_5": 0.44266666258489334,
                   "window_range": [
-                    0.7970000215351547,
-                    0.9297499992122482
+                    0.4219999905075156,
+                    0.4529999986235822
                   ],
                   "neighbor_range": [
-                    0.5077500087047326,
-                    2.0310000348189305
+                    0.17949999819855122,
+                    1.3280000432658312
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:26Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:26Z",
+                  "retrieval_time": "2026-09-14T16:02:22Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:22Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -10754,68 +10724,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:26Z",
+                  "retrieval_time": "2026-09-14T16:02:22Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.042817290872335434,
                   "window_range": [
-                    null,
-                    null
+                    0.03243124112486839,
+                    0.057708509266376495
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.027869191020727158,
+                    0.06955581903457642
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.8437500143010368,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.44266666258489334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 415.1,
+                "nearest_satellite_hotspot_km": 415.0,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "07:58",
@@ -10954,33 +10919,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:27Z",
+                  "retrieval_time": "2026-09-14T16:02:23Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.7605833370523859,
                   "window_range": [
-                    null,
-                    null
+                    0.6720000111926083,
+                    0.8437500143010368
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.4687499832733977,
+                    0.8437500143010368
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:27Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:27Z",
+                  "retrieval_time": "2026-09-14T16:02:23Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:23Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -11005,21 +10970,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:27Z",
+                  "retrieval_time": "2026-09-14T16:02:23Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -11038,35 +11003,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8333333333333334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 415.1,
+                "nearest_satellite_hotspot_km": 415.0,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -11093,8 +11057,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -11134,7 +11098,7 @@
               "wind_kmh": 4,
               "gust_kmh": 3,
               "visibility_km": 24.1,
-              "pm2_5": 0.6,
+              "pm2_5": 0.2,
               "us_aqi": 23.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -11211,33 +11175,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:28Z",
+                  "retrieval_time": "2026-09-14T16:02:24Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.572916658558853,
+                  "window_avg_pm2_5": 0.2423333339551803,
                   "window_range": [
-                    0.5390000112903692,
-                    0.593749993615944
+                    0.21899999869123832,
+                    0.25800001024478547
                   ],
                   "neighbor_range": [
-                    0.1639999941405179,
-                    1.124999982060615
+                    0.12499999646475857,
+                    1.0624999768893417
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:28Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:28Z",
+                  "retrieval_time": "2026-09-14T16:02:24Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:24Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -11262,68 +11226,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:28Z",
+                  "retrieval_time": "2026-09-14T16:02:24Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.045616209506988525,
                   "window_range": [
-                    null,
-                    null
+                    0.030420739203691483,
+                    0.0649585872888565
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.02533087320625782,
+                    0.07937546819448471
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.572916658558853,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.2423333339551803,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 395.9,
+                "nearest_satellite_hotspot_km": 395.8,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:05",
@@ -11463,33 +11422,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:29Z",
+                  "retrieval_time": "2026-09-14T16:02:25Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.614500006435037,
                   "window_range": [
-                    null,
-                    null
+                    0.6090000170821952,
+                    0.6249999962015806
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.49999998585903427,
+                    0.6875000013728538
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:29Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:29Z",
+                  "retrieval_time": "2026-09-14T16:02:25Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:25Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -11514,21 +11473,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:29Z",
+                  "retrieval_time": "2026-09-14T16:02:25Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -11547,35 +11506,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.7999999999999999,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 395.9,
+                "nearest_satellite_hotspot_km": 395.8,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -11602,8 +11560,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -11643,7 +11601,7 @@
               "wind_kmh": 5,
               "gust_kmh": 10,
               "visibility_km": 0.2,
-              "pm2_5": 0.7,
+              "pm2_5": 0.2,
               "us_aqi": 25.0,
               "horizon_low_pct": 16,
               "horizon_mid_pct": 0,
@@ -11721,33 +11679,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:30Z",
+                  "retrieval_time": "2026-09-14T16:02:26Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.7304374882721731,
+                  "window_avg_pm2_5": 0.628999990981427,
                   "window_range": [
-                    0.49199999629934155,
-                    0.9687499691324319
+                    0.5390000112903692,
+                    0.7189999706724848
                   ],
                   "neighbor_range": [
-                    0.3750000032720635,
-                    1.5547499954138289
+                    0.4529999986235822,
+                    0.8750000168866734
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:30Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:30Z",
+                  "retrieval_time": "2026-09-14T16:02:26Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:26Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -11772,68 +11730,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:30Z",
+                  "retrieval_time": "2026-09-14T16:02:26Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.0313144491519779,
                   "window_range": [
-                    null,
-                    null
+                    0.00875087734311819,
+                    0.05505155026912689
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0072172703221440315,
+                    0.06936654448509216
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.7304374882721731,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.15000000000000002,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 376.8,
+                "nearest_satellite_hotspot_km": 376.7,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "10:25",
@@ -11972,33 +11925,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:31Z",
+                  "retrieval_time": "2026-09-14T16:02:27Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.5912499934090931,
                   "window_range": [
-                    null,
-                    null
+                    0.5859999707702457,
+                    0.5940000158410896
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.5310000217306765,
+                    0.6249999962015806
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:31Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:31Z",
+                  "retrieval_time": "2026-09-14T16:02:27Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:27Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -12023,21 +11976,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:31Z",
+                  "retrieval_time": "2026-09-14T16:02:27Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -12056,35 +12009,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8333333333333334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 376.8,
+                "nearest_satellite_hotspot_km": 376.7,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -12111,8 +12063,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -12152,7 +12104,7 @@
               "wind_kmh": 8,
               "gust_kmh": 7,
               "visibility_km": 24.1,
-              "pm2_5": 1.4,
+              "pm2_5": 0.8,
               "us_aqi": 22.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -12230,33 +12182,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:32Z",
+                  "retrieval_time": "2026-09-14T16:02:28Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 1.3749166620039925,
+                  "window_avg_pm2_5": 0.8331666837927779,
                   "window_range": [
-                    0.8202499790499473,
-                    2.0310000348189305
+                    0.40600001138813013,
+                    1.3280000432658312
                   ],
                   "neighbor_range": [
-                    0.5859999707702457,
-                    2.1249999537786834
+                    0.24999999292951713,
+                    2.5939999037660755
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:32Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:32Z",
+                  "retrieval_time": "2026-09-14T16:02:28Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:28Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -12281,68 +12233,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:32Z",
+                  "retrieval_time": "2026-09-14T16:02:28Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.0446593314409256,
                   "window_range": [
-                    null,
-                    null
+                    0.038544923067092896,
+                    0.05558864027261734
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.03261332958936691,
+                    0.06542376428842545
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 1.3749166620039925,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.8331666837927779,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 430.4,
+                "nearest_satellite_hotspot_km": 430.3,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:14",
@@ -12480,33 +12427,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:33Z",
+                  "retrieval_time": "2026-09-14T16:02:29Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.6173333140975975,
                   "window_range": [
-                    null,
-                    null
+                    0.5859999707702457,
+                    0.6409999753209661
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.49999998585903427,
+                    1.3750000027457077
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:33Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:33Z",
+                  "retrieval_time": "2026-09-14T16:02:29Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:29Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -12531,21 +12478,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:33Z",
+                  "retrieval_time": "2026-09-14T16:02:29Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -12564,35 +12511,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8666666666666667,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 430.4,
+                "nearest_satellite_hotspot_km": 430.3,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -12619,8 +12565,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -12660,7 +12606,7 @@
               "wind_kmh": 2,
               "gust_kmh": 1,
               "visibility_km": 24.1,
-              "pm2_5": 0.3,
+              "pm2_5": 0.2,
               "us_aqi": 23.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -12737,33 +12683,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:34Z",
+                  "retrieval_time": "2026-09-14T16:02:30Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.2012499993042649,
+                  "window_avg_pm2_5": 0.16600000193878195,
                   "window_range": [
-                    0.1329999999022391,
-                    0.273500000425031
+                    0.14100000333971963,
+                    0.18750000163603175
                   ],
                   "neighbor_range": [
-                    0.1329999999022391,
-                    1.124999982060615
+                    0.0780000022904126,
+                    1.094000001700124
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:34Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:34Z",
+                  "retrieval_time": "2026-09-14T16:02:30Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:30Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -12788,68 +12734,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:34Z",
+                  "retrieval_time": "2026-09-14T16:02:30Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.03930444992147386,
                   "window_range": [
-                    null,
-                    null
+                    0.015220792032778263,
+                    0.06849925220012665
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.012974685057997704,
+                    0.08428830653429031
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.325,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.16600000193878195,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 381.2,
+                "nearest_satellite_hotspot_km": 381.1,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "10:46",
@@ -12916,7 +12857,7 @@
               "wind_kmh": 6,
               "gust_kmh": 5,
               "visibility_km": 24.1,
-              "pm2_5": 0.8,
+              "pm2_5": 0.5,
               "us_aqi": 21.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -12994,33 +12935,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:34Z",
+                  "retrieval_time": "2026-09-14T16:02:31Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.8223750014302311,
+                  "window_avg_pm2_5": 0.5333749969471668,
                   "window_range": [
-                    0.7970000215351547,
-                    0.8359999914553384
+                    0.46900000549854326,
+                    0.5704999805900002
                   ],
                   "neighbor_range": [
-                    0.593749993615944,
-                    1.3984999824856459
+                    0.17949999819855122,
+                    0.7420000169844343
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:34Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:34Z",
+                  "retrieval_time": "2026-09-14T16:02:31Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:31Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -13045,54 +12986,52 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:34Z",
+                  "retrieval_time": "2026-09-14T16:02:31Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.031675612553954124,
                   "window_range": [
-                    null,
-                    null
+                    0.022969365119934082,
+                    0.04462254047393799
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.018140040338039398,
+                    0.054149799048900604
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.8223750014302311,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.5333749969471668,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
@@ -13103,10 +13042,7 @@
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "09:08",
@@ -13245,33 +13181,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:35Z",
+                  "retrieval_time": "2026-09-14T16:02:32Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.5885833302225288,
                   "window_range": [
-                    null,
-                    null
+                    0.577999981210553,
+                    0.5940000158410896
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.5624999910303075,
+                    0.8437500143010368
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:35Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:35Z",
+                  "retrieval_time": "2026-09-14T16:02:32Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:32Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -13296,21 +13232,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:35Z",
+                  "retrieval_time": "2026-09-14T16:02:32Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -13329,20 +13265,20 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8333333333333334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
@@ -13355,9 +13291,8 @@
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -13384,8 +13319,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -13425,7 +13360,7 @@
               "wind_kmh": 2,
               "gust_kmh": 2,
               "visibility_km": 24.1,
-              "pm2_5": 1.0,
+              "pm2_5": 0.1,
               "us_aqi": 25.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -13502,33 +13437,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:36Z",
+                  "retrieval_time": "2026-09-14T16:02:33Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.9844166592998249,
+                  "window_avg_pm2_5": 0.8801666617763715,
                   "window_range": [
-                    0.8202499790499473,
-                    1.124999982060615
+                    0.7029999915530993,
+                    1.0624999768893417
                   ],
                   "neighbor_range": [
-                    0.1639999941405179,
-                    1.124999982060615
+                    0.12499999646475857,
+                    1.0624999768893417
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:36Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:36Z",
+                  "retrieval_time": "2026-09-14T16:02:33Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:33Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -13553,68 +13488,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:36Z",
+                  "retrieval_time": "2026-09-14T16:02:33Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.04562329066296419,
                   "window_range": [
-                    null,
-                    null
+                    0.027235252782702446,
+                    0.06585659086704254
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.02221629023551941,
+                    0.08175329118967056
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.9844166592998249,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.13333333333333333,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 382.1,
+                "nearest_satellite_hotspot_km": 382.0,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:09",
@@ -13681,7 +13611,7 @@
               "wind_kmh": 6,
               "gust_kmh": 5,
               "visibility_km": 24.1,
-              "pm2_5": 0.8,
+              "pm2_5": 0.4,
               "us_aqi": 21.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -13759,33 +13689,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:37Z",
+                  "retrieval_time": "2026-09-14T16:02:34Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.8418125085896122,
+                  "window_avg_pm2_5": 0.4472499939844887,
                   "window_range": [
-                    0.7970000215351547,
-                    0.9297499992122482
+                    0.4219999905075156,
+                    0.4609999881832749
                   ],
                   "neighbor_range": [
-                    0.5077500087047326,
-                    2.468999893423529
+                    0.17949999819855122,
+                    1.6169999783599565
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:37Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:37Z",
+                  "retrieval_time": "2026-09-14T16:02:34Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:34Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -13810,68 +13740,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:37Z",
+                  "retrieval_time": "2026-09-14T16:02:34Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.031675612553954124,
                   "window_range": [
-                    null,
-                    null
+                    0.022969365119934082,
+                    0.04462254047393799
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.018140040338039398,
+                    0.054149799048900604
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.8418125085896122,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.4472499939844887,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 423.6,
+                "nearest_satellite_hotspot_km": 423.5,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:44",
@@ -14010,33 +13935,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:38Z",
+                  "retrieval_time": "2026-09-14T16:02:35Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.7605833370523859,
                   "window_range": [
-                    null,
-                    null
+                    0.6720000111926083,
+                    0.8437500143010368
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.4687499832733977,
+                    0.8437500143010368
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:38Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:38Z",
+                  "retrieval_time": "2026-09-14T16:02:35Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:35Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -14061,21 +13986,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:38Z",
+                  "retrieval_time": "2026-09-14T16:02:35Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -14094,35 +14019,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8333333333333334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 423.6,
+                "nearest_satellite_hotspot_km": 423.5,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -14149,8 +14073,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -14190,7 +14114,7 @@
               "wind_kmh": 3,
               "gust_kmh": 10,
               "visibility_km": 0.2,
-              "pm2_5": 0.7,
+              "pm2_5": 0.2,
               "us_aqi": 25.0,
               "horizon_low_pct": 6,
               "horizon_mid_pct": 0,
@@ -14268,33 +14192,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:39Z",
+                  "retrieval_time": "2026-09-14T16:02:36Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.7304374882721731,
+                  "window_avg_pm2_5": 0.628999990981427,
                   "window_range": [
-                    0.49199999629934155,
-                    0.9687499691324319
+                    0.5390000112903692,
+                    0.7189999706724848
                   ],
                   "neighbor_range": [
-                    0.3750000032720635,
-                    1.5547499954138289
+                    0.4529999986235822,
+                    0.8750000168866734
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:39Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:39Z",
+                  "retrieval_time": "2026-09-14T16:02:36Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:36Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -14319,68 +14243,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:39Z",
+                  "retrieval_time": "2026-09-14T16:02:36Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.03356164740398526,
                   "window_range": [
-                    null,
-                    null
+                    0.009958740323781967,
+                    0.05910322815179825
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.00831118505448103,
+                    0.07408856600522995
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.7304374882721731,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.15000000000000002,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 377.5,
+                "nearest_satellite_hotspot_km": 377.4,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:34",
@@ -14519,33 +14438,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:40Z",
+                  "retrieval_time": "2026-09-14T16:02:37Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.5912499934090931,
                   "window_range": [
-                    null,
-                    null
+                    0.5859999707702457,
+                    0.5940000158410896
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.5310000217306765,
+                    0.6249999962015806
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:40Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:40Z",
+                  "retrieval_time": "2026-09-14T16:02:37Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:37Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -14570,21 +14489,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:40Z",
+                  "retrieval_time": "2026-09-14T16:02:37Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -14603,35 +14522,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8333333333333334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 377.5,
+                "nearest_satellite_hotspot_km": 377.4,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -14658,8 +14576,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -14699,7 +14617,7 @@
               "wind_kmh": 6,
               "gust_kmh": 5,
               "visibility_km": 24.1,
-              "pm2_5": 0.8,
+              "pm2_5": 0.4,
               "us_aqi": 21.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -14777,33 +14695,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:41Z",
+                  "retrieval_time": "2026-09-14T16:02:38Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.8437500143010368,
+                  "window_avg_pm2_5": 0.44266666258489334,
                   "window_range": [
-                    0.7970000215351547,
-                    0.9297499992122482
+                    0.4219999905075156,
+                    0.4529999986235822
                   ],
                   "neighbor_range": [
-                    0.5077500087047326,
-                    2.0310000348189305
+                    0.17949999819855122,
+                    1.3280000432658312
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:41Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:41Z",
+                  "retrieval_time": "2026-09-14T16:02:38Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:38Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -14828,68 +14746,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:41Z",
+                  "retrieval_time": "2026-09-14T16:02:38Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.035854761799176536,
                   "window_range": [
-                    null,
-                    null
+                    0.027869191020727158,
+                    0.04742999002337456
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.023725394159555435,
+                    0.057708509266376495
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.8437500143010368,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.44266666258489334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 420.7,
+                "nearest_satellite_hotspot_km": 420.6,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:25",
@@ -15028,33 +14941,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:42Z",
+                  "retrieval_time": "2026-09-14T16:02:38Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.7605833370523859,
                   "window_range": [
-                    null,
-                    null
+                    0.6720000111926083,
+                    0.8437500143010368
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.4687499832733977,
+                    0.8437500143010368
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:42Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:42Z",
+                  "retrieval_time": "2026-09-14T16:02:38Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:38Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -15079,21 +14992,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:42Z",
+                  "retrieval_time": "2026-09-14T16:02:38Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -15112,35 +15025,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8333333333333334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 420.7,
+                "nearest_satellite_hotspot_km": 420.6,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -15167,8 +15079,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -15208,7 +15120,7 @@
               "wind_kmh": 7,
               "gust_kmh": 5,
               "visibility_km": 24.1,
-              "pm2_5": 0.8,
+              "pm2_5": 0.5,
               "us_aqi": 21.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -15286,33 +15198,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:43Z",
+                  "retrieval_time": "2026-09-14T16:02:39Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.8223750014302311,
+                  "window_avg_pm2_5": 0.5333749969471668,
                   "window_range": [
-                    0.7970000215351547,
-                    0.8359999914553384
+                    0.46900000549854326,
+                    0.5704999805900002
                   ],
                   "neighbor_range": [
-                    0.593749993615944,
-                    1.3984999824856459
+                    0.17949999819855122,
+                    0.7420000169844343
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:43Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:43Z",
+                  "retrieval_time": "2026-09-14T16:02:39Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:39Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -15337,54 +15249,52 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:43Z",
+                  "retrieval_time": "2026-09-14T16:02:39Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.031675612553954124,
                   "window_range": [
-                    null,
-                    null
+                    0.022969365119934082,
+                    0.04462254047393799
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.018140040338039398,
+                    0.054149799048900604
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.8223750014302311,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.5333749969471668,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
@@ -15395,10 +15305,7 @@
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "10:23",
@@ -15465,7 +15372,7 @@
               "wind_kmh": 6,
               "gust_kmh": 5,
               "visibility_km": 24.1,
-              "pm2_5": 1.4,
+              "pm2_5": 0.8,
               "us_aqi": 22.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -15542,33 +15449,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:44Z",
+                  "retrieval_time": "2026-09-14T16:02:40Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 1.3749166620039925,
+                  "window_avg_pm2_5": 0.8331666837927779,
                   "window_range": [
-                    0.8202499790499473,
-                    2.0310000348189305
+                    0.40600001138813013,
+                    1.3280000432658312
                   ],
                   "neighbor_range": [
-                    0.5859999707702457,
-                    2.1249999537786834
+                    0.24999999292951713,
+                    2.5939999037660755
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:44Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:44Z",
+                  "retrieval_time": "2026-09-14T16:02:40Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:40Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -15593,68 +15500,63 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:44Z",
+                  "retrieval_time": "2026-09-14T16:02:40Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.0446593314409256,
                   "window_range": [
-                    null,
-                    null
+                    0.038544923067092896,
+                    0.05558864027261734
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.03261332958936691,
+                    0.06542376428842545
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 1.3749166620039925,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.8331666837927779,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 427.1,
+                "nearest_satellite_hotspot_km": 427.0,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:06",
@@ -15792,33 +15694,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:45Z",
+                  "retrieval_time": "2026-09-14T16:02:41Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.6173333140975975,
                   "window_range": [
-                    null,
-                    null
+                    0.5859999707702457,
+                    0.6409999753209661
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.49999998585903427,
+                    1.3750000027457077
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:45Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:45Z",
+                  "retrieval_time": "2026-09-14T16:02:41Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:41Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -15843,21 +15745,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:45Z",
+                  "retrieval_time": "2026-09-14T16:02:41Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -15876,35 +15778,34 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8666666666666667,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
                 "nearest_confirmed_fire_km": null,
-                "nearest_satellite_hotspot_km": 427.1,
+                "nearest_satellite_hotspot_km": 427.0,
                 "transport_supported": null,
                 "notes": [
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -15931,8 +15832,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
@@ -15972,7 +15873,7 @@
               "wind_kmh": 4,
               "gust_kmh": 5,
               "visibility_km": 24.1,
-              "pm2_5": 0.7,
+              "pm2_5": 0.5,
               "us_aqi": 26.0,
               "horizon_low_pct": 0,
               "horizon_mid_pct": 0,
@@ -16049,33 +15950,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:46Z",
+                  "retrieval_time": "2026-09-14T16:02:42Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
                   "status": "ok",
                   "units": "µg/m³",
                   "uncertainties": [],
                   "valid": true,
-                  "window_avg_pm2_5": 0.7071249974455185,
+                  "window_avg_pm2_5": 0.462874995277307,
                   "window_range": [
-                    0.6095000060213351,
-                    0.7734999862840652
+                    0.35899999639710245,
+                    0.5390000112903692
                   ],
                   "neighbor_range": [
-                    0.36725000818194076,
-                    0.8905000070669189
+                    0.20300000569406507,
+                    0.5390000112903692
                   ],
                   "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:46Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:46Z",
+                  "retrieval_time": "2026-09-14T16:02:42Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:42Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -16100,54 +16001,52 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:46Z",
+                  "retrieval_time": "2026-09-14T16:02:42Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
-                  "status": "BlueSky does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "ug/m^3",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.0714716948568821,
                   "window_range": [
-                    null,
-                    null
+                    0.06563617289066315,
+                    0.08434029668569565
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.05542692542076111,
+                    0.0918249860405922
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 }
               },
               "consensus": {
-                "status": "LIKELY_CLEAN",
-                "confidence": "medium",
-                "consensus_pm2_5": 0.7071249974455185,
+                "status": "VERIFIED_CLEAN",
+                "confidence": "high",
+                "consensus_pm2_5": 0.462874995277307,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN, CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 2,
+                  "valid": 3,
                   "total": 3
                 },
-                "partial": true,
-                "uncertain": true,
-                "uncertainties": [
-                  "Partial model coverage: 2/3 valid models."
-                ]
+                "partial": false,
+                "uncertain": false,
+                "uncertainties": []
               },
               "source_support": {
                 "classification": "SATELLITE_HOTSPOT_ONLY",
@@ -16158,10 +16057,7 @@
                   "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
                 ]
               },
-              "uncertainties": [
-                "BlueSky does not cover the full window",
-                "Partial model coverage: 2/3 valid models."
-              ]
+              "uncertainties": []
             },
             "light": {
               "time": "08:30",
@@ -16300,33 +16196,33 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-14T15:39:47Z",
+                  "retrieval_time": "2026-09-14T16:02:43Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T00:00:00Z",
+                  "reference_time": "2026-09-14T12:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T00:00:00Z",
-                    "2026-09-17T00:00:00Z"
+                    "2026-09-14T12:00:00Z",
+                    "2026-09-17T12:00:00Z"
                   ],
-                  "status": "FireWork does not cover the full window",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.510499994129295,
                   "window_range": [
-                    null,
-                    null
+                    0.49999998585903427,
+                    0.5160000204895709
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.4375000084433367,
+                    0.5624999910303075
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-14T15:39:47Z",
-                  "provider_retrieval_time": "2026-09-14T15:39:47Z",
+                  "retrieval_time": "2026-09-14T16:02:43Z",
+                  "provider_retrieval_time": "2026-09-14T16:02:43Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -16351,21 +16247,21 @@
                   "class": "CLEAN"
                 },
                 "bluesky_canada": {
-                  "forecast_id": "BSC00CA12-07",
+                  "forecast_id": "BSC06CA12-07",
                   "raw_tflag_range": [
-                    "2026-09-14T09:00:00Z",
-                    "2026-09-16T11:00:00Z"
+                    "2026-09-14T15:00:00Z",
+                    "2026-09-16T17:00:00Z"
                   ],
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-14T15:39:47Z",
+                  "retrieval_time": "2026-09-14T16:02:43Z",
                   "provider_retrieval_time": null,
-                  "reference_time": "2026-09-14T08:00:00Z",
+                  "reference_time": "2026-09-14T14:00:00Z",
                   "cycle_status": null,
                   "valid_range": [
-                    "2026-09-14T08:00:00Z",
-                    "2026-09-16T10:00:00Z"
+                    "2026-09-14T14:00:00Z",
+                    "2026-09-16T16:00:00Z"
                   ],
                   "status": "BlueSky does not cover the full window",
                   "units": null,
@@ -16384,20 +16280,20 @@
                 }
               },
               "consensus": {
-                "status": "SINGLE_MODEL_ONLY",
-                "confidence": "low",
+                "status": "LIKELY_CLEAN",
+                "confidence": "medium",
                 "consensus_pm2_5": 0.8333333333333334,
                 "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "Model classes: CLEAN.",
+                "reason": "Model classes: CLEAN, CLEAN.",
                 "coverage": {
-                  "valid": 1,
+                  "valid": 2,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 1/3 valid models."
+                  "Partial model coverage: 2/3 valid models."
                 ]
               },
               "source_support": {
@@ -16410,9 +16306,8 @@
                 ]
               },
               "uncertainties": [
-                "FireWork does not cover the full window",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 1/3 valid models."
+                "Partial model coverage: 2/3 valid models."
               ]
             },
             "light": {
@@ -16439,8 +16334,8 @@
             "label": "可嘗試",
             "condition_cap": {
               "applied": false,
-              "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 1/3"
+              "max_score": null,
+              "reason": null
             },
             "confidence": {
               "level": "高",
