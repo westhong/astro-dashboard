@@ -122,11 +122,12 @@ class LiveRecommendationRankingTests(unittest.IsolatedAsyncioTestCase):
             "good": location("good", grade="GOOD", score=70),
         }
 
-        async def run(loc_id, _date, _sem):
-            return results[loc_id]
-
-        with patch.object(app, "location_ids", return_value=list(results)), patch.object(
-            app, "run_one", new=AsyncMock(side_effect=run)
+        batch = list(results.values())
+        coordinator = object()
+        with patch.object(app, "location_ids", return_value=list(results)), patch(
+            "backend.build_report.create_weather_coordinator", return_value=coordinator
+        ), patch("backend.daylight_report.prepare_coordinator_horizons"), patch(
+            "backend.build_report.run_all_with_coordinator", return_value=batch
         ), patch.object(app, "build_spots", return_value=[]), patch.object(
             app, "build_daylight_report", return_value={}
         ):
@@ -143,8 +144,11 @@ class LiveRecommendationRankingTests(unittest.IsolatedAsyncioTestCase):
             "locations": [location("a", clouds={"22:00": 10, "23:00": 10, "00:00": 10})],
         }
 
-        with patch.object(app, "location_ids", return_value=["a"]), patch.object(
-            app, "run_one", new=AsyncMock(return_value=current)
+        coordinator = object()
+        with patch.object(app, "location_ids", return_value=["a"]), patch(
+            "backend.build_report.create_weather_coordinator", return_value=coordinator
+        ), patch("backend.daylight_report.prepare_coordinator_horizons"), patch(
+            "backend.build_report.run_all_with_coordinator", return_value=[current]
         ), patch.object(app, "build_spots", return_value=[]), patch.object(
             app, "build_daylight_report", return_value={}
         ):
@@ -274,7 +278,7 @@ class VersionTests(unittest.TestCase):
 
     def test_patch_version_is_bumped(self):
         version = (Path(__file__).resolve().parents[1] / "VERSION").read_text(encoding="utf-8").strip()
-        self.assertEqual(version, "2.28.3")
+        self.assertEqual(version, "2.29.0")
 
 
 if __name__ == "__main__":

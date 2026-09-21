@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 astro-dashboard backend
-即時執行 rockies-milkyway-scout skill 嘅 night_report.py（6 機位並行），
+即時執行與靜態建置相同的全機位批次分析，
 將結果以 JSON 俾手機 frontend。
 
 原則（West 定）：
@@ -10,8 +10,7 @@ astro-dashboard backend
 """
 import asyncio
 import json
-import subprocess
-import sys
+
 import time
 from datetime import date as date_cls
 from pathlib import Path
@@ -27,7 +26,7 @@ VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 
 
 CACHE_TTL = 600  # 10 分鐘
-LOCATION_TIMEOUT = 120  # 每機位 subprocess 上限
+
 
 app = FastAPI(title="astro-dashboard")
 _cache = {}  # date_str -> (timestamp, payload)
@@ -43,58 +42,28 @@ def build_spots(date_str: str):
     return build_static_spots(date_str)
 
 
-def build_daylight_report(date_str: str):
+def build_daylight_report(date_str: str, coordinator=None):
     from backend.daylight_report import build_daylight
-    return build_daylight(date_str)
-
-
-async def run_one(loc_id: str, date_str: str, sem: asyncio.Semaphore) -> dict:
-    """跑一個機位；失敗回傳誠實嘅 error object，唔會 throw"""
-    async with sem:
-        return await _run_one_inner(loc_id, date_str)
-
-
-async def _run_one_inner(loc_id: str, date_str: str) -> dict:
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            sys.executable, str(SKILL_SCRIPT),
-            "--location", loc_id, "--date", date_str, "--json",
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        )
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=LOCATION_TIMEOUT)
-        if proc.returncode != 0:
-            detail = stderr.decode()[-500:]
-            if "429" in detail or "Too Many Requests" in detail:
-                msg = "天氣數據商暫時限流（請求太密），稍後撳更新通常會好"
-            else:
-                msg = f"分析程式回傳錯誤（exit {proc.returncode}）"
-            return {"location_id": loc_id, "error": True, "message": msg, "detail": detail}
-        return json.loads(stdout.decode())
-    except asyncio.TimeoutError:
-        return {"location_id": loc_id, "error": True,
-                "message": f"分析超時（>{LOCATION_TIMEOUT}s）——天氣數據服務可能冇回應"}
-    except json.JSONDecodeError as e:
-        return {"location_id": loc_id, "error": True,
-                "message": "分析輸出無法解析（程式輸出異常）"}
-    except Exception as e:
-        return {"location_id": loc_id, "error": True, "message": f"未預期錯誤：{e}"}
+    return build_daylight(date_str, coordinator=coordinator)
 
 
 async def build_report(date_str: str, prior_payload: dict | None = None) -> dict:
     t0 = time.time()
     ids = location_ids()
-    sem = asyncio.Semaphore(2)  # 唔好一次過轰 12 個 API call（Open-Meteo 免費額會 429）
-    results = list(await asyncio.gather(*(run_one(i, date_str, sem) for i in ids)))
-    # 失敗嘅機位等 15 秒後順序重試一次
-    failed_ids = [r["location_id"] for r in results if r.get("error")]
-    if failed_ids:
-        await asyncio.sleep(15)
-        for r in results:
-            if r.get("error") and r["location_id"] in failed_ids:
-                retry = await _run_one_inner(r["location_id"], date_str)
-                if not retry.get("error"):
-                    results[results.index(r)] = retry
-    from backend.build_report import apply_forecast_revision, select_best_location
+    from backend.build_report import (
+        apply_forecast_revision,
+        create_weather_coordinator,
+        run_all_with_coordinator,
+        select_best_location,
+    )
+    from backend.daylight_report import prepare_coordinator_horizons
+    # LAN 與靜態建置共用同一個全機位入口；個別缺失由批次結果誠實回報，
+    # 不再為每個機位另開 subprocess 或重新抓取整批資料。
+    coordinator = create_weather_coordinator(ids)
+    await asyncio.to_thread(prepare_coordinator_horizons, [date_str], coordinator)
+    results = await asyncio.to_thread(
+        run_all_with_coordinator, ids, date_str, coordinator
+    )
     apply_forecast_revision(results, prior_payload, date_str)
     ok = [r for r in results if not r.get("error")]
     failed = [r for r in results if r.get("error")]
@@ -108,7 +77,7 @@ async def build_report(date_str: str, prior_payload: dict | None = None) -> dict
         "best_location_id": best["location_id"] if best else None,
         "failed_count": len(failed),
         "spots": build_spots(date_str),
-        "daylight": build_daylight_report(date_str),
+        "daylight": build_daylight_report(date_str, coordinator),
     }
 
 

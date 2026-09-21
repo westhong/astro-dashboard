@@ -586,18 +586,53 @@ def _window_avg(hourly: dict[str, list[Any]] | None, key: str, centre: str) -> f
     return _mean([float(v) for v in vals]) if vals else None
 
 
-def build_daylight(date_str: str) -> dict[str, Any]:
+def prepare_coordinator_horizons(date_strs: list[str], coordinator) -> None:
+    """Compute every requested event offset, then register one horizon batch."""
+    data = json.loads((HERE / "spots.json").read_text(encoding="utf-8"))
+    points = [point for point in data["points"] if point.get("daylight_events")]
+    calculator = DirectLightCalculator()
+    horizon_points: dict[tuple[str, str, str], tuple[float, float]] = {}
+    for point in points:
+        forecast = coordinator.best_match(point["location_id"])
+        if not forecast:
+            continue
+        daily = forecast.get("daily") or {}
+        for date_str in date_strs:
+            try:
+                day_index = daily["time"].index(date_str)
+            except (KeyError, ValueError):
+                continue
+            for event in point["daylight_events"]:
+                try:
+                    geometric = daily[event][day_index]
+                    when = datetime.fromisoformat(geometric).replace(tzinfo=LOCAL)
+                    _alt, azimuth = calculator._sun(point["lat"], point["lon"], 0.0, when)
+                except (KeyError, IndexError, TypeError, ValueError):
+                    continue
+                azimuth = round(azimuth / 5.0) * 5.0
+                horizon_points[(point["location_id"], date_str, event)] = _offset_point(
+                    point["lat"], point["lon"], azimuth
+                )
+    coordinator.configure_horizons(horizon_points)
+
+
+def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
     data = json.loads((HERE / "spots.json").read_text(encoding="utf-8"))
     points = [p for p in data["points"] if p.get("daylight_events")]
     if not points:
         return {"date": date_str, "error": True, "message": "尚未設定日出／日落評估點"}
     coords = [(p["lat"], p["lon"]) for p in points]
     try:
-        forecasts = _fetch(
-            coords,
-            "cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability,visibility,wind_speed_10m,wind_gusts_10m",
-            "sunrise,sunset",
-        )
+        if coordinator is None:
+            forecasts = _fetch(
+                coords,
+                "cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation_probability,visibility,wind_speed_10m,wind_gusts_10m",
+                "sunrise,sunset",
+            )
+        else:
+            forecasts = [coordinator.best_match(point["location_id"]) for point in points]
+            if any(forecast is None for forecast in forecasts):
+                raise ValueError("共享天氣批次缺少機位資料")
     except Exception as exc:
         return {"date": date_str, "error": True, "message": f"日出／日落天氣資料暫時無法取得：{exc}"}
     if len(forecasts) != len(points):
@@ -631,25 +666,34 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                 unique_offsets.append(offset)
 
     horizon_forecasts: dict[tuple[float, float], dict[str, Any]] = {}
-    if unique_offsets:
+    if unique_offsets and coordinator is None:
         try:
             for offset, hfc in zip(unique_offsets, _fetch(unique_offsets, "cloud_cover_low,cloud_cover_mid")):
                 horizon_forecasts[offset] = hfc
         except Exception:
             horizon_forecasts = {}
 
-    aq_list = _fetch_air_quality(coords)
+    aq_list = (_fetch_air_quality(coords) if coordinator is None else [
+        (lambda grid: grid[4] if len(grid) == 9 else None)(
+            coordinator.cams_grid(point["location_id"])
+        )
+        for point in points
+    ])
     aq_by_point: dict[int, dict[str, Any]] = {}
     if aq_list and len(aq_list) == len(points):
         aq_by_point = {i: aq for i, aq in enumerate(aq_list)}
 
-    ecmwf_list = _fetch_ecmwf(coords)
+    ecmwf_list = (_fetch_ecmwf(coords) if coordinator is None else [
+        coordinator.model(point["location_id"], ECMWF_MODEL) for point in points
+    ])
     ecmwf_by_point: dict[int, dict[str, Any]] = {}
     if ecmwf_list and len(ecmwf_list) == len(points):
         ecmwf_by_point = {i: fc for i, fc in enumerate(ecmwf_list)}
 
     # R3：GFS 第三模型（信心分歧度用；失敗 → 信心標示資料不足，唔阻塞評分）
-    gfs_list = _fetch_model(coords, GFS_MODEL, "cloud_cover")
+    gfs_list = (_fetch_model(coords, GFS_MODEL, "cloud_cover") if coordinator is None else [
+        coordinator.model(point["location_id"], GFS_MODEL) for point in points
+    ])
     gfs_by_point: dict[int, dict[str, Any]] = {}
     if gfs_list and len(gfs_list) == len(points):
         gfs_by_point = {i: fc for i, fc in enumerate(gfs_list)}
@@ -667,7 +711,11 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                     continue
                 centre = geometric  # 評分錨定幾何事件（v2.14.0）：火燒雲色彩圍繞幾何日出日落，唔係地形直射光
                 offset = horizon_points.get((idx, event))
-                horizon_hourly = horizon_forecasts.get(offset, {}).get("hourly") if offset else None
+                if coordinator is not None:
+                    horizon_payload = coordinator.horizon((point["location_id"], date_str, event))
+                    horizon_hourly = (horizon_payload or {}).get("hourly")
+                else:
+                    horizon_hourly = horizon_forecasts.get(offset, {}).get("hourly") if offset else None
                 horizon_az = None
                 if offset:
                     try:
@@ -678,10 +726,13 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                 aq_hourly = aq_by_point.get(idx, {}).get("hourly")
                 ecmwf_hourly = ecmwf_by_point.get(idx, {}).get("hourly")
                 smoke_start, smoke_end = _smoke_window_datetimes(date_str, light["window"])
-                smoke_payload = assess_smoke_window(
-                    lat=point["lat"], lon=point["lon"],
-                    start_local=smoke_start, end_local=smoke_end,
-                )
+                smoke_kwargs = {
+                    "lat": point["lat"], "lon": point["lon"],
+                    "start_local": smoke_start, "end_local": smoke_end,
+                }
+                if coordinator is not None:
+                    smoke_kwargs["cams_fetch"] = coordinator.cams_window
+                smoke_payload = assess_smoke_window(**smoke_kwargs)
                 condition = _condition(event, centre, fc["hourly"], aq_hourly, horizon_hourly, horizon_az, ecmwf_hourly, smoke_assessment=smoke_payload)
                 condition["light"] = light
                 condition["score"] = round(
@@ -709,11 +760,11 @@ def build_daylight(date_str: str) -> dict[str, Any]:
                 condition["peak_window"] = _peak_window(fc["hourly"], light.get("window"))
                 events[event] = condition
             result.append({
-                "id": point["id"], "name": point["name"], "lat": point["lat"], "lon": point["lon"],
+                "id": point["location_id"], "spot_id": point["id"], "name": point["name"], "lat": point["lat"], "lon": point["lon"],
                 "purpose": point.get("purpose"), "season": point.get("season"), "caveat": point.get("caveat"), "events": events,
             })
         except (KeyError, ValueError, IndexError, TypeError) as exc:
-            result.append({"id": point["id"], "name": point["name"], "error": True, "message": f"資料格式不完整：{exc}"})
+            result.append({"id": point.get("location_id", point["id"]), "spot_id": point["id"], "name": point["name"], "error": True, "message": f"資料格式不完整：{exc}"})
     return {
         "date": date_str,
         "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"),

@@ -14,6 +14,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 HERE = Path(__file__).resolve().parent
+if str(HERE.parent) not in sys.path:
+    sys.path.insert(0, str(HERE.parent))
 SCRIPT = HERE / "scripts" / "night_report.py"
 DOCS = HERE.parent / "docs"
 STATIC = HERE.parent / "static" / "index.html"
@@ -133,26 +135,38 @@ def run_one(loc_id, date_str):
 
 
 def run_all(loc_ids, date_str):
-    """單一 subprocess + 兩個多座標 API requests 跑完整機位集。"""
+    """在同一 runtime 以共享 coordinator 跑完整機位集。"""
+    return run_all_with_coordinator(loc_ids, date_str)
+
+
+def create_weather_coordinator(loc_ids=None):
+    from backend.daylight_report import _cached_urlopen_json
+    from backend.scripts import night_report
+    from backend.weather_coordinator import UnifiedWeatherCoordinator
+
+    locations = json.loads((HERE / "references" / "locations.json").read_text())
+    if loc_ids is not None:
+        locations = {location_id: locations[location_id] for location_id in loc_ids}
+    return UnifiedWeatherCoordinator(
+        locations,
+        fetch_json=_cached_urlopen_json,
+        fallback_fetch=night_report._met_norway_fetch_batch,
+    )
+
+
+def run_all_with_coordinator(loc_ids, date_str, coordinator=None):
+    from backend.scripts import night_report
+
+    locations = json.loads((HERE / "references" / "locations.json").read_text())
+    locations = {location_id: locations[location_id] for location_id in loc_ids}
+    coordinator = coordinator or create_weather_coordinator(loc_ids)
     try:
-        p = subprocess.run(
-            [sys.executable, str(SCRIPT), "--location", "all", "--date", date_str, "--json"],
-            capture_output=True, text=True, timeout=TIMEOUT,
+        results = night_report.run_all_locations(
+            locations, date_str, coordinator=coordinator
         )
-        if p.returncode != 0:
-            detail = p.stderr[-400:]
-            msg = ("天氣數據商暫時限流，下次更新會再試" if "429" in detail
-                   else f"批次分析程式錯誤（exit {p.returncode}）")
-            return [{"location_id": lid, "error": True, "message": msg, "detail": detail}
-                    for lid in loc_ids]
-        payload = json.loads(p.stdout)
-        results = payload.get("locations") or []
         if len(results) != len(loc_ids):
             raise ValueError(f"批次分析數量不完整：預期 {len(loc_ids)}，收到 {len(results)}")
         return results
-    except subprocess.TimeoutExpired:
-        return [{"location_id": lid, "error": True, "message": "批次分析超時——天氣數據服務可能沒有回應"}
-                for lid in loc_ids]
     except Exception as e:
         return [{"location_id": lid, "error": True, "message": f"批次未預期錯誤：{e}"}
                 for lid in loc_ids]
@@ -198,16 +212,20 @@ def build_spots(date_str):
     return points
 
 
-def build_daylight_report(date_str):
+def build_daylight_report(date_str, coordinator=None):
     """日出／日落評分獨立於銀河評分；失敗時誠實保留錯誤物件。"""
     sys.path.insert(0, str(HERE))
     from daylight_report import build_daylight
-    return build_daylight(date_str)
+    return build_daylight(date_str, coordinator=coordinator)
 
 
 def main():
     locs = json.loads((HERE / "references" / "locations.json").read_text())
     today = dt.datetime.now(TZ).date()
+    date_strs = [(today + timedelta(days=offset)).isoformat() for offset in range(5)]
+    coordinator = create_weather_coordinator(list(locs))
+    from backend.daylight_report import prepare_coordinator_horizons
+    prepare_coordinator_horizons(date_strs, coordinator)
     DOCS.mkdir(exist_ok=True)
     prior_reports = load_prior_reports(DOCS)
     daylight_full: dict[str, dict] = {}
@@ -215,19 +233,12 @@ def main():
     for offset in range(3):
         date_str = (today + timedelta(days=offset)).isoformat()
         t0 = time.time()
-        results = run_all(list(locs), date_str)
-        # 失敗重試一次
-        for i, r in enumerate(results):
-            if r.get("error"):
-                time.sleep(15)
-                retry = run_one(r["location_id"], date_str)
-                if not retry.get("error"):
-                    results[i] = retry
+        results = run_all_with_coordinator(list(locs), date_str, coordinator)
         apply_forecast_revision(results, prior_reports.get(date_str), date_str)
         ok = [r for r in results if not r.get("error")]
         best = select_best_location(ok)
         spots = build_spots(date_str)
-        daylight = build_daylight_report(date_str)
+        daylight = build_daylight_report(date_str, coordinator)
         daylight_full[date_str] = daylight
         payload = {
             "version": (HERE.parent / "VERSION").read_text().strip(),
@@ -252,7 +263,7 @@ def main():
         ds = (today + timedelta(days=offset)).isoformat()
         t0 = time.time()
         try:
-            dl = build_daylight_report(ds)
+            dl = build_daylight_report(ds, coordinator)
         except Exception as exc:
             dl = {"date": ds, "error": True, "message": f"遠期日間資料失敗：{exc}"}
         daylight_full[ds] = dl

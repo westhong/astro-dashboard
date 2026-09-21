@@ -4,6 +4,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +25,7 @@ from backend.smoke_sources import (
     fetch_firework_window,
     load_bluesky_decoded,
     clear_bluesky_decoded_cache,
+    clear_firework_decoded_cache,
     parse_bluesky_index,
     parse_firework_capabilities,
     parse_time_dimension,
@@ -98,6 +100,16 @@ class FireWorkSourceTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             extract_firework_geotiff(self._geotiff(), lat=53.0, lon=-117.0)
+
+    def test_firework_frame_is_decoded_once_for_multiple_sites(self):
+        import tifffile
+
+        payload = self._geotiff()
+        clear_firework_decoded_cache()
+        with patch.object(tifffile, "TiffFile", wraps=tifffile.TiffFile) as decoder:
+            extract_firework_geotiff(payload, lat=51.0, lon=-115.0)
+            extract_firework_geotiff(payload, lat=51.4, lon=-115.4)
+        self.assertEqual(decoder.call_count, 1)
 
     def test_fetches_every_hour_and_preserves_publish_gate_metadata(self):
         capabilities = """<WMS_Capabilities><Capability><Layer><Layer>

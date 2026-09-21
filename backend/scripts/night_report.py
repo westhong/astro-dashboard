@@ -475,7 +475,7 @@ def vertical_mw_note(month):
 _NOT_PREFETCHED = object()
 
 
-def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, smoke_assessment=None):
+def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, smoke_assessment=None, cams_fetch=None):
     night_date = dt.date.fromisoformat(date_str)
     start = dt.datetime.combine(night_date, dt.time(NIGHT_START_HOUR), TZ)
     end = dt.datetime.combine(night_date + dt.timedelta(days=1), dt.time(NIGHT_END_HOUR), TZ)
@@ -529,10 +529,13 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
 
     if smoke_assessment is None:
         try:
-            smoke_assessment = assess_smoke_window(
-                lat=loc["lat"], lon=loc["lon"],
-                start_local=dark_start, end_local=dark_end,
-            )
+            smoke_kwargs = {
+                "lat": loc["lat"], "lon": loc["lon"],
+                "start_local": dark_start, "end_local": dark_end,
+            }
+            if cams_fetch is not None:
+                smoke_kwargs["cams_fetch"] = cams_fetch
+            smoke_assessment = assess_smoke_window(**smoke_kwargs)
         except Exception as exc:
             print(f"[警告] 三模型煙霧評估失敗：{exc} — 以無資料／不確定處理", file=sys.stderr)
             smoke_assessment = assess_smoke_window(
@@ -886,6 +889,79 @@ def analyze(loc_id, loc, date_str, wx=None, aq=_NOT_PREFETCHED, aq_error=None, s
     return data
 
 
+def run_all_locations(locs, date_str, coordinator=None):
+    """以單一批次取得全部機位資料，並將個別分析缺失轉為誠實錯誤。"""
+    items = list(locs.items())
+    coords = [(loc["lat"], loc["lon"]) for _location_id, loc in items]
+    if coordinator is not None:
+        weather = []
+        air_quality = []
+        for location_id, _loc in items:
+            model_payload = coordinator.four_models(location_id)
+            if model_payload is None:
+                fallback_payload = coordinator.best_match(location_id)
+                if fallback_payload and fallback_payload.get("_source") == "met_norway":
+                    weather.append(_normalize_met_norway_clouds(fallback_payload))
+                else:
+                    message = coordinator.site_error(location_id) or "四模型天氣資料暫缺"
+                    return [
+                        {"location_id": lid, "error": True, "message": message}
+                        for lid, _item in items
+                    ]
+            else:
+                weather.append(_normalize_cloud_models(model_payload))
+            grid = coordinator.cams_grid(location_id)
+            air_quality.append(grid[4] if len(grid) == 9 else None)
+        aq_error = None
+    else:
+        weather = None
+        air_quality = None
+    try:
+        if weather is None:
+            weather = fetch_weather_batch(coords)
+    except Exception as exc:
+        return [
+            {"location_id": location_id, "error": True,
+             "message": f"全機位天氣批次暫時無法取得：{exc}"}
+            for location_id, _loc in items
+        ]
+    if len(weather) != len(items):
+        message = f"天氣批次數量不完整：預期 {len(items)}，收到 {len(weather)}"
+        return [
+            {"location_id": location_id, "error": True, "message": message}
+            for location_id, _loc in items
+        ]
+
+    if air_quality is None:
+        aq_error = None
+        try:
+            air_quality = fetch_air_quality_batch(coords)
+            if len(air_quality) != len(items):
+                raise ValueError(
+                    f"空氣質素批次數量不完整：預期 {len(items)}，收到 {len(air_quality)}"
+                )
+        except Exception as exc:
+            aq_error = str(exc)
+            air_quality = [None] * len(items)
+            print(f"[警告] 空氣質素 API 批次失敗：{exc} — 全部機位煙塵以「無資料」處理", file=sys.stderr)
+
+    results = []
+    for index, (location_id, loc) in enumerate(items):
+        try:
+            results.append(analyze(
+                location_id, loc, date_str, wx=weather[index],
+                aq=air_quality[index], aq_error=aq_error,
+                cams_fetch=(coordinator.cams_window if coordinator is not None else None),
+            ))
+        except Exception as exc:
+            results.append({
+                "location_id": location_id,
+                "error": True,
+                "message": f"此機位資料不完整，無法分析：{exc}",
+            })
+    return results
+
+
 # ---------- 文字報告 ----------
 
 def render_text(d):
@@ -966,20 +1042,7 @@ def main():
     locs = json.loads(LOCATIONS_FILE.read_text())
 
     if args.location == "all":
-        items = list(locs.items())
-        coords = [(loc["lat"], loc["lon"]) for _lid, loc in items]
-        weather = fetch_weather_batch(coords)
-        aq_error = None
-        try:
-            air_quality = fetch_air_quality_batch(coords)
-        except Exception as e:
-            aq_error = str(e)
-            air_quality = [None] * len(items)
-            print(f"[警告] 空氣質素 API 批次失敗：{e} — 全部機位煙塵以「無資料」處理", file=sys.stderr)
-        results = [
-            analyze(lid, loc, date_str, wx=weather[i], aq=air_quality[i], aq_error=aq_error)
-            for i, (lid, loc) in enumerate(items)
-        ]
+        results = run_all_locations(locs, date_str)
     else:
         if args.location not in locs:
             sys.exit(f"未知 location：{args.location}。可用：{', '.join(locs)} 或 all")

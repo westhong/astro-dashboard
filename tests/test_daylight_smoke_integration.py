@@ -40,7 +40,7 @@ class DaylightSmokeIntegrationTests(unittest.TestCase):
         seen = []
         with tempfile.TemporaryDirectory() as directory:
             Path(directory, "spots.json").write_text(json.dumps({"points": [{
-                "id": "p", "name": "P", "lat": 51.123456, "lon": -115.654321,
+                "id": "p", "location_id": "p", "name": "P", "lat": 51.123456, "lon": -115.654321,
                 "daylight_events": ["sunset"],
             }]}), encoding="utf-8")
             with patch.object(daylight_report, "HERE", Path(directory)), \
