@@ -237,6 +237,8 @@ class UnifiedWeatherCoordinator:
         if self._models is None:
             return None
         payload = self._models[self.plan.site_index[location_id]]
+        if payload is None:
+            return None
         hourly = payload.get("hourly") or {}
         suffix = f"_{model}"
         selected = {

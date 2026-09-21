@@ -397,3 +397,83 @@ def test_daylight_runtime_isolates_missing_best_match_to_one_point():
     }
     assert not built["points"][1].get("error")
     assert "sunset" in built["points"][1]["events"]
+
+
+def test_daylight_real_coordinator_isolates_none_four_model_site():
+    times = ["2026-09-20T18:00", "2026-09-20T19:00", "2026-09-20T20:00"]
+    hourly = {
+        "time": times,
+        "cloud_cover": [20, 20, 20], "cloud_cover_low": [5, 5, 5],
+        "cloud_cover_mid": [10, 10, 10], "cloud_cover_high": [20, 20, 20],
+        "precipitation_probability": [0, 0, 0], "visibility": [30000] * 3,
+        "wind_speed_10m": [4, 4, 4], "wind_gusts_10m": [6, 6, 6],
+    }
+    forecast = {
+        "daily": {"time": ["2026-09-20"], "sunset": ["2026-09-20T19:00"]},
+        "hourly": hourly,
+    }
+    model_hourly = {"time": times}
+    for model in ("ecmwf_ifs025", "gfs_seamless"):
+        model_hourly[f"cloud_cover_{model}"] = [30, 30, 30]
+        model_hourly[f"wind_speed_10m_{model}"] = [5, 5, 5]
+        model_hourly[f"wind_gusts_10m_{model}"] = [7, 7, 7]
+    locations = {
+        "a": {"lat": 50.0, "lon": -116.0},
+        "b": {"lat": 51.0, "lon": -115.0},
+    }
+
+    def fetch(url):
+        query = parse_qs(urlparse(url).query)
+        count = len(query["latitude"][0].split(","))
+        if "air-quality" in url:
+            return [None] * count
+        if "models" in query:
+            return [None, {"hourly": model_hourly}]
+        return [forecast, forecast]
+
+    coordinator = UnifiedWeatherCoordinator(locations, fetch_json=fetch)
+
+    class Calculator:
+        def _sun(self, *args): return 0, 250
+        def direct_light_time(self, *args): return {"time": "18:50", "basis": "fixture"}
+
+    uncertain_smoke = {
+        "smoke_assessment": {
+            "consensus": {
+                "status": "SINGLE_MODEL_ONLY", "photography_smoke_score": 50,
+                "consensus_pm2_5": None, "coverage": {"valid": 0, "total": 3},
+                "veto": False,
+            },
+            "pollutants": {"us_aqi_health_context": None},
+            "models": {}, "observed_now": {}, "source_support": {},
+            "uncertainties": ["CAMS 資料暫缺"],
+        }
+    }
+    points = [
+        {"id": "spot-a", "location_id": "a", "name": "A", "lat": 50.0,
+         "lon": -116.0, "daylight_events": ["sunset"]},
+        {"id": "spot-b", "location_id": "b", "name": "B", "lat": 51.0,
+         "lon": -115.0, "daylight_events": ["sunset"]},
+    ]
+    with tempfile.TemporaryDirectory() as directory:
+        Path(directory, "spots.json").write_text(
+            json.dumps({"points": points}), encoding="utf-8"
+        )
+        with patch.object(daylight_report, "HERE", Path(directory)), \
+             patch.object(daylight_report, "DirectLightCalculator", Calculator), \
+             patch.object(daylight_report, "assess_smoke_window", return_value=uncertain_smoke):
+            built = daylight_report.build_daylight(
+                "2026-09-20", coordinator=coordinator
+            )
+
+    assert coordinator.model("a", "ecmwf_ifs025") is None
+    assert not built["points"][0].get("error")
+    event_a = built["points"][0]["events"]["sunset"]
+    assert event_a["wind_detail"]["ecmwf_missing"] is True
+    assert event_a["confidence"]["models"] == {"best_match": 20}
+    assert not built["points"][1].get("error")
+    event_b = built["points"][1]["events"]["sunset"]
+    assert event_b["wind_detail"]["ecmwf_missing"] is False
+    assert event_b["confidence"]["models"] == {
+        "best_match": 20, "ecmwf": 30, "gfs": 30,
+    }
