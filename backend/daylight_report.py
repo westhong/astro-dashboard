@@ -674,7 +674,7 @@ def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
             horizon_forecasts = {}
 
     aq_list = (_fetch_air_quality(coords) if coordinator is None else [
-        (lambda grid: grid[4] if len(grid) == 9 else None)(
+        (lambda grid: grid[4] if grid is not None and len(grid) == 9 else None)(
             coordinator.cams_grid(point["location_id"])
         )
         for point in points
@@ -723,8 +723,8 @@ def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
                         _alt, horizon_az = calculator._sun(point["lat"], point["lon"], 0.0, when)
                     except Exception:
                         horizon_az = None
-                aq_hourly = aq_by_point.get(idx, {}).get("hourly")
-                ecmwf_hourly = ecmwf_by_point.get(idx, {}).get("hourly")
+                aq_hourly = (aq_by_point.get(idx) or {}).get("hourly")
+                ecmwf_hourly = (ecmwf_by_point.get(idx) or {}).get("hourly")
                 smoke_start, smoke_end = _smoke_window_datetimes(date_str, light["window"])
                 smoke_kwargs = {
                     "lat": point["lat"], "lon": point["lon"],
@@ -743,7 +743,7 @@ def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
                 condition["label"] = _label(condition["score"])
                 _apply_smoke_condition_cap(condition)
                 # R3：三模型雲量分歧計算保留喺數據層（v2.22.0 起 UI 唔顯示信心標示）
-                gfs_hourly = gfs_by_point.get(idx, {}).get("hourly")
+                gfs_hourly = (gfs_by_point.get(idx) or {}).get("hourly")
                 model_clouds = {
                     "best_match": _window_avg(fc["hourly"], "cloud_cover", centre),
                     "ecmwf": _window_avg(ecmwf_hourly, "cloud_cover", centre),

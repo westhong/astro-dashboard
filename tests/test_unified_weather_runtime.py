@@ -179,3 +179,92 @@ def test_daylight_runtime_reuses_coordinator_site_model_horizon_and_cams_data():
     model_fetch.assert_not_called()
     assert built["points"][0]["id"] == "a"
     assert "sunset" in built["points"][0]["events"]
+
+
+def _build_daylight_with_missing_shared_data(*, cams_grid, four_models):
+    hourly = {
+        "time": ["2026-09-20T18:00", "2026-09-20T19:00", "2026-09-20T20:00"],
+        "cloud_cover": [20, 20, 20], "cloud_cover_low": [5, 5, 5],
+        "cloud_cover_mid": [10, 10, 10], "cloud_cover_high": [20, 20, 20],
+        "precipitation_probability": [0, 0, 0], "visibility": [30000] * 3,
+        "wind_speed_10m": [4, 4, 4], "wind_gusts_10m": [6, 6, 6],
+    }
+    forecast = {
+        "daily": {"time": ["2026-09-20"], "sunset": ["2026-09-20T19:00"]},
+        "hourly": hourly,
+    }
+
+    class Coordinator:
+        def best_match(self, location_id): return forecast
+        def four_models(self, location_id): return four_models
+        def model(self, location_id, model): return None
+        def horizon(self, key): return {"hourly": hourly}
+        def cams_grid(self, location_id): return cams_grid
+        def cams_window(self, **kwargs): return {}
+
+    class Calculator:
+        def _sun(self, *args): return 0, 250
+        def direct_light_time(self, *args): return {"time": "18:50", "basis": "fixture"}
+
+    uncertain_smoke = {
+        "smoke_assessment": {
+            "consensus": {
+                "status": "SINGLE_MODEL_ONLY", "photography_smoke_score": 50,
+                "consensus_pm2_5": None, "coverage": {"valid": 0, "total": 3},
+                "veto": False,
+            },
+            "pollutants": {"us_aqi_health_context": None},
+            "models": {}, "observed_now": {}, "source_support": {},
+            "uncertainties": ["CAMS 資料暫缺"],
+        }
+    }
+    with tempfile.TemporaryDirectory() as directory:
+        Path(directory, "spots.json").write_text(json.dumps({"points": [{
+            "id": "spot-a", "location_id": "a", "name": "A", "lat": 50.0,
+            "lon": -116.0, "daylight_events": ["sunset"],
+        }]}), encoding="utf-8")
+        with patch.object(daylight_report, "HERE", Path(directory)), \
+             patch.object(daylight_report, "DirectLightCalculator", Calculator), \
+             patch.object(daylight_report, "_fetch_air_quality") as aq_fetch, \
+             patch.object(daylight_report, "_fetch_ecmwf") as ecmwf_fetch, \
+             patch.object(daylight_report, "_fetch_model") as model_fetch, \
+             patch.object(daylight_report, "assess_smoke_window", return_value=uncertain_smoke):
+            built = daylight_report.build_daylight(
+                "2026-09-20", coordinator=Coordinator()
+            )
+
+    aq_fetch.assert_not_called()
+    ecmwf_fetch.assert_not_called()
+    model_fetch.assert_not_called()
+    return built
+
+
+def test_daylight_runtime_keeps_point_when_shared_cams_grid_is_none():
+    built = _build_daylight_with_missing_shared_data(
+        cams_grid=None, four_models={"hourly": {}},
+    )
+
+    point = built["points"][0]
+    event = point["events"]["sunset"]
+    assert not built.get("error")
+    assert not point.get("error")
+    assert event["weather"]["pm2_5"] is None
+    assert event["smoke_assessment"]["consensus"]["status"] == "SINGLE_MODEL_ONLY"
+    assert "煙塵資料暫缺，煙分以不確定值計算" in event["notes"]
+
+
+def test_daylight_runtime_keeps_best_match_when_shared_four_models_is_none():
+    cams = {"hourly": {
+        "time": ["2026-09-20T18:00", "2026-09-20T19:00", "2026-09-20T20:00"],
+        "pm2_5": [5, 5, 5], "us_aqi": [20, 20, 20],
+    }}
+    built = _build_daylight_with_missing_shared_data(
+        cams_grid=[cams] * 9, four_models=None,
+    )
+
+    point = built["points"][0]
+    event = point["events"]["sunset"]
+    assert not built.get("error")
+    assert not point.get("error")
+    assert event["wind_detail"]["ecmwf_missing"] is True
+    assert event["confidence"]["models"] == {"best_match": 20}

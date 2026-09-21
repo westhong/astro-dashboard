@@ -56,6 +56,23 @@ def test_castle_and_wedge_are_present_once_with_verified_coordinates():
     assert "composition_az" not in wedge
 
 
+def test_existing_location_elevations_match_pre_v229_contract_everywhere():
+    locations = load(SKILL_LOCATIONS)
+    backend_locations = load(BACKEND_LOCATIONS)
+    daylight = {point.get("location_id"): point for point in load(SPOTS)["points"]}
+    expected = {
+        "herbert_lake": 1570,
+        "lake_minnewanka": 1515,
+        "lake_louise": 1750,
+        "bow_lake": 1935,
+    }
+
+    for location_id, elevation in expected.items():
+        assert locations[location_id]["elev_m"] == elevation
+        assert backend_locations[location_id]["elev_m"] == elevation
+        assert daylight[location_id]["elev_m"] == elevation
+
+
 def test_all_daylight_ui_copy_is_formal_traditional_chinese_for_new_points():
     points = {point.get("location_id"): point for point in load(SPOTS)["points"]}
     wedge = points["wedge_pond"]
