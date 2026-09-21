@@ -893,21 +893,21 @@ def run_all_locations(locs, date_str, coordinator=None):
     """以單一批次取得全部機位資料，並將個別分析缺失轉為誠實錯誤。"""
     items = list(locs.items())
     coords = [(loc["lat"], loc["lon"]) for _location_id, loc in items]
+    weather_errors = {}
     if coordinator is not None:
         weather = []
         air_quality = []
-        for location_id, _loc in items:
+        for index, (location_id, _loc) in enumerate(items):
             model_payload = coordinator.four_models(location_id)
             if model_payload is None:
                 fallback_payload = coordinator.best_match(location_id)
                 if fallback_payload and fallback_payload.get("_source") == "met_norway":
                     weather.append(_normalize_met_norway_clouds(fallback_payload))
                 else:
-                    message = coordinator.site_error(location_id) or "四模型天氣資料暫缺"
-                    return [
-                        {"location_id": lid, "error": True, "message": message}
-                        for lid, _item in items
-                    ]
+                    weather.append(None)
+                    weather_errors[index] = (
+                        coordinator.site_error(location_id) or "四模型天氣資料暫缺"
+                    )
             else:
                 weather.append(_normalize_cloud_models(model_payload))
             grid = coordinator.cams_grid(location_id)
@@ -947,6 +947,13 @@ def run_all_locations(locs, date_str, coordinator=None):
 
     results = []
     for index, (location_id, loc) in enumerate(items):
+        if index in weather_errors:
+            results.append({
+                "location_id": location_id,
+                "error": True,
+                "message": weather_errors[index],
+            })
+            continue
         try:
             results.append(analyze(
                 location_id, loc, date_str, wx=weather[index],

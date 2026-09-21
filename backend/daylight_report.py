@@ -622,6 +622,7 @@ def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
     if not points:
         return {"date": date_str, "error": True, "message": "尚未設定日出／日落評估點"}
     coords = [(p["lat"], p["lon"]) for p in points]
+    forecast_errors: dict[int, str] = {}
     try:
         if coordinator is None:
             forecasts = _fetch(
@@ -631,13 +632,19 @@ def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
             )
         else:
             forecasts = [coordinator.best_match(point["location_id"]) for point in points]
-            if any(forecast is None for forecast in forecasts):
-                raise ValueError("共享天氣批次缺少機位資料")
+            for index, (point, forecast) in enumerate(zip(points, forecasts)):
+                if forecast is None:
+                    site_error = getattr(coordinator, "site_error", lambda _location_id: None)
+                    forecast_errors[index] = (
+                        site_error(point["location_id"]) or "best-match 天氣資料暫缺"
+                    )
     except Exception as exc:
         return {"date": date_str, "error": True, "message": f"日出／日落天氣資料暫時無法取得：{exc}"}
     if len(forecasts) != len(points):
         return {"date": date_str, "error": True, "message": "日出／日落天氣資料數量不完整"}
-    fallback_mode = any(fc.get("_source") == "met_norway" for fc in forecasts)
+    fallback_mode = any(
+        fc is not None and fc.get("_source") == "met_norway" for fc in forecasts
+    )
 
     calculator = DirectLightCalculator()
 
@@ -645,6 +652,8 @@ def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
     horizon_points: dict[tuple[float, float], tuple[float, float]] = {}  # (point_idx, event) -> offset coord
     unique_offsets: list[tuple[float, float]] = []
     for idx, (point, fc) in enumerate(zip(points, forecasts)):
+        if fc is None:
+            continue
         try:
             day_index = fc["daily"]["time"].index(date_str)
         except (KeyError, ValueError):
@@ -700,6 +709,15 @@ def build_daylight(date_str: str, coordinator=None) -> dict[str, Any]:
 
     result = []
     for idx, (point, fc) in enumerate(zip(points, forecasts)):
+        if idx in forecast_errors:
+            result.append({
+                "id": point.get("location_id", point["id"]),
+                "spot_id": point["id"],
+                "name": point["name"],
+                "error": True,
+                "message": forecast_errors[idx],
+            })
+            continue
         try:
             index = fc["daily"]["time"].index(date_str)
             events: dict[str, Any] = {}

@@ -123,6 +123,52 @@ def test_night_runtime_preserves_met_fallback_from_coordinator():
     assert analyze.call_args.kwargs["wx"]["hourly"]["_cloud_source"] == "met_norway"
 
 
+def test_night_runtime_isolates_missing_four_model_payload_to_one_location():
+    locations = {
+        "a": {"lat": 50.0, "lon": -116.0},
+        "b": {"lat": 51.0, "lon": -115.0},
+    }
+    valid_four_models = {
+        "hourly": {"time": [], "cloud_cover_ecmwf_ifs025": []},
+    }
+
+    class Coordinator:
+        def four_models(self, location_id):
+            return None if location_id == "a" else valid_four_models
+
+        def best_match(self, location_id):
+            return {"hourly": {}} if location_id == "a" else None
+
+        def cams_grid(self, location_id):
+            return [None] * 9
+
+        def cams_window(self, **kwargs):
+            return {}
+
+        def site_error(self, location_id):
+            return "A 四模型資料暫缺" if location_id == "a" else None
+
+    def analyze(location_id, _loc, _date, *, wx, **_kwargs):
+        assert location_id == "b"
+        assert wx["hourly"]["_cloud_source"] == "open_meteo_explicit_models"
+        return {"location_id": location_id, "night": {"score": 88}}
+
+    with patch.object(night_report, "fetch_weather_batch") as weather_fetch, \
+         patch.object(night_report, "fetch_air_quality_batch") as aq_fetch, \
+         patch.object(night_report, "analyze", side_effect=analyze) as analyze_mock:
+        results = night_report.run_all_locations(
+            locations, "2026-09-20", coordinator=Coordinator()
+        )
+
+    weather_fetch.assert_not_called()
+    aq_fetch.assert_not_called()
+    analyze_mock.assert_called_once()
+    assert results[0] == {
+        "location_id": "a", "error": True, "message": "A 四模型資料暫缺",
+    }
+    assert results[1] == {"location_id": "b", "night": {"score": 88}}
+
+
 def test_daylight_runtime_reuses_coordinator_site_model_horizon_and_cams_data():
     hourly = {
         "time": ["2026-09-20T18:00", "2026-09-20T19:00", "2026-09-20T20:00"],
@@ -268,3 +314,86 @@ def test_daylight_runtime_keeps_best_match_when_shared_four_models_is_none():
     assert not point.get("error")
     assert event["wind_detail"]["ecmwf_missing"] is True
     assert event["confidence"]["models"] == {"best_match": 20}
+
+
+def test_daylight_runtime_isolates_missing_best_match_to_one_point():
+    hourly = {
+        "time": ["2026-09-20T18:00", "2026-09-20T19:00", "2026-09-20T20:00"],
+        "cloud_cover": [20, 20, 20], "cloud_cover_low": [5, 5, 5],
+        "cloud_cover_mid": [10, 10, 10], "cloud_cover_high": [20, 20, 20],
+        "precipitation_probability": [0, 0, 0], "visibility": [30000] * 3,
+        "wind_speed_10m": [4, 4, 4], "wind_gusts_10m": [6, 6, 6],
+    }
+    forecast_b = {
+        "daily": {"time": ["2026-09-20"], "sunset": ["2026-09-20T19:00"]},
+        "hourly": hourly,
+    }
+
+    class Coordinator:
+        def best_match(self, location_id):
+            return None if location_id == "a" else forecast_b
+
+        def model(self, location_id, model):
+            return {"hourly": hourly} if location_id == "b" else None
+
+        def horizon(self, key):
+            return {"hourly": hourly} if key[0] == "b" else None
+
+        def cams_grid(self, location_id):
+            return [None] * 9
+
+        def cams_window(self, **kwargs):
+            return {}
+
+        def site_error(self, location_id):
+            return "A best-match 資料暫缺" if location_id == "a" else None
+
+    class Calculator:
+        def _sun(self, *args): return 0, 250
+        def direct_light_time(self, *args): return {"time": "18:50", "basis": "fixture"}
+
+    uncertain_smoke = {
+        "smoke_assessment": {
+            "consensus": {
+                "status": "SINGLE_MODEL_ONLY", "photography_smoke_score": 50,
+                "consensus_pm2_5": None, "coverage": {"valid": 0, "total": 3},
+                "veto": False,
+            },
+            "pollutants": {"us_aqi_health_context": None},
+            "models": {}, "observed_now": {}, "source_support": {},
+            "uncertainties": ["CAMS 資料暫缺"],
+        }
+    }
+    points = [
+        {"id": "spot-a", "location_id": "a", "name": "A", "lat": 50.0,
+         "lon": -116.0, "daylight_events": ["sunset"]},
+        {"id": "spot-b", "location_id": "b", "name": "B", "lat": 51.0,
+         "lon": -115.0, "daylight_events": ["sunset"]},
+    ]
+    with tempfile.TemporaryDirectory() as directory:
+        Path(directory, "spots.json").write_text(
+            json.dumps({"points": points}), encoding="utf-8"
+        )
+        with patch.object(daylight_report, "HERE", Path(directory)), \
+             patch.object(daylight_report, "DirectLightCalculator", Calculator), \
+             patch.object(daylight_report, "_fetch") as best_fetch, \
+             patch.object(daylight_report, "_fetch_air_quality") as aq_fetch, \
+             patch.object(daylight_report, "_fetch_ecmwf") as ecmwf_fetch, \
+             patch.object(daylight_report, "_fetch_model") as model_fetch, \
+             patch.object(daylight_report, "assess_smoke_window", return_value=uncertain_smoke):
+            built = daylight_report.build_daylight(
+                "2026-09-20", coordinator=Coordinator()
+            )
+
+    best_fetch.assert_not_called()
+    aq_fetch.assert_not_called()
+    ecmwf_fetch.assert_not_called()
+    model_fetch.assert_not_called()
+    assert not built.get("error")
+    assert [point["id"] for point in built["points"]] == ["a", "b"]
+    assert built["points"][0] == {
+        "id": "a", "spot_id": "spot-a", "name": "A", "error": True,
+        "message": "A best-match 資料暫缺",
+    }
+    assert not built["points"][1].get("error")
+    assert "sunset" in built["points"][1]["events"]
