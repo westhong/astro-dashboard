@@ -610,6 +610,53 @@ class BlueSkySourceTests(unittest.TestCase):
             third = load_bluesky_decoded(path)
             self.assertIsNot(first, third)
 
+    def test_bluesky_decoded_lru_is_race_safe_during_concurrent_eviction(self):
+        with tempfile.TemporaryDirectory() as directory:
+            first_path = Path(directory) / "first.nc"
+            second_path = Path(directory) / "second.nc"
+            self._netcdf(first_path)
+            self._netcdf(second_path)
+            second_path.write_bytes(second_path.read_bytes() + b"x")
+            clear_bluesky_decoded_cache()
+            decoded = load_bluesky_decoded(first_path)
+            first_stat = first_path.stat()
+            first_key = (
+                str(first_path.resolve()), first_stat.st_size, first_stat.st_mtime_ns
+            )
+            first_lookup = threading.Event()
+            allow_first = threading.Event()
+            second_inserted = threading.Event()
+
+            class PausingCache(OrderedDict):
+                def get(self, key, default=None):
+                    value = super().get(key, default)
+                    if key == first_key:
+                        first_lookup.set()
+                        if not allow_first.wait(2):
+                            raise AssertionError("first lookup was never released")
+                    return value
+
+                def __setitem__(self, key, value):
+                    super().__setitem__(key, value)
+                    if key != first_key:
+                        second_inserted.set()
+
+            cache = PausingCache()
+            OrderedDict.__setitem__(cache, first_key, decoded)
+            with patch.object(smoke_sources, "_BLUESKY_DECODED_CACHE", cache), \
+                 patch.object(smoke_sources, "_BLUESKY_DECODED_CACHE_MAX", 1):
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    first = executor.submit(load_bluesky_decoded, first_path)
+                    self.assertTrue(first_lookup.wait(2))
+                    second = executor.submit(load_bluesky_decoded, second_path)
+                    second_inserted.wait(0.2)
+                    allow_first.set()
+                    first_result = first.result(timeout=2)
+                    second_result = second.result(timeout=2)
+
+            self.assertIs(first_result, decoded)
+            self.assertEqual(float(second_result["pm25"][0, 0, 2, 2]), 13.0)
+
     def test_binary_failure_reports_dispersion_url_but_out_of_range_does_not(self):
         with tempfile.TemporaryDirectory() as directory:
             metadata = parse_bluesky_index(

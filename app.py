@@ -12,12 +12,16 @@ import asyncio
 import json
 
 import time
-from datetime import date as date_cls
+from collections import OrderedDict
+from datetime import date as date_cls, datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+
+from backend.process_isolation import IsolatedProcessTimeout, run_in_spawned_process
 
 SKILL_SCRIPT = Path(__file__).parent / "backend" / "scripts" / "night_report.py"
 LOCATIONS_JSON = Path(__file__).parent / "backend" / "references" / "locations.json"
@@ -26,12 +30,58 @@ VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 
 
 CACHE_TTL = 600  # 10 分鐘
-LAN_BATCH_TIMEOUT = 420
+LAN_REPORT_TIMEOUT = 420
+REPORT_CACHE_MAX = 5
+MAX_CONCURRENT_REPORT_BUILDS = 2
+EDMONTON_TZ = ZoneInfo("America/Edmonton")
 
 
 app = FastAPI(title="astro-dashboard")
-_cache = {}  # date_str -> (timestamp, payload)
+_cache: OrderedDict[str, tuple[float, dict]] = OrderedDict()
 _inflight: dict[str, asyncio.Task] = {}
+_build_semaphore: asyncio.Semaphore | None = None
+
+
+def _edmonton_today() -> date_cls:
+    return datetime.now(EDMONTON_TZ).date()
+
+
+def _validate_report_date(requested: str | None) -> str:
+    today = _edmonton_today()
+    date_str = requested or today.isoformat()
+    try:
+        parsed = date_cls.fromisoformat(date_str)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail="日期格式必須為 YYYY-MM-DD") from exc
+    if parsed.isoformat() != date_str or not today <= parsed <= today + timedelta(days=4):
+        raise HTTPException(status_code=422, detail="日期只支援 Edmonton 當日起五天")
+    return date_str
+
+
+def _prune_cache() -> None:
+    valid_dates = {
+        (_edmonton_today() + timedelta(days=offset)).isoformat()
+        for offset in range(REPORT_CACHE_MAX)
+    }
+    for key in list(_cache):
+        if key not in valid_dates:
+            _cache.pop(key, None)
+    while len(_cache) > REPORT_CACHE_MAX:
+        _cache.popitem(last=False)
+
+
+def _report_build_semaphore() -> asyncio.Semaphore:
+    global _build_semaphore
+    if _build_semaphore is None:
+        _build_semaphore = asyncio.Semaphore(MAX_CONCURRENT_REPORT_BUILDS)
+    return _build_semaphore
+
+
+def _reset_report_state_for_tests() -> None:
+    global _build_semaphore
+    _cache.clear()
+    _inflight.clear()
+    _build_semaphore = None
 
 
 def location_ids():
@@ -63,9 +113,7 @@ def _build_report_sync(date_str: str, prior_payload: dict | None = None) -> dict
     # 不再為每個機位另開 subprocess 或重新抓取整批資料。
     coordinator = create_weather_coordinator(ids)
     prepare_coordinator_horizons([date_str], coordinator)
-    results = run_all_with_coordinator(
-        ids, date_str, coordinator, timeout=LAN_BATCH_TIMEOUT
-    )
+    results = run_all_with_coordinator(ids, date_str, coordinator)
     apply_forecast_revision(results, prior_payload, date_str)
     ok = [r for r in results if not r.get("error")]
     failed = [r for r in results if r.get("error")]
@@ -84,21 +132,63 @@ def _build_report_sync(date_str: str, prior_payload: dict | None = None) -> dict
 
 
 async def build_report(date_str: str, prior_payload: dict | None = None) -> dict:
-    """Keep the event loop free while the complete synchronous report is built."""
-    return await asyncio.to_thread(_build_report_sync, date_str, prior_payload)
+    """Bound the complete build in a child process while keeping the loop free."""
+    try:
+        return await asyncio.to_thread(
+            run_in_spawned_process,
+            "app",
+            "_build_report_sync",
+            args=(date_str, prior_payload),
+            timeout=LAN_REPORT_TIMEOUT,
+        )
+    except IsolatedProcessTimeout:
+        ids = location_ids()
+        results = [
+            {
+                "location_id": location_id,
+                "error": True,
+                "message": "完整報告超時——天氣數據服務可能沒有回應",
+            }
+            for location_id in ids
+        ]
+        return {
+            "version": VERSION,
+            "night_date": date_str,
+            "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "elapsed_seconds": LAN_REPORT_TIMEOUT,
+            "locations": results,
+            "best_location_id": None,
+            "failed_count": len(results),
+            "spots": [],
+            "daylight": {
+                "date": date_str,
+                "error": True,
+                "message": "完整報告超時——日間分析未完成",
+            },
+        }
 
 
 async def _build_and_cache(date_str: str, prior_payload: dict | None) -> dict:
-    payload = await build_report(date_str, prior_payload=prior_payload)
+    async with _report_build_semaphore():
+        payload = await build_report(date_str, prior_payload=prior_payload)
     _cache[date_str] = (time.time(), payload)
+    _cache.move_to_end(date_str)
+    _prune_cache()
     return payload
+
+
+def _remove_inflight(date_str: str, task: asyncio.Task) -> None:
+    if _inflight.get(date_str) is task:
+        _inflight.pop(date_str, None)
 
 
 @app.get("/api/report")
 async def report(date: str = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")):
-    date_str = date or date_cls.today().isoformat()
+    date_str = _validate_report_date(date)
+    _prune_cache()
     cached = _cache.get(date_str)
     if cached and time.time() - cached[0] < CACHE_TTL:
+        _cache.move_to_end(date_str)
         payload = dict(cached[1])
         payload["cache_age_seconds"] = round(time.time() - cached[0])
         return JSONResponse(payload)
@@ -107,6 +197,7 @@ async def report(date: str = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
         prior_payload = cached[1] if cached else None
         task = asyncio.create_task(_build_and_cache(date_str, prior_payload))
         _inflight[date_str] = task
+        task.add_done_callback(lambda done, key=date_str: _remove_inflight(key, done))
     try:
         payload = await asyncio.shield(task)
     finally:

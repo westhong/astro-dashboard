@@ -582,10 +582,12 @@ def _tflag_datetime(date_code: int, time_code: int) -> datetime:
 
 _BLUESKY_DECODED_CACHE: OrderedDict[tuple[str, int, int], dict[str, object]] = OrderedDict()
 _BLUESKY_DECODED_CACHE_MAX = 2
+_BLUESKY_DECODED_CACHE_LOCK = threading.Lock()
 
 
 def clear_bluesky_decoded_cache() -> None:
-    _BLUESKY_DECODED_CACHE.clear()
+    with _BLUESKY_DECODED_CACHE_LOCK:
+        _BLUESKY_DECODED_CACHE.clear()
 
 
 def load_bluesky_decoded(path: Path) -> dict[str, object]:
@@ -593,10 +595,11 @@ def load_bluesky_decoded(path: Path) -> dict[str, object]:
     resolved = Path(path).resolve()
     stat = resolved.stat()
     key = (str(resolved), stat.st_size, stat.st_mtime_ns)
-    cached = _BLUESKY_DECODED_CACHE.get(key)
-    if cached is not None:
-        _BLUESKY_DECODED_CACHE.move_to_end(key)
-        return cached
+    with _BLUESKY_DECODED_CACHE_LOCK:
+        cached = _BLUESKY_DECODED_CACHE.get(key)
+        if cached is not None:
+            _BLUESKY_DECODED_CACHE.move_to_end(key)
+            return cached
     try:
         from scipy.io import netcdf_file
     except ImportError as exc:  # pragma: no cover
@@ -607,19 +610,25 @@ def load_bluesky_decoded(path: Path) -> dict[str, object]:
                 raise ValueError(f"BlueSky NetCDF missing {attribute}")
         if "PM25" not in dataset.variables or "TFLAG" not in dataset.variables:
             raise ValueError("BlueSky NetCDF missing PM25 or TFLAG")
-        decoded = {
+        newly_decoded = {
             "pm25": dataset.variables["PM25"].data.copy(),
             "tflag": dataset.variables["TFLAG"].data.copy(),
             "units": getattr(dataset.variables["PM25"], "units", b"ug/m^3"),
             "xorig": float(dataset.XORIG), "yorig": float(dataset.YORIG),
             "xcell": float(dataset.XCELL), "ycell": float(dataset.YCELL),
         }
-    for old_key in [item for item in _BLUESKY_DECODED_CACHE if item[0] == key[0]]:
-        del _BLUESKY_DECODED_CACHE[old_key]
-    _BLUESKY_DECODED_CACHE[key] = decoded
-    while len(_BLUESKY_DECODED_CACHE) > _BLUESKY_DECODED_CACHE_MAX:
-        _BLUESKY_DECODED_CACHE.popitem(last=False)
-    return decoded
+    with _BLUESKY_DECODED_CACHE_LOCK:
+        decoded = _BLUESKY_DECODED_CACHE.get(key)
+        if decoded is None:
+            decoded = newly_decoded
+            for old_key in [item for item in _BLUESKY_DECODED_CACHE if item[0] == key[0]]:
+                del _BLUESKY_DECODED_CACHE[old_key]
+            _BLUESKY_DECODED_CACHE[key] = decoded
+            while len(_BLUESKY_DECODED_CACHE) > _BLUESKY_DECODED_CACHE_MAX:
+                _BLUESKY_DECODED_CACHE.popitem(last=False)
+        else:
+            _BLUESKY_DECODED_CACHE.move_to_end(key)
+        return decoded
 
 
 def extract_bluesky_netcdf(

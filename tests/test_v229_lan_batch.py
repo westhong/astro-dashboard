@@ -1,12 +1,19 @@
 import asyncio
 import inspect
 import json
-import threading
+import multiprocessing
+import tempfile
 import time
+from datetime import date
+from pathlib import Path
 from unittest.mock import patch
+
+import pytest
+from fastapi import HTTPException
 
 import app
 from backend import build_report as static_builder
+from backend.process_isolation import IsolatedProcessTimeout, run_in_spawned_process
 
 
 def test_lan_uses_one_all_locations_batch_and_no_per_site_subprocess():
@@ -24,28 +31,24 @@ def test_lan_uses_one_all_locations_batch_and_no_per_site_subprocess():
          patch.object(app, "build_spots", return_value=[]), \
          patch.object(app, "build_daylight_report", return_value={"points": []}) as daylight, \
          patch.object(app.asyncio, "create_subprocess_exec") as subprocess_call:
-        payload = asyncio.run(app.build_report("2026-09-20"))
+        payload = app._build_report_sync("2026-09-20")
 
     prepare.assert_called_once_with(["2026-09-20"], coordinator)
-    run_all.assert_called_once_with(
-        ids, "2026-09-20", coordinator, timeout=app.LAN_BATCH_TIMEOUT
-    )
+    run_all.assert_called_once_with(ids, "2026-09-20", coordinator)
     daylight.assert_called_once_with("2026-09-20", coordinator)
     subprocess_call.assert_not_called()
     assert [item["location_id"] for item in payload["locations"]] == ids
 
 
 def test_static_builder_does_not_refetch_individual_missing_sites():
-    source = inspect.getsource(static_builder.main)
+    source = inspect.getsource(static_builder._build_static_reports)
     assert "run_one(" not in source
 
 
 def test_lan_report_keeps_event_loop_responsive_during_complete_sync_build():
-    batch = [{"location_id": "a", "night": {"grade_code": "MARGINAL", "score": 55}}]
-
-    def slow_spots(_date_str):
+    def slow_isolated_call(*_args, **_kwargs):
         time.sleep(0.15)
-        return []
+        return {"locations": [], "failed_count": 0}
 
     async def exercise():
         started = time.perf_counter()
@@ -55,13 +58,7 @@ def test_lan_report_keeps_event_loop_responsive_during_complete_sync_build():
         await report_task
         return tick_elapsed
 
-    with patch.object(app, "location_ids", return_value=["a"]), \
-         patch("backend.build_report.create_weather_coordinator", return_value=object()), \
-         patch("backend.daylight_report.prepare_coordinator_horizons"), \
-         patch("backend.build_report.run_all_with_coordinator", return_value=batch), \
-         patch("backend.build_report.select_best_location", return_value=batch[0]), \
-         patch.object(app, "build_spots", side_effect=slow_spots), \
-         patch.object(app, "build_daylight_report", return_value={"points": []}):
+    with patch.object(app, "run_in_spawned_process", side_effect=slow_isolated_call):
         tick_elapsed = asyncio.run(exercise())
 
     assert tick_elapsed < 0.1
@@ -87,8 +84,9 @@ def test_same_date_concurrent_lan_cache_misses_share_one_build():
         release.set()
         return await asyncio.gather(first, second)
 
-    app._cache.clear()
-    with patch.object(app, "build_report", side_effect=slow_build):
+    app._reset_report_state_for_tests()
+    with patch.object(app, "_edmonton_today", return_value=date(2026, 9, 20)), \
+         patch.object(app, "build_report", side_effect=slow_build):
         responses = asyncio.run(exercise())
 
     assert calls == 1
@@ -99,25 +97,12 @@ def test_same_date_concurrent_lan_cache_misses_share_one_build():
 
 
 def test_lan_report_timeout_returns_honest_error_payload_promptly():
-    blocked = threading.Event()
-
-    def never_finishes(*_args, **_kwargs):
-        blocked.wait(5)
-
     started = time.perf_counter()
     with patch.object(
         app, "location_ids", return_value=["vermilion_lakes", "two_jack_lake"]
-    ), patch(
-        "backend.build_report.create_weather_coordinator", return_value=object()
-    ), patch(
-        "backend.daylight_report.prepare_coordinator_horizons"
-    ), patch(
-        "backend.scripts.night_report.run_all_locations", side_effect=never_finishes
     ), patch.object(
-        app, "build_spots", return_value=[]
-    ), patch.object(
-        app, "build_daylight_report", return_value={"points": []}
-    ), patch.object(app, "LAN_BATCH_TIMEOUT", 0.05):
+        app, "run_in_spawned_process", side_effect=IsolatedProcessTimeout(0.05)
+    ), patch.object(app, "LAN_REPORT_TIMEOUT", 0.05):
         payload = asyncio.run(app.build_report("2026-09-20"))
     elapsed = time.perf_counter() - started
 
@@ -127,25 +112,105 @@ def test_lan_report_timeout_returns_honest_error_payload_promptly():
     assert all("超時" in item["message"] for item in payload["locations"])
 
 
-def test_static_batch_timeout_returns_per_location_errors_promptly():
-    blocked = threading.Event()
+@pytest.mark.parametrize("stage", ["coordinator_prep", "spots", "daylight"])
+def test_complete_report_timeout_terminates_worker_without_late_mutation(stage):
+    with tempfile.TemporaryDirectory() as directory:
+        before = {child.pid for child in multiprocessing.active_children()}
+        started = time.perf_counter()
+        with pytest.raises(IsolatedProcessTimeout):
+            run_in_spawned_process(
+                "tests.process_timeout_fixtures",
+                "blocking_complete_report",
+                args=(stage, directory, 2.0),
+                timeout=0.15,
+            )
+        elapsed = time.perf_counter() - started
+        time.sleep(0.25)
+        after = {child.pid for child in multiprocessing.active_children()}
 
-    def never_finishes(*_args, **_kwargs):
-        blocked.wait(5)
+        assert elapsed < 1.0
+        assert (Path(directory) / f"{stage}.entered").exists()
+        assert not (Path(directory) / f"{stage}.late").exists()
+        assert after <= before
 
-    started = time.perf_counter()
-    with patch("backend.scripts.night_report.run_all_locations", side_effect=never_finishes):
-        results = static_builder.run_all_with_coordinator(
-            ["vermilion_lakes", "two_jack_lake"],
-            "2026-09-20",
-            coordinator=object(),
-            timeout=0.05,
-        )
-    elapsed = time.perf_counter() - started
 
-    assert elapsed < 0.2
-    assert [item["location_id"] for item in results] == [
-        "vermilion_lakes", "two_jack_lake",
-    ]
-    assert all(item["error"] for item in results)
-    assert all("超時" in item["message"] for item in results)
+def test_static_main_isolates_one_complete_build_not_each_site():
+    with patch.object(static_builder, "run_in_spawned_process") as isolated:
+        static_builder.main()
+
+    isolated.assert_called_once_with(
+        "backend.build_report",
+        "_build_static_reports",
+        timeout=static_builder.STATIC_BUILD_TIMEOUT,
+    )
+
+
+@pytest.mark.parametrize("requested", ["2026-09-20", "2026-09-26", "not-a-date"])
+def test_lan_rejects_dates_outside_frontend_five_day_horizon(requested):
+    with patch.object(app, "_edmonton_today", return_value=date(2026, 9, 21)):
+        with pytest.raises(HTTPException) as exc:
+            app._validate_report_date(requested)
+
+    assert exc.value.status_code == 422
+
+
+@pytest.mark.parametrize("requested", ["2026-09-21", "2026-09-25"])
+def test_lan_accepts_frontend_five_day_horizon_boundaries(requested):
+    with patch.object(app, "_edmonton_today", return_value=date(2026, 9, 21)):
+        assert app._validate_report_date(requested) == requested
+
+
+def test_lan_cache_and_inflight_bookkeeping_stay_bounded():
+    async def immediate_build(date_str, prior_payload=None):
+        return {"night_date": date_str, "locations": [], "failed_count": 0}
+
+    async def exercise():
+        for offset in range(20):
+            app._cache[f"2000-01-{offset + 1:02d}"] = (0, {})
+        await app.report("2026-09-21")
+        await asyncio.sleep(0)
+
+    app._reset_report_state_for_tests()
+    with patch.object(app, "_edmonton_today", return_value=date(2026, 9, 21)), \
+         patch.object(app, "build_report", side_effect=immediate_build):
+        asyncio.run(exercise())
+
+    assert len(app._cache) <= app.REPORT_CACHE_MAX
+    assert len(app._inflight) == 0
+
+
+def test_distinct_date_builds_respect_global_concurrency_cap():
+    active = 0
+    peak = 0
+    release = asyncio.Event()
+
+    async def blocked_build(date_str, prior_payload=None):
+        nonlocal active, peak
+        active += 1
+        peak = max(peak, active)
+        try:
+            await release.wait()
+            return {"night_date": date_str, "locations": [], "failed_count": 0}
+        finally:
+            active -= 1
+
+    async def exercise():
+        tasks = [
+            asyncio.create_task(app.report(f"2026-09-{day:02d}"))
+            for day in (21, 22, 23, 24, 25)
+        ]
+        for _ in range(20):
+            if peak == app.MAX_CONCURRENT_REPORT_BUILDS:
+                break
+            await asyncio.sleep(0.01)
+        assert peak == app.MAX_CONCURRENT_REPORT_BUILDS
+        release.set()
+        await asyncio.gather(*tasks)
+
+    app._reset_report_state_for_tests()
+    with patch.object(app, "_edmonton_today", return_value=date(2026, 9, 21)), \
+         patch.object(app, "build_report", side_effect=blocked_build):
+        asyncio.run(exercise())
+
+    assert peak == app.MAX_CONCURRENT_REPORT_BUILDS
+    assert not app._inflight

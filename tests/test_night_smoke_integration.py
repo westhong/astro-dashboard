@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+import app
 from backend.scripts import night_report
 from backend import build_report
 
@@ -49,8 +50,9 @@ def weather_and_aq(date_str):
 class NightSmokeIntegrationTests(unittest.TestCase):
     LOC = {"lat": 51.0, "lon": -115.0, "elev_m": 1500, "name_zh": "測試", "mountain": "山", "coord_source": "fixture"}
 
-    def test_report_subprocess_timeout_allows_first_bluesky_cycle_download(self):
-        self.assertEqual(build_report.TIMEOUT, 420)
+    def test_complete_report_deadlines_allow_first_bluesky_cycle_download(self):
+        self.assertEqual(app.LAN_REPORT_TIMEOUT, 420)
+        self.assertGreaterEqual(build_report.STATIC_BUILD_TIMEOUT, 5 * 420)
 
     def test_repo_root_falls_back_to_home_dashboard_when_script_is_in_skill_tree(self):
         with TemporaryDirectory() as temporary:

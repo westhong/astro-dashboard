@@ -25,7 +25,7 @@ def location(location_id, grade="GO", score=90, start="22:00", clouds=None):
 
 class ForecastRevisionTests(unittest.TestCase):
     def test_static_build_wires_prior_report_zero_into_revision_check(self):
-        source = inspect.getsource(build_report.main)
+        source = inspect.getsource(build_report._build_static_reports)
         self.assertIn("apply_forecast_revision(results, prior_reports.get(date_str), date_str)", source)
         self.assertNotIn("if offset == 0", source)
 
@@ -131,7 +131,7 @@ class LiveRecommendationRankingTests(unittest.IsolatedAsyncioTestCase):
         ), patch.object(app, "build_spots", return_value=[]), patch.object(
             app, "build_daylight_report", return_value={}
         ):
-            payload = await app.build_report("2026-09-04")
+            payload = app._build_report_sync("2026-09-04")
 
         self.assertEqual(payload["best_location_id"], "good")
 
@@ -152,7 +152,7 @@ class LiveRecommendationRankingTests(unittest.IsolatedAsyncioTestCase):
         ), patch.object(app, "build_spots", return_value=[]), patch.object(
             app, "build_daylight_report", return_value={}
         ):
-            payload = await app.build_report("2026-09-04", prior_payload=prior)
+            payload = app._build_report_sync("2026-09-04", prior_payload=prior)
 
         self.assertEqual(payload["locations"][0]["night"]["grade_code"], "MARGINAL")
         self.assertEqual(payload["best_location_id"], "a")

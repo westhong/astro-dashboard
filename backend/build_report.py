@@ -6,10 +6,8 @@ v2.1.0：加入 alpenglow（金山機位）+ 各點日出日落時間。
 """
 import datetime as dt
 import json
-import queue
 import subprocess
 import sys
-import threading
 import time
 from datetime import date, timedelta
 from pathlib import Path
@@ -18,12 +16,12 @@ from zoneinfo import ZoneInfo
 HERE = Path(__file__).resolve().parent
 if str(HERE.parent) not in sys.path:
     sys.path.insert(0, str(HERE.parent))
+from backend.process_isolation import run_in_spawned_process
 SCRIPT = HERE / "scripts" / "night_report.py"
 DOCS = HERE.parent / "docs"
 STATIC = HERE.parent / "static" / "index.html"
 TZ = ZoneInfo("America/Edmonton")
-TIMEOUT = 420
-BATCH_TIMEOUT = 420
+STATIC_BUILD_TIMEOUT = 2100
 GRADE_RANK = {"STAY_HOME": 0, "RISKY": 1, "MARGINAL": 2, "GOOD": 3, "GO": 4}
 GRADE_ZH = {"STAY_HOME": "留在家中", "RISKY": "不太建議", "MARGINAL": "可試但有風險", "GOOD": "值得前往", "GO": "立即出發"}
 
@@ -119,24 +117,6 @@ def load_prior_reports(docs_dir):
     return reports
 
 
-def run_one(loc_id, date_str):
-    try:
-        p = subprocess.run(
-            [sys.executable, str(SCRIPT), "--location", loc_id, "--date", date_str, "--json"],
-            capture_output=True, text=True, timeout=TIMEOUT,
-        )
-        if p.returncode != 0:
-            detail = p.stderr[-400:]
-            msg = ("天氣數據商暫時限流，下次更新會再試" if "429" in detail
-                   else f"分析程式錯誤（exit {p.returncode}）")
-            return {"location_id": loc_id, "error": True, "message": msg, "detail": detail}
-        return json.loads(p.stdout)
-    except subprocess.TimeoutExpired:
-        return {"location_id": loc_id, "error": True, "message": "分析超時——天氣數據服務可能冇回應"}
-    except Exception as e:
-        return {"location_id": loc_id, "error": True, "message": f"未預期錯誤：{e}"}
-
-
 def run_all(loc_ids, date_str):
     """在同一 runtime 以共享 coordinator 跑完整機位集。"""
     return run_all_with_coordinator(loc_ids, date_str)
@@ -157,29 +137,8 @@ def create_weather_coordinator(loc_ids=None):
     )
 
 
-def _call_with_timeout(function, timeout):
-    """Run a blocking batch on a daemon thread and stop waiting at the deadline."""
-    outcome = queue.Queue(maxsize=1)
-
-    def invoke():
-        try:
-            outcome.put((True, function()))
-        except BaseException as exc:
-            outcome.put((False, exc))
-
-    worker = threading.Thread(target=invoke, daemon=True)
-    worker.start()
-    try:
-        succeeded, value = outcome.get(timeout=timeout)
-    except queue.Empty as exc:
-        raise TimeoutError(f"batch exceeded {timeout} seconds") from exc
-    if not succeeded:
-        raise value
-    return value
-
-
 def run_all_with_coordinator(
-    loc_ids, date_str, coordinator=None, *, timeout=BATCH_TIMEOUT
+    loc_ids, date_str, coordinator=None
 ):
     from backend.scripts import night_report
 
@@ -187,19 +146,12 @@ def run_all_with_coordinator(
     locations = {location_id: locations[location_id] for location_id in loc_ids}
     coordinator = coordinator or create_weather_coordinator(loc_ids)
     try:
-        results = _call_with_timeout(
-            lambda: night_report.run_all_locations(
-                locations, date_str, coordinator=coordinator
-            ),
-            timeout,
+        results = night_report.run_all_locations(
+            locations, date_str, coordinator=coordinator
         )
         if len(results) != len(loc_ids):
             raise ValueError(f"批次分析數量不完整：預期 {len(loc_ids)}，收到 {len(results)}")
         return results
-    except TimeoutError:
-        return [{"location_id": lid, "error": True,
-                 "message": "批次分析超時——天氣數據服務可能沒有回應"}
-                for lid in loc_ids]
     except Exception as e:
         return [{"location_id": lid, "error": True, "message": f"批次未預期錯誤：{e}"}
                 for lid in loc_ids]
@@ -252,7 +204,7 @@ def build_daylight_report(date_str, coordinator=None):
     return build_daylight(date_str, coordinator=coordinator)
 
 
-def main():
+def _build_static_reports():
     locs = json.loads((HERE / "references" / "locations.json").read_text())
     today = dt.datetime.now(TZ).date()
     date_strs = [(today + timedelta(days=offset)).isoformat() for offset in range(5)]
@@ -359,6 +311,15 @@ def main():
     if icons_src.exists():
         shutil.copytree(icons_src, DOCS / "icons", dirs_exist_ok=True)
     print("docs/ static assets updated")
+
+
+def main():
+    """Bound one complete static build while preserving its unified coordinator."""
+    run_in_spawned_process(
+        "backend.build_report",
+        "_build_static_reports",
+        timeout=STATIC_BUILD_TIMEOUT,
+    )
 
 
 if __name__ == "__main__":
