@@ -46,8 +46,9 @@ def run_in_spawned_process(
     args: tuple[Any, ...] = (),
     kwargs: dict[str, Any] | None = None,
     timeout: float,
+    cancellation_event=None,
 ) -> Any:
-    """Run one importable function in a spawned child and kill it at deadline."""
+    """Run one importable function in a spawned child and kill it at deadline/cancel."""
     context = multiprocessing.get_context("spawn")
     receive_connection, send_connection = context.Pipe(duplex=False)
     process = context.Process(
@@ -60,12 +61,22 @@ def run_in_spawned_process(
     deadline = time.monotonic() + timeout
     try:
         while True:
+            if cancellation_event is not None and cancellation_event.is_set():
+                _stop_process(process)
+                raise IsolatedProcessError("isolated operation cancelled")
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 _stop_process(process)
                 raise IsolatedProcessTimeout(timeout)
             if receive_connection.poll(min(remaining, 0.05)):
-                message = receive_connection.recv()
+                try:
+                    message = receive_connection.recv()
+                except EOFError as exc:
+                    process.join(timeout=2)
+                    raise IsolatedProcessError(
+                        f"isolated {module_name}.{function_name} exited with code "
+                        f"{process.exitcode} without a result"
+                    ) from exc
                 process.join(timeout=2)
                 if process.is_alive():
                     _stop_process(process)

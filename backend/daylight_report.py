@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
+from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 from zoneinfo import ZoneInfo
 
@@ -39,7 +40,15 @@ OM_CACHE_DIR = Path.home() / ".cache" / "astro-openmeteo"
 OM_CACHE_TTL = 55 * 60  # 秒
 
 
-def _cached_urlopen_json(url: str) -> Any:
+def _retry_after_seconds(exc: HTTPError, default: float) -> float:
+    raw = exc.headers.get("Retry-After") if exc.headers else None
+    try:
+        return min(max(float(raw), 0.0), 60.0) if raw is not None else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _cached_urlopen_json(url: str, attempts: int = 4) -> Any:
     """urlopen+JSON parse，附 55 分鐘磁碟 cache。錯誤/429 唔入 cache。"""
     key = hashlib.sha256(url.encode()).hexdigest()[:20]
     today = datetime.now(LOCAL).date().isoformat()
@@ -49,8 +58,23 @@ def _cached_urlopen_json(url: str) -> Any:
             return json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         pass
-    with urlopen(url, timeout=30) as response:
-        data = json.load(response)
+    delay = 5
+    for attempt in range(attempts):
+        try:
+            with urlopen(url, timeout=30) as response:
+                data = json.load(response)
+            break
+        except HTTPError as exc:
+            if exc.code != 429 and exc.code < 500:
+                raise
+            if attempt + 1 >= attempts:
+                raise
+            time.sleep(_retry_after_seconds(exc, delay))
+        except (URLError, TimeoutError, OSError):
+            if attempt + 1 >= attempts:
+                raise
+            time.sleep(delay)
+        delay *= 3
     try:
         OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
         temporary = None

@@ -10,10 +10,11 @@ astro-dashboard backend
 """
 import asyncio
 import json
+import threading
 
 import time
 from collections import OrderedDict
-from datetime import date as date_cls, datetime, timedelta
+from datetime import date as date_cls, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -21,7 +22,11 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.process_isolation import IsolatedProcessTimeout, run_in_spawned_process
+from backend.process_isolation import (
+    IsolatedProcessError,
+    IsolatedProcessTimeout,
+    run_in_spawned_process,
+)
 
 SKILL_SCRIPT = Path(__file__).parent / "backend" / "scripts" / "night_report.py"
 LOCATIONS_JSON = Path(__file__).parent / "backend" / "references" / "locations.json"
@@ -133,39 +138,71 @@ def _build_report_sync(date_str: str, prior_payload: dict | None = None) -> dict
 
 async def build_report(date_str: str, prior_payload: dict | None = None) -> dict:
     """Bound the complete build in a child process while keeping the loop free."""
+    cancellation_event = threading.Event()
+    runner_task = asyncio.create_task(asyncio.to_thread(
+        run_in_spawned_process,
+        "app",
+        "_build_report_sync",
+        args=(date_str, prior_payload),
+        timeout=LAN_REPORT_TIMEOUT,
+        cancellation_event=cancellation_event,
+    ))
     try:
-        return await asyncio.to_thread(
-            run_in_spawned_process,
-            "app",
-            "_build_report_sync",
-            args=(date_str, prior_payload),
-            timeout=LAN_REPORT_TIMEOUT,
-        )
+        return await asyncio.shield(runner_task)
+    except asyncio.CancelledError:
+        cancellation_event.set()
+        await _wait_for_runner_cleanup(runner_task)
+        raise
     except IsolatedProcessTimeout:
-        ids = location_ids()
-        results = [
-            {
-                "location_id": location_id,
-                "error": True,
-                "message": "完整報告超時——天氣數據服務可能沒有回應",
-            }
-            for location_id in ids
-        ]
-        return {
-            "version": VERSION,
-            "night_date": date_str,
-            "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "elapsed_seconds": LAN_REPORT_TIMEOUT,
-            "locations": results,
-            "best_location_id": None,
-            "failed_count": len(results),
-            "spots": [],
-            "daylight": {
-                "date": date_str,
-                "error": True,
-                "message": "完整報告超時——日間分析未完成",
-            },
-        }
+        return _honest_error_report(
+            date_str,
+            "完整報告超時——天氣數據服務可能沒有回應",
+            "完整報告超時——日間分析未完成",
+            LAN_REPORT_TIMEOUT,
+        )
+    except IsolatedProcessError:
+        return _honest_error_report(
+            date_str,
+            "完整報告工作程序失敗——未取得天氣分析結果",
+            "完整報告工作程序失敗——日間分析未完成",
+            0,
+        )
+
+
+async def _wait_for_runner_cleanup(runner_task: asyncio.Task) -> None:
+    """Do not let repeated caller cancellation release the build slot early."""
+    while True:
+        try:
+            await asyncio.shield(runner_task)
+            return
+        except asyncio.CancelledError:
+            if runner_task.done():
+                return
+        except Exception:
+            return
+
+
+def _honest_error_report(
+    date_str: str, location_message: str, daylight_message: str, elapsed: float,
+) -> dict:
+    ids = location_ids()
+    results = [
+        {"location_id": location_id, "error": True, "message": location_message}
+        for location_id in ids
+    ]
+    now = datetime.now(timezone.utc)
+    return {
+        "version": VERSION,
+        "night_date": date_str,
+        "generated_at": now.astimezone(EDMONTON_TZ).strftime("%Y-%m-%d %H:%M:%S %Z"),
+        "generated_utc": now.isoformat(timespec="seconds"),
+        "elapsed_seconds": elapsed,
+        "locations": results,
+        "best_location_id": None,
+        "failed_count": len(results),
+        "spots": [],
+        "daylight": {"date": date_str, "error": True, "message": daylight_message},
+    }
 
 
 async def _build_and_cache(date_str: str, prior_payload: dict | None) -> dict:

@@ -7,6 +7,7 @@ import tempfile
 import threading
 from pathlib import Path
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 from backend import daylight_report
 from backend.weather_coordinator import UnifiedWeatherCoordinator
@@ -81,6 +82,54 @@ def test_open_meteo_cache_replacement_never_exposes_partial_json():
         assert not thread.is_alive()
         assert json.loads(target.read_text(encoding="utf-8"))["generation"] == "new"
         assert not list(cache_dir.glob("*.tmp"))
+
+
+def test_unified_open_meteo_retries_429_once_then_caches_success():
+    url = "https://example.invalid/forecast?site=retry"
+    calls = []
+    sleeps = []
+
+    def opener(request_url, timeout=0):
+        calls.append((request_url, timeout))
+        if len(calls) == 1:
+            raise HTTPError(request_url, 429, "limited", {"Retry-After": "2"}, None)
+        return io.StringIO(json.dumps({"hourly": {"cloud_cover": [12]}}))
+
+    with tempfile.TemporaryDirectory() as directory, \
+         patch.object(daylight_report, "OM_CACHE_DIR", Path(directory)), \
+         patch("backend.daylight_report.urlopen", side_effect=opener), \
+         patch("backend.daylight_report.time.sleep", side_effect=sleeps.append):
+        first = daylight_report._cached_urlopen_json(url)
+        second = daylight_report._cached_urlopen_json(url)
+
+    assert first == second == {"hourly": {"cloud_cover": [12]}}
+    assert len(calls) == 2
+    assert sleeps == [2.0]
+
+
+def test_unified_open_meteo_terminal_429_uses_four_attempts_without_cache():
+    url = "https://example.invalid/forecast?site=terminal"
+    calls = []
+    sleeps = []
+
+    def opener(request_url, timeout=0):
+        calls.append(request_url)
+        raise HTTPError(request_url, 429, "limited", {}, None)
+
+    with tempfile.TemporaryDirectory() as directory, \
+         patch.object(daylight_report, "OM_CACHE_DIR", Path(directory)), \
+         patch("backend.daylight_report.urlopen", side_effect=opener), \
+         patch("backend.daylight_report.time.sleep", side_effect=sleeps.append):
+        try:
+            daylight_report._cached_urlopen_json(url)
+        except HTTPError as exc:
+            assert exc.code == 429
+        else:
+            raise AssertionError("terminal 429 must remain an honest failure")
+        assert not list(Path(directory).glob("*.json"))
+
+    assert len(calls) == 4
+    assert sleeps == [5, 15, 45]
 
 
 def test_unified_coordinator_exposes_honest_individual_site_error():

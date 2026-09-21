@@ -1,5 +1,6 @@
 """Spawn-safe fixtures for process-isolation regressions."""
 from pathlib import Path
+import os
 import time
 
 
@@ -13,3 +14,11 @@ def blocking_complete_report(stage: str, marker_dir: str, delay: float = 2.0):
             time.sleep(delay)
             (marker / f"{current}.late").write_text("late", encoding="utf-8")
     return {"ok": True}
+
+
+def raise_worker_error():
+    raise ValueError("worker exploded")
+
+
+def exit_without_result():
+    os._exit(23)
