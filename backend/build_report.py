@@ -6,8 +6,10 @@ v2.1.0：加入 alpenglow（金山機位）+ 各點日出日落時間。
 """
 import datetime as dt
 import json
+import queue
 import subprocess
 import sys
+import threading
 import time
 from datetime import date, timedelta
 from pathlib import Path
@@ -21,6 +23,7 @@ DOCS = HERE.parent / "docs"
 STATIC = HERE.parent / "static" / "index.html"
 TZ = ZoneInfo("America/Edmonton")
 TIMEOUT = 420
+BATCH_TIMEOUT = 420
 GRADE_RANK = {"STAY_HOME": 0, "RISKY": 1, "MARGINAL": 2, "GOOD": 3, "GO": 4}
 GRADE_ZH = {"STAY_HOME": "留在家中", "RISKY": "不太建議", "MARGINAL": "可試但有風險", "GOOD": "值得前往", "GO": "立即出發"}
 
@@ -154,19 +157,49 @@ def create_weather_coordinator(loc_ids=None):
     )
 
 
-def run_all_with_coordinator(loc_ids, date_str, coordinator=None):
+def _call_with_timeout(function, timeout):
+    """Run a blocking batch on a daemon thread and stop waiting at the deadline."""
+    outcome = queue.Queue(maxsize=1)
+
+    def invoke():
+        try:
+            outcome.put((True, function()))
+        except BaseException as exc:
+            outcome.put((False, exc))
+
+    worker = threading.Thread(target=invoke, daemon=True)
+    worker.start()
+    try:
+        succeeded, value = outcome.get(timeout=timeout)
+    except queue.Empty as exc:
+        raise TimeoutError(f"batch exceeded {timeout} seconds") from exc
+    if not succeeded:
+        raise value
+    return value
+
+
+def run_all_with_coordinator(
+    loc_ids, date_str, coordinator=None, *, timeout=BATCH_TIMEOUT
+):
     from backend.scripts import night_report
 
     locations = json.loads((HERE / "references" / "locations.json").read_text())
     locations = {location_id: locations[location_id] for location_id in loc_ids}
     coordinator = coordinator or create_weather_coordinator(loc_ids)
     try:
-        results = night_report.run_all_locations(
-            locations, date_str, coordinator=coordinator
+        results = _call_with_timeout(
+            lambda: night_report.run_all_locations(
+                locations, date_str, coordinator=coordinator
+            ),
+            timeout,
         )
         if len(results) != len(loc_ids):
             raise ValueError(f"批次分析數量不完整：預期 {len(loc_ids)}，收到 {len(results)}")
         return results
+    except TimeoutError:
+        return [{"location_id": lid, "error": True,
+                 "message": "批次分析超時——天氣數據服務可能沒有回應"}
+                for lid in loc_ids]
     except Exception as e:
         return [{"location_id": lid, "error": True, "message": f"批次未預期錯誤：{e}"}
                 for lid in loc_ids]

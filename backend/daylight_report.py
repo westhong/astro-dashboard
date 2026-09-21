@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import tempfile
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -51,7 +53,25 @@ def _cached_urlopen_json(url: str) -> Any:
         data = json.load(response)
     try:
         OM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(data), encoding="utf-8")
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=OM_CACHE_DIR,
+                prefix=f".{p.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as handle:
+                temporary = Path(handle.name)
+                json.dump(data, handle)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, p)
+            temporary = None
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
     except Exception:
         pass
     return data

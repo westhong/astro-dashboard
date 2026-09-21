@@ -6,6 +6,7 @@ import time
 import unittest
 from unittest.mock import patch
 from concurrent.futures import ThreadPoolExecutor
+from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -13,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 
+from backend import smoke_sources
 from backend.smoke_sources import (
     build_cams_url,
     build_firework_wcs_url,
@@ -110,6 +112,54 @@ class FireWorkSourceTests(unittest.TestCase):
             extract_firework_geotiff(payload, lat=51.0, lon=-115.0)
             extract_firework_geotiff(payload, lat=51.4, lon=-115.4)
         self.assertEqual(decoder.call_count, 1)
+
+    def test_firework_decoded_lru_is_race_safe_during_concurrent_eviction(self):
+        first_payload = self._geotiff()
+        second_payload = self._geotiff(2)
+        first_key = smoke_sources.hashlib.sha256(first_payload).hexdigest()
+        clear_firework_decoded_cache()
+        extract_firework_geotiff(first_payload, lat=51.0, lon=-115.0)
+        decoded = smoke_sources._FIREWORK_DECODED_CACHE[first_key]
+        first_lookup = threading.Event()
+        allow_first = threading.Event()
+        second_inserted = threading.Event()
+
+        class PausingCache(OrderedDict):
+            def get(self, key, default=None):
+                value = super().get(key, default)
+                if key == first_key:
+                    first_lookup.set()
+                    self.assert_allow_first()
+                return value
+
+            def assert_allow_first(self):
+                if not allow_first.wait(2):
+                    raise AssertionError("first lookup was never released")
+
+            def __setitem__(self, key, value):
+                super().__setitem__(key, value)
+                if key != first_key:
+                    second_inserted.set()
+
+        cache = PausingCache()
+        OrderedDict.__setitem__(cache, first_key, decoded)
+        with patch.object(smoke_sources, "_FIREWORK_DECODED_CACHE", cache), \
+             patch.object(smoke_sources, "_FIREWORK_DECODED_CACHE_MAX", 1):
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                first = executor.submit(
+                    extract_firework_geotiff, first_payload, lat=51.0, lon=-115.0
+                )
+                self.assertTrue(first_lookup.wait(2))
+                second = executor.submit(
+                    extract_firework_geotiff, second_payload, lat=51.0, lon=-115.0
+                )
+                second_inserted.wait(0.2)
+                allow_first.set()
+                first_result = first.result(timeout=2)
+                second_result = second.result(timeout=2)
+
+        self.assertAlmostEqual(first_result["point_pm2_5"], 13.0, places=5)
+        self.assertAlmostEqual(second_result["point_pm2_5"], 26.0, places=5)
 
     def test_fetches_every_hour_and_preserves_publish_gate_metadata(self):
         capabilities = """<WMS_Capabilities><Capability><Layer><Layer>

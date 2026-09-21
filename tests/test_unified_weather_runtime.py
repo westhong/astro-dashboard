@@ -1,6 +1,10 @@
 from urllib.parse import parse_qs, urlparse
+import hashlib
+import io
 import json
+import os
 import tempfile
+import threading
 from pathlib import Path
 from unittest.mock import patch
 
@@ -38,6 +42,45 @@ def test_unified_coordinator_fetches_site_batches_once_and_reuses_models():
     assert coordinator.model("a", "ecmwf_ifs025")["hourly"]["wind_speed_10m"] == [5]
     assert coordinator.model("b", "gfs_seamless")["hourly"]["cloud_cover"] == [30]
     assert len(calls) == 2
+
+
+def test_open_meteo_cache_replacement_never_exposes_partial_json():
+    url = "https://example.invalid/forecast?site=a"
+    replacement_ready = threading.Event()
+    allow_replace = threading.Event()
+
+    with tempfile.TemporaryDirectory() as directory:
+        cache_dir = Path(directory)
+        key = hashlib.sha256(url.encode()).hexdigest()[:20]
+        today = daylight_report.datetime.now(daylight_report.LOCAL).date().isoformat()
+        target = cache_dir / f"{today}-{key}.json"
+        target.write_text(json.dumps({"generation": "old"}), encoding="utf-8")
+        stale = daylight_report.time.time() - daylight_report.OM_CACHE_TTL - 1
+        os.utime(target, (stale, stale))
+        real_replace = os.replace
+
+        def paused_replace(source, destination):
+            replacement_ready.set()
+            assert allow_replace.wait(2)
+            real_replace(source, destination)
+
+        with patch.object(daylight_report, "OM_CACHE_DIR", cache_dir), \
+             patch("backend.daylight_report.urlopen", return_value=io.StringIO(
+                 json.dumps({"generation": "new", "values": list(range(1000))})
+             )), \
+             patch("backend.daylight_report.os.replace", side_effect=paused_replace):
+            thread = threading.Thread(
+                target=daylight_report._cached_urlopen_json, args=(url,)
+            )
+            thread.start()
+            assert replacement_ready.wait(2)
+            assert json.loads(target.read_text(encoding="utf-8")) == {"generation": "old"}
+            allow_replace.set()
+            thread.join(2)
+
+        assert not thread.is_alive()
+        assert json.loads(target.read_text(encoding="utf-8"))["generation"] == "new"
+        assert not list(cache_dir.glob("*.tmp"))
 
 
 def test_unified_coordinator_exposes_honest_individual_site_error():

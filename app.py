@@ -26,10 +26,12 @@ VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 
 
 CACHE_TTL = 600  # 10 分鐘
+LAN_BATCH_TIMEOUT = 420
 
 
 app = FastAPI(title="astro-dashboard")
 _cache = {}  # date_str -> (timestamp, payload)
+_inflight: dict[str, asyncio.Task] = {}
 
 
 def location_ids():
@@ -47,7 +49,7 @@ def build_daylight_report(date_str: str, coordinator=None):
     return build_daylight(date_str, coordinator=coordinator)
 
 
-async def build_report(date_str: str, prior_payload: dict | None = None) -> dict:
+def _build_report_sync(date_str: str, prior_payload: dict | None = None) -> dict:
     t0 = time.time()
     ids = location_ids()
     from backend.build_report import (
@@ -60,9 +62,9 @@ async def build_report(date_str: str, prior_payload: dict | None = None) -> dict
     # LAN 與靜態建置共用同一個全機位入口；個別缺失由批次結果誠實回報，
     # 不再為每個機位另開 subprocess 或重新抓取整批資料。
     coordinator = create_weather_coordinator(ids)
-    await asyncio.to_thread(prepare_coordinator_horizons, [date_str], coordinator)
-    results = await asyncio.to_thread(
-        run_all_with_coordinator, ids, date_str, coordinator
+    prepare_coordinator_horizons([date_str], coordinator)
+    results = run_all_with_coordinator(
+        ids, date_str, coordinator, timeout=LAN_BATCH_TIMEOUT
     )
     apply_forecast_revision(results, prior_payload, date_str)
     ok = [r for r in results if not r.get("error")]
@@ -81,6 +83,17 @@ async def build_report(date_str: str, prior_payload: dict | None = None) -> dict
     }
 
 
+async def build_report(date_str: str, prior_payload: dict | None = None) -> dict:
+    """Keep the event loop free while the complete synchronous report is built."""
+    return await asyncio.to_thread(_build_report_sync, date_str, prior_payload)
+
+
+async def _build_and_cache(date_str: str, prior_payload: dict | None) -> dict:
+    payload = await build_report(date_str, prior_payload=prior_payload)
+    _cache[date_str] = (time.time(), payload)
+    return payload
+
+
 @app.get("/api/report")
 async def report(date: str = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")):
     date_str = date or date_cls.today().isoformat()
@@ -89,11 +102,19 @@ async def report(date: str = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
         payload = dict(cached[1])
         payload["cache_age_seconds"] = round(time.time() - cached[0])
         return JSONResponse(payload)
-    prior_payload = cached[1] if cached else None
-    payload = await build_report(date_str, prior_payload=prior_payload)
-    _cache[date_str] = (time.time(), payload)
-    payload["cache_age_seconds"] = 0
-    return JSONResponse(payload)
+    task = _inflight.get(date_str)
+    if task is None:
+        prior_payload = cached[1] if cached else None
+        task = asyncio.create_task(_build_and_cache(date_str, prior_payload))
+        _inflight[date_str] = task
+    try:
+        payload = await asyncio.shield(task)
+    finally:
+        if task.done() and _inflight.get(date_str) is task:
+            _inflight.pop(date_str, None)
+    response_payload = dict(payload)
+    response_payload["cache_age_seconds"] = 0
+    return JSONResponse(response_payload)
 
 
 @app.get("/api/health")

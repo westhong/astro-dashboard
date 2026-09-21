@@ -11,6 +11,7 @@ import hashlib
 import math
 import os
 import re
+import threading
 import time
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
@@ -26,10 +27,12 @@ UTC = timezone.utc
 FIREWORK_COVERAGE_ID = "RAQDPS.SFC_PM2.5"
 _FIREWORK_DECODED_CACHE: OrderedDict[str, tuple[object, tuple[float, ...], tuple[float, ...]]] = OrderedDict()
 _FIREWORK_DECODED_CACHE_MAX = 12
+_FIREWORK_DECODED_CACHE_LOCK = threading.Lock()
 
 
 def clear_firework_decoded_cache() -> None:
-    _FIREWORK_DECODED_CACHE.clear()
+    with _FIREWORK_DECODED_CACHE_LOCK:
+        _FIREWORK_DECODED_CACHE.clear()
 
 
 def _parse_utc(value: str) -> datetime:
@@ -134,7 +137,10 @@ def extract_firework_geotiff(payload: bytes, *, lat: float, lon: float) -> dict[
         raise RuntimeError("tifffile is unavailable") from exc
 
     key = hashlib.sha256(payload).hexdigest()
-    decoded = _FIREWORK_DECODED_CACHE.get(key)
+    with _FIREWORK_DECODED_CACHE_LOCK:
+        decoded = _FIREWORK_DECODED_CACHE.get(key)
+        if decoded is not None:
+            _FIREWORK_DECODED_CACHE.move_to_end(key)
     if decoded is None:
         with tifffile.TiffFile(io.BytesIO(payload)) as image:
             page = image.pages[0]
@@ -146,12 +152,16 @@ def extract_firework_geotiff(payload: bytes, *, lat: float, lon: float) -> dict[
                 tie = tuple(page.tags[33922].value)
             except KeyError as exc:
                 raise ValueError("FireWork GeoTIFF missing georeferencing tags") from exc
-        decoded = (data, scale, tie)
-        _FIREWORK_DECODED_CACHE[key] = decoded
-        while len(_FIREWORK_DECODED_CACHE) > _FIREWORK_DECODED_CACHE_MAX:
-            _FIREWORK_DECODED_CACHE.popitem(last=False)
-    else:
-        _FIREWORK_DECODED_CACHE.move_to_end(key)
+        newly_decoded = (data, scale, tie)
+        with _FIREWORK_DECODED_CACHE_LOCK:
+            decoded = _FIREWORK_DECODED_CACHE.get(key)
+            if decoded is None:
+                decoded = newly_decoded
+                _FIREWORK_DECODED_CACHE[key] = decoded
+                while len(_FIREWORK_DECODED_CACHE) > _FIREWORK_DECODED_CACHE_MAX:
+                    _FIREWORK_DECODED_CACHE.popitem(last=False)
+            else:
+                _FIREWORK_DECODED_CACHE.move_to_end(key)
     data, scale, tie = decoded
     scale_x, scale_y = float(scale[0]), float(scale[1])
     pixel_x, pixel_y, _, model_x, model_y, _ = (float(value) for value in tie[:6])
