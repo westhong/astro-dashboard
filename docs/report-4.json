@@ -1,9 +1,9 @@
 {
   "version": "2.29.2",
   "night_date": "2026-09-30",
-  "generated_at": "2026-09-26 04:31:43 MDT",
-  "generated_utc": "2026-09-26T10:31:43+00:00",
-  "elapsed_seconds": 10.4,
+  "generated_at": "2026-09-26 05:01:55 MDT",
+  "generated_utc": "2026-09-26T11:01:55+00:00",
+  "elapsed_seconds": 10.3,
   "locations": [],
   "best_location_id": null,
   "failed_count": 0,
@@ -1266,7 +1266,7 @@
   ],
   "daylight": {
     "date": "2026-09-30",
-    "generated_at": "2026-09-26 04:31 美加山區日光節約時間",
+    "generated_at": "2026-09-26 05:01 美加山區日光節約時間",
     "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（ECCC FireWork＋CAMS global＋BlueSky Canada PM2.5 模型共識；健康 AQI 分列）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
     "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
     "points": [
@@ -1286,7 +1286,7 @@
             "components": {
               "cloud": 3,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -1296,8 +1296,8 @@
               "wind_kmh": 5,
               "gust_kmh": 4,
               "visibility_km": 0.9,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.1,
+              "us_aqi": 29.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -1306,7 +1306,6 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -1371,17 +1370,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.13333333333333333,
+                "pm10": 0.19999999999999998,
+                "ozone": 69.66666666666667,
+                "nitrogen_dioxide": 1.4666666666666668,
+                "us_aqi_health_context": 29.333333333333332,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:33Z",
+                  "retrieval_time": "2026-09-26T11:01:45Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -1406,30 +1405,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:33Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:33Z",
+                  "retrieval_time": "2026-09-26T11:01:45Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:45Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.13333333333333333,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.2
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -1440,7 +1439,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:33Z",
+                  "retrieval_time": "2026-09-26T11:01:45Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -1467,18 +1466,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.13333333333333333,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -1492,9 +1491,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -1517,12 +1515,12 @@
               "label": "首束直射光",
               "geometric_time": "07:41"
             },
-            "score": 40,
-            "label": "不建議專程前往",
+            "score": 52,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -1630,7 +1628,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -1655,8 +1653,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:46Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -1689,7 +1687,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -1802,7 +1800,7 @@
             "components": {
               "cloud": 2,
               "wind": 82,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -1812,8 +1810,8 @@
               "wind_kmh": 6,
               "gust_kmh": 8,
               "visibility_km": 4.0,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.1,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -1823,7 +1821,6 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先",
               "兩模型風速預報分歧（預設 6 vs ECMWF 3 km/h），風分採較保守值"
             ],
@@ -1889,17 +1886,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.10000000000000002,
+                "pm10": 0.10000000000000002,
+                "ozone": 71.0,
+                "nitrogen_dioxide": 1.0666666666666667,
+                "us_aqi_health_context": 30.333333333333332,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -1924,30 +1921,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:46Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.10000000000000002,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.1
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -1958,7 +1955,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -1985,18 +1982,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.10000000000000002,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -2010,9 +2007,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -2035,12 +2031,12 @@
               "label": "首束直射光",
               "geometric_time": "07:43"
             },
-            "score": 35,
-            "label": "不建議專程前往",
+            "score": 47,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "中",
@@ -2147,7 +2143,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -2172,8 +2168,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:46Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2206,7 +2202,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:34Z",
+                  "retrieval_time": "2026-09-26T11:01:46Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -2407,7 +2403,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:35Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -2432,8 +2428,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:35Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:35Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:47Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2466,7 +2462,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:35Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -2579,7 +2575,7 @@
             "components": {
               "cloud": 2,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -2589,8 +2585,8 @@
               "wind_kmh": 5,
               "gust_kmh": 27,
               "visibility_km": 0.2,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.0,
+              "us_aqi": 30.0,
               "horizon_low_pct": 76,
               "horizon_mid_pct": 12,
               "horizon_gap": 10,
@@ -2600,7 +2596,6 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -2665,17 +2660,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.02,
+                "pm10": 0.02,
+                "ozone": 68.4,
+                "nitrogen_dioxide": 1.1400000000000001,
+                "us_aqi_health_context": 30.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:35Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -2700,30 +2695,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:35Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:35Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:47Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.02,
                   "window_range": [
-                    null,
-                    null
+                    0.0,
+                    0.1
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    0.1
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -2734,7 +2729,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:35Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -2761,18 +2756,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.02,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -2786,9 +2781,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -2811,12 +2805,12 @@
               "label": "首束直射光",
               "geometric_time": "07:45"
             },
-            "score": 39,
-            "label": "不建議專程前往",
+            "score": 51,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
@@ -2923,7 +2917,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -2948,8 +2942,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:47Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2982,7 +2976,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -3095,7 +3089,7 @@
             "components": {
               "cloud": 2,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -3105,8 +3099,8 @@
               "wind_kmh": 3,
               "gust_kmh": 4,
               "visibility_km": 23.6,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.2,
+              "us_aqi": 27.0,
               "horizon_low_pct": 93,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -3115,7 +3109,6 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -3180,17 +3173,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.16666666666666666,
+                "pm10": 0.2333333333333333,
+                "ozone": 62.666666666666664,
+                "nitrogen_dioxide": 2.266666666666667,
+                "us_aqi_health_context": 27.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:48Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -3215,30 +3208,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:48Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:48Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.16666666666666666,
                   "window_range": [
-                    null,
-                    null
+                    0.0,
+                    0.4
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -3249,7 +3242,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:48Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -3276,18 +3269,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.16666666666666666,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -3301,9 +3294,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -3326,12 +3318,12 @@
               "label": "首束直射光",
               "geometric_time": "07:40"
             },
-            "score": 39,
-            "label": "不建議專程前往",
+            "score": 51,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -3440,7 +3432,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:48Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -3465,8 +3457,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:48Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:48Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3499,7 +3491,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:36Z",
+                  "retrieval_time": "2026-09-26T11:01:48Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -3612,7 +3604,7 @@
             "components": {
               "cloud": 2,
               "wind": 82,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -3622,8 +3614,8 @@
               "wind_kmh": 8,
               "gust_kmh": 7,
               "visibility_km": 0.1,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.1,
+              "us_aqi": 31.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 2,
               "horizon_gap": 10,
@@ -3633,7 +3625,6 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先",
               "兩模型風速預報分歧（預設 8 vs ECMWF 3 km/h），風分採較保守值"
             ],
@@ -3699,17 +3690,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.08,
+                "pm10": 0.1,
+                "ozone": 71.4,
+                "nitrogen_dioxide": 1.06,
+                "us_aqi_health_context": 30.8,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -3734,30 +3725,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:49Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.08,
                   "window_range": [
-                    null,
-                    null
+                    0.0,
+                    0.1
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -3768,7 +3759,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -3795,18 +3786,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.08,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -3820,9 +3811,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -3845,12 +3835,12 @@
               "label": "首束直射光",
               "geometric_time": "07:44"
             },
-            "score": 35,
-            "label": "不建議專程前往",
+            "score": 47,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
@@ -3881,7 +3871,7 @@
             "components": {
               "cloud": 3,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -3891,8 +3881,8 @@
               "wind_kmh": 4,
               "gust_kmh": 4,
               "visibility_km": 0.9,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.1,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -3901,7 +3891,6 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -3966,17 +3955,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.125,
+                "pm10": 0.175,
+                "ozone": 70.0,
+                "nitrogen_dioxide": 1.525,
+                "us_aqi_health_context": 29.5,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -4001,30 +3990,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:49Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.125,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.2
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -4035,7 +4024,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -4062,18 +4051,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.125,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -4087,9 +4076,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -4112,12 +4100,12 @@
               "label": "首束直射光",
               "geometric_time": "07:41"
             },
-            "score": 40,
-            "label": "不建議專程前往",
+            "score": 52,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -4224,7 +4212,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -4249,8 +4237,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:49Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4283,7 +4271,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:37Z",
+                  "retrieval_time": "2026-09-26T11:01:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -4396,7 +4384,7 @@
             "components": {
               "cloud": 2,
               "wind": 82,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -4406,8 +4394,8 @@
               "wind_kmh": 8,
               "gust_kmh": 12,
               "visibility_km": 0.1,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.0,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 43,
               "horizon_gap": 10,
@@ -4417,7 +4405,6 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先",
               "兩模型風速預報分歧（預設 8 vs ECMWF 2 km/h），風分採較保守值"
             ],
@@ -4483,17 +4470,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.0,
+                "pm10": 0.0,
+                "ozone": 67.0,
+                "nitrogen_dioxide": 1.2,
+                "us_aqi_health_context": 30.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:38Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -4518,30 +4505,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:38Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:38Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:50Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.0,
                   "window_range": [
-                    null,
-                    null
+                    0.0,
+                    0.0
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    0.1
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -4552,7 +4539,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:38Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -4579,18 +4566,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.0,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -4604,9 +4591,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -4629,12 +4615,12 @@
               "label": "首束直射光",
               "geometric_time": "07:44"
             },
-            "score": 35,
-            "label": "不建議專程前往",
+            "score": 47,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
@@ -4665,7 +4651,7 @@
             "components": {
               "cloud": 3,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -4675,8 +4661,8 @@
               "wind_kmh": 4,
               "gust_kmh": 4,
               "visibility_km": 0.9,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.1,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -4685,7 +4671,6 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -4750,17 +4735,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.125,
+                "pm10": 0.175,
+                "ozone": 70.0,
+                "nitrogen_dioxide": 1.525,
+                "us_aqi_health_context": 29.5,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:38Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -4785,30 +4770,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:38Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:38Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:50Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.125,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.2
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -4819,7 +4804,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:38Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -4846,18 +4831,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.125,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -4871,9 +4856,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -4896,12 +4880,12 @@
               "label": "首束直射光",
               "geometric_time": "07:41"
             },
-            "score": 40,
-            "label": "不建議專程前往",
+            "score": 52,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -5008,7 +4992,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -5033,8 +5017,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:50Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5067,7 +5051,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -5180,7 +5164,7 @@
             "components": {
               "cloud": 1,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -5190,8 +5174,8 @@
               "wind_kmh": 4,
               "gust_kmh": 26,
               "visibility_km": 0.3,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.0,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 100,
               "horizon_gap": 10,
@@ -5201,7 +5185,6 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -5266,17 +5249,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.0,
+                "pm10": 0.0,
+                "ozone": 67.0,
+                "nitrogen_dioxide": 1.2,
+                "us_aqi_health_context": 30.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:51Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -5301,30 +5284,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:51Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:51Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.0,
                   "window_range": [
-                    null,
-                    null
+                    0.0,
+                    0.0
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    0.1
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -5335,7 +5318,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:51Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -5362,18 +5345,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.0,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -5387,9 +5370,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -5412,12 +5394,12 @@
               "label": "首束直射光",
               "geometric_time": "07:45"
             },
-            "score": 38,
-            "label": "不建議專程前往",
+            "score": 50,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
@@ -5524,7 +5506,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:51Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -5549,8 +5531,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:51Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:51Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5583,7 +5565,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:39Z",
+                  "retrieval_time": "2026-09-26T11:01:51Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -5696,7 +5678,7 @@
             "components": {
               "cloud": 3,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -5706,8 +5688,8 @@
               "wind_kmh": 4,
               "gust_kmh": 4,
               "visibility_km": 0.9,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.1,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -5716,7 +5698,6 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -5781,17 +5762,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.125,
+                "pm10": 0.175,
+                "ozone": 70.0,
+                "nitrogen_dioxide": 1.525,
+                "us_aqi_health_context": 29.5,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:40Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -5816,30 +5797,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:40Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:40Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:52Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.125,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.2
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -5850,7 +5831,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:40Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -5877,18 +5858,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.125,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -5902,9 +5883,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -5927,12 +5907,12 @@
               "label": "首束直射光",
               "geometric_time": "07:41"
             },
-            "score": 40,
-            "label": "不建議專程前往",
+            "score": 52,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -6039,7 +6019,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:40Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -6064,8 +6044,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:40Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:40Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:52Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6098,7 +6078,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:40Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -6211,7 +6191,7 @@
             "components": {
               "cloud": 2,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -6221,8 +6201,8 @@
               "wind_kmh": 2,
               "gust_kmh": 4,
               "visibility_km": 0.9,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.1,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -6232,7 +6212,6 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -6297,17 +6276,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.12000000000000002,
+                "pm10": 0.16,
+                "ozone": 70.4,
+                "nitrogen_dioxide": 1.54,
+                "us_aqi_health_context": 29.8,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -6332,30 +6311,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:52Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.12000000000000002,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.2
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -6366,7 +6345,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -6393,18 +6372,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.12000000000000002,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -6418,9 +6397,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -6443,12 +6421,12 @@
               "label": "首束直射光",
               "geometric_time": "07:41"
             },
-            "score": 39,
-            "label": "不建議專程前往",
+            "score": 51,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "中",
@@ -6479,7 +6457,7 @@
             "components": {
               "cloud": 3,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -6489,8 +6467,8 @@
               "wind_kmh": 2,
               "gust_kmh": 6,
               "visibility_km": 15.1,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.2,
+              "us_aqi": 27.0,
               "horizon_low_pct": 93,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -6499,7 +6477,6 @@
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -6564,17 +6541,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.16666666666666666,
+                "pm10": 0.2333333333333333,
+                "ozone": 62.666666666666664,
+                "nitrogen_dioxide": 2.266666666666667,
+                "us_aqi_health_context": 27.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:53Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -6599,30 +6576,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:53Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:53Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.16666666666666666,
                   "window_range": [
-                    null,
-                    null
+                    0.0,
+                    0.4
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    2.7
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -6633,7 +6610,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:53Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -6660,18 +6637,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.16666666666666666,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -6685,9 +6662,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -6710,12 +6686,12 @@
               "label": "首束直射光",
               "geometric_time": "07:40"
             },
-            "score": 40,
-            "label": "不建議專程前往",
+            "score": 52,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -6822,7 +6798,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:53Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -6847,8 +6823,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:53Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:53Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6881,7 +6857,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:41Z",
+                  "retrieval_time": "2026-09-26T11:01:53Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -6994,7 +6970,7 @@
             "components": {
               "cloud": 2,
               "wind": 82,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -7004,8 +6980,8 @@
               "wind_kmh": 7,
               "gust_kmh": 6,
               "visibility_km": 24.1,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.4,
+              "us_aqi": 33.0,
               "horizon_low_pct": 62,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -7014,7 +6990,6 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先",
               "兩模型風速預報分歧（預設 7 vs ECMWF 4 km/h），風分採較保守值"
             ],
@@ -7080,17 +7055,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.375,
+                "pm10": 0.45,
+                "ozone": 72.25,
+                "nitrogen_dioxide": 1.5750000000000002,
+                "us_aqi_health_context": 33.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -7115,30 +7090,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:54Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.375,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.9
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    4.8
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -7149,7 +7124,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -7176,18 +7151,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.375,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -7201,9 +7176,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -7226,12 +7200,12 @@
               "label": "首束直射光",
               "geometric_time": "07:39"
             },
-            "score": 35,
-            "label": "不建議專程前往",
+            "score": 47,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -7340,7 +7314,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -7365,8 +7339,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:54Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7399,7 +7373,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -7512,7 +7486,7 @@
             "components": {
               "cloud": 1,
               "wind": 100,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
@@ -7522,8 +7496,8 @@
               "wind_kmh": 4,
               "gust_kmh": 26,
               "visibility_km": 0.3,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.0,
+              "us_aqi": 30.0,
               "horizon_low_pct": 100,
               "horizon_mid_pct": 100,
               "horizon_gap": 10,
@@ -7533,7 +7507,6 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先"
             ],
             "wind_detail": {
@@ -7598,17 +7571,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.0,
+                "pm10": 0.0,
+                "ozone": 67.0,
+                "nitrogen_dioxide": 1.2,
+                "us_aqi_health_context": 30.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -7633,30 +7606,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:54Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.0,
                   "window_range": [
-                    null,
-                    null
+                    0.0,
+                    0.0
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    0.1
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -7667,7 +7640,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:42Z",
+                  "retrieval_time": "2026-09-26T11:01:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -7694,18 +7667,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.0,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -7719,9 +7692,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -7744,12 +7716,12 @@
               "label": "首束直射光",
               "geometric_time": "07:45"
             },
-            "score": 38,
-            "label": "不建議專程前往",
+            "score": 50,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
@@ -7780,7 +7752,7 @@
             "components": {
               "cloud": 2,
               "wind": 82,
-              "smoke": 60
+              "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 2,
@@ -7790,8 +7762,8 @@
               "wind_kmh": 7,
               "gust_kmh": 7,
               "visibility_km": 22.3,
-              "pm2_5": null,
-              "us_aqi": null,
+              "pm2_5": 0.4,
+              "us_aqi": 33.0,
               "horizon_low_pct": 82,
               "horizon_mid_pct": 0,
               "horizon_gap": 10,
@@ -7800,7 +7772,6 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "煙塵資料暫缺，煙分以不確定值計算",
               "降水機率偏高，先以安全與能見度為優先",
               "兩模型風速預報分歧（預設 7 vs ECMWF 4 km/h），風分採較保守值"
             ],
@@ -7866,17 +7837,17 @@
                 "visual_visibility": null
               },
               "pollutants": {
-                "pm2_5": null,
-                "pm10": null,
-                "ozone": null,
-                "nitrogen_dioxide": null,
-                "us_aqi_health_context": null,
-                "dominant_pollutant": null
+                "pm2_5": 0.375,
+                "pm10": 0.45,
+                "ozone": 72.25,
+                "nitrogen_dioxide": 1.5750000000000002,
+                "us_aqi_health_context": 33.0,
+                "dominant_pollutant": "ozone"
               },
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:43Z",
+                  "retrieval_time": "2026-09-26T11:01:55Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -7901,30 +7872,30 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:43Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:43Z",
+                  "retrieval_time": "2026-09-26T11:01:55Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:55Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
-                    null,
-                    null
+                    "2026-09-26T00:00:00Z",
+                    "2026-09-30T23:00:00Z"
                   ],
-                  "status": "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
-                  "units": null,
+                  "status": "ok",
+                  "units": "µg/m³",
                   "uncertainties": [
                     "Open-Meteo does not expose the CAMS model cycle/reference time."
                   ],
-                  "valid": false,
-                  "window_avg_pm2_5": null,
+                  "valid": true,
+                  "window_avg_pm2_5": 0.375,
                   "window_range": [
-                    null,
-                    null
+                    0.1,
+                    0.9
                   ],
                   "neighbor_range": [
-                    null,
-                    null
+                    0.0,
+                    4.8
                   ],
-                  "class": "NO_DATA"
+                  "class": "CLEAN"
                 },
                 "bluesky_canada": {
                   "forecast_id": "BSC00CA12-07",
@@ -7935,7 +7906,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:43Z",
+                  "retrieval_time": "2026-09-26T11:01:55Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
@@ -7962,18 +7933,18 @@
               "consensus": {
                 "status": "SINGLE_MODEL_ONLY",
                 "confidence": "low",
-                "consensus_pm2_5": null,
-                "photography_smoke_score": 60,
+                "consensus_pm2_5": 0.375,
+                "photography_smoke_score": 100,
                 "veto": false,
-                "reason": "No model data are available for the requested window.",
+                "reason": "Model classes: CLEAN.",
                 "coverage": {
-                  "valid": 0,
+                  "valid": 1,
                   "total": 3
                 },
                 "partial": true,
                 "uncertain": true,
                 "uncertainties": [
-                  "Partial model coverage: 0/3 valid models."
+                  "Partial model coverage: 1/3 valid models."
                 ]
               },
               "source_support": {
@@ -7987,9 +7958,8 @@
               },
               "uncertainties": [
                 "FireWork does not cover the full window",
-                "CAMS unavailable: CAMS response lacks a complete 9-cell hourly PM2.5 value",
                 "BlueSky does not cover the full window",
-                "Partial model coverage: 0/3 valid models."
+                "Partial model coverage: 1/3 valid models."
               ]
             },
             "light": {
@@ -8012,12 +7982,12 @@
               "label": "首束直射光",
               "geometric_time": "07:39"
             },
-            "score": 35,
-            "label": "不建議專程前往",
+            "score": 47,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
-              "reason": "煙霧模型覆蓋不足 0/3"
+              "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "低",
@@ -8137,7 +8107,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-09-26T10:31:43Z",
+                  "retrieval_time": "2026-09-26T11:01:55Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T00:00:00Z",
                   "cycle_status": null,
@@ -8162,8 +8132,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-09-26T10:31:43Z",
-                  "provider_retrieval_time": "2026-09-26T10:31:43Z",
+                  "retrieval_time": "2026-09-26T11:01:55Z",
+                  "provider_retrieval_time": "2026-09-26T11:01:55Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8196,7 +8166,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-09-26T10:31:43Z",
+                  "retrieval_time": "2026-09-26T11:01:55Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-09-26T08:00:00Z",
                   "cycle_status": null,
