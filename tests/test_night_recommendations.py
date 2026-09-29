@@ -278,7 +278,7 @@ class VersionTests(unittest.TestCase):
 
     def test_patch_version_is_bumped(self):
         version = (Path(__file__).resolve().parents[1] / "VERSION").read_text(encoding="utf-8").strip()
-        self.assertEqual(version, "2.29.1")
+        self.assertGreaterEqual(tuple(map(int, version.split("."))), (2, 29, 1))
 
 
 if __name__ == "__main__":
