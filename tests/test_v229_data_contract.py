@@ -87,7 +87,8 @@ def test_quarry_lake_uses_official_park_anchor_not_lake_centroid():
     location = locations["quarry_lake"]
     assert (location["lat"], location["lon"]) == (51.0780551, -115.3736271)
     assert (point["lat"], point["lon"]) == (location["lat"], location["lon"])
-    assert point["daylight_events"] == ["sunrise"]
+    assert point["daylight_events"] == ["sunrise", "sunset"]
+    assert point["cat"] == "sunset"
     assert point["est_coords"] is True
     assert "非湖岸腳架點" in location["coord_source"]
     assert "停車收費" in point["access"]
