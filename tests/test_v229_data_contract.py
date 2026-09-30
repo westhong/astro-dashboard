@@ -26,6 +26,10 @@ def test_night_and_daylight_use_the_same_unique_canonical_set():
     assert len({item["location_id"] for item in daylight}) == 18
     assert len({(item["lat"], item["lon"]) for item in daylight}) == 18
     assert set(locations) == {item["location_id"] for item in daylight}
+    assert {event: {item["location_id"] for item in daylight if event in item["daylight_events"]}
+            for event in ("sunrise", "sunset")} == {
+        "sunrise": set(locations), "sunset": set(locations)
+    }
     assert {
         location_id: (item["lat"], item["lon"])
         for location_id, item in locations.items()
@@ -76,7 +80,7 @@ def test_existing_location_elevations_match_pre_v229_contract_everywhere():
 def test_all_daylight_ui_copy_is_formal_traditional_chinese_for_new_points():
     points = {point.get("location_id"): point for point in load(SPOTS)["points"]}
     wedge = points["wedge_pond"]
-    assert wedge["daylight_events"] == ["sunrise"]
+    assert wedge["daylight_events"] == ["sunrise", "sunset"]
     assert "保證" in wedge["caveat"]
     assert "保育通行證" in wedge["access"]
 
@@ -92,6 +96,11 @@ def test_quarry_lake_uses_official_park_anchor_not_lake_centroid():
     assert point["est_coords"] is True
     assert "非湖岸腳架點" in location["coord_source"]
     assert "停車收費" in point["access"]
+
+
+def test_daylight_report_discloses_coverage_does_not_prove_composition():
+    source = (ROOT / "backend/daylight_report.py").read_text(encoding="utf-8")
+    assert "列入日出／日落評估只代表天氣條件可比較，不代表該機位構圖或山體受光已核實" in source
 
 
 def test_daylight_builder_uses_explicit_canonical_location_id():
