@@ -1,9 +1,9 @@
 {
   "version": "2.30.2",
   "night_date": "2026-10-14",
-  "generated_at": "2026-10-11 13:08:35 MDT",
-  "generated_utc": "2026-10-11T19:08:35+00:00",
-  "elapsed_seconds": 37.3,
+  "generated_at": "2026-10-11 13:33:39 MDT",
+  "generated_utc": "2026-10-11T19:33:39+00:00",
+  "elapsed_seconds": 37.1,
   "locations": [],
   "best_location_id": null,
   "failed_count": 0,
@@ -1286,7 +1286,7 @@
   ],
   "daylight": {
     "date": "2026-10-14",
-    "generated_at": "2026-10-11 13:08 美加山區日光節約時間",
+    "generated_at": "2026-10-11 13:33 美加山區日光節約時間",
     "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（ECCC FireWork＋CAMS global＋BlueSky Canada PM2.5 模型共識；健康 AQI 分列）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
     "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。列入日出／日落評估只代表天氣條件可比較，不代表該機位構圖或山體受光已核實。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
     "points": [
@@ -1304,18 +1304,18 @@
             "event": "sunrise",
             "centre_time": "08:04",
             "components": {
-              "cloud": 61,
-              "wind": 100,
+              "cloud": 37,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 70,
-              "mid_cloud_pct": 61,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
               "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "precip_probability_pct": 1,
+              "wind_kmh": 10,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.9,
               "us_aqi": 28.0,
               "horizon_low_pct": 0,
@@ -1325,27 +1325,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 10 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.2,
-              "best_gust": null,
-              "ecmwf_mean": 2.8,
+              "best_mean": 10.1,
+              "best_gust": 14,
+              "ecmwf_mean": 3.2,
               "ecmwf_gust": 29,
               "range": [
-                2.8,
-                3.2
+                3.2,
+                10.1
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                29
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 10.2,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 9.4,
+                  "ecmwf": 3.4
+                },
+                {
+                  "t": "10:00",
+                  "best": 9.8,
+                  "ecmwf": 3.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -1374,7 +1396,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:07:59Z",
+                  "retrieval_time": "2026-10-11T19:33:02Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -1399,8 +1421,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:07:59Z",
-                  "provider_retrieval_time": "2026-10-11T19:07:59Z",
+                  "retrieval_time": "2026-10-11T19:33:02Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:02Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -1433,7 +1455,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:07:59Z",
+                  "retrieval_time": "2026-10-11T19:33:02Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -1509,40 +1531,40 @@
               "label": "首束直射光",
               "geometric_time": "08:04"
             },
-            "score": 79,
-            "label": "可嘗試",
+            "score": 60,
+            "label": "條件普通",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 19,
+              "cloud_spread": 4,
               "models": {
-                "best_match": 81,
+                "best_match": 100,
                 "ecmwf": 96,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:51",
             "components": {
               "cloud": 5,
-              "wind": 100,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 3,
+              "wind_kmh": 9,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.1,
               "us_aqi": 38.0,
               "horizon_low_pct": 100,
@@ -1553,33 +1575,52 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "兩模型風速預報分歧（預設 9 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 3.2,
-              "ecmwf_gust": 23,
+              "best_mean": 9.4,
+              "best_gust": 14,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 28,
               "range": [
-                3.2,
-                4.0
+                2.8,
+                9.4
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                28
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 8.8,
                   "ecmwf": 3.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 10.0,
+                  "ecmwf": 2.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 9.8,
+                  "ecmwf": 1.6
+                },
+                {
+                  "t": "21:00",
+                  "best": 9.2,
+                  "ecmwf": 1.8
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -1608,7 +1649,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:00Z",
+                  "retrieval_time": "2026-10-11T19:33:03Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -1633,8 +1674,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:00Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:00Z",
+                  "retrieval_time": "2026-10-11T19:33:03Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:03Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -1667,7 +1708,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:00Z",
+                  "retrieval_time": "2026-10-11T19:33:03Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -1743,7 +1784,7 @@
               "label": "最後直射光",
               "geometric_time": "18:51"
             },
-            "score": 52,
+            "score": 49,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -1754,12 +1795,12 @@
               "level": "高",
               "cloud_spread": 6,
               "models": {
-                "best_match": 0,
+                "best_match": 6,
                 "ecmwf": 0,
                 "gfs": 6
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -1777,18 +1818,18 @@
             "event": "sunrise",
             "centre_time": "08:06",
             "components": {
-              "cloud": 45,
-              "wind": 100,
+              "cloud": 30,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 70,
-              "mid_cloud_pct": 40,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 64,
+              "low_cloud_pct": 10,
+              "precip_probability_pct": 1,
+              "wind_kmh": 7,
+              "gust_kmh": 9,
+              "visibility_km": 24.1,
               "pm2_5": 1.5,
               "us_aqi": 32.0,
               "horizon_low_pct": 0,
@@ -1797,28 +1838,48 @@
               "horizon_azimuth_deg": 102.2
             },
             "notes": [
-              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "兩模型風速預報分歧（預設 7 vs ECMWF 4 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 3.9,
-              "ecmwf_gust": 31,
+              "best_mean": 6.8,
+              "best_gust": 9,
+              "ecmwf_mean": 4.5,
+              "ecmwf_gust": 29,
               "range": [
-                3.9,
-                4.0
+                4.5,
+                6.8
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                9,
+                29
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 7.1,
+                  "ecmwf": 4.3
+                },
+                {
+                  "t": "09:00",
+                  "best": 6.5,
+                  "ecmwf": 4.7
+                },
+                {
+                  "t": "10:00",
+                  "best": 7.3,
+                  "ecmwf": 5.4
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -1847,7 +1908,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:01Z",
+                  "retrieval_time": "2026-10-11T19:33:04Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -1872,8 +1933,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:01Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:01Z",
+                  "retrieval_time": "2026-10-11T19:33:04Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:04Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -1906,7 +1967,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:01Z",
+                  "retrieval_time": "2026-10-11T19:33:04Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -1982,40 +2043,40 @@
               "label": "首束直射光",
               "geometric_time": "08:06"
             },
-            "score": 72,
-            "label": "可嘗試",
+            "score": 61,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
-              "level": "中",
-              "cloud_spread": 20,
+              "level": "高",
+              "cloud_spread": 14,
               "models": {
-                "best_match": 80,
+                "best_match": 100,
                 "ecmwf": 86,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "09:00–10:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:52",
             "components": {
-              "cloud": 5,
-              "wind": 100,
+              "cloud": 3,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 0,
+              "high_cloud_pct": 2,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 5,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 100,
+              "precip_probability_pct": 5,
+              "wind_kmh": 8,
+              "gust_kmh": 11,
+              "visibility_km": 24.1,
               "pm2_5": 1.2,
               "us_aqi": 37.0,
               "horizon_low_pct": 100,
@@ -2025,34 +2086,54 @@
             },
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
+              "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "兩模型風速預報分歧（預設 8 vs ECMWF 4 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.7,
-              "best_gust": null,
-              "ecmwf_mean": 4.2,
-              "ecmwf_gust": 32,
+              "best_mean": 8.0,
+              "best_gust": 11,
+              "ecmwf_mean": 3.7,
+              "ecmwf_gust": 37,
               "range": [
-                4.2,
-                4.7
+                3.7,
+                8.0
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                11,
+                37
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.7,
+                  "best": 8.0,
                   "ecmwf": 4.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 7.9,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "20:00",
+                  "best": 7.1,
+                  "ecmwf": 2.5
+                },
+                {
+                  "t": "21:00",
+                  "best": 7.4,
+                  "ecmwf": 2.2
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -2081,7 +2162,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:02Z",
+                  "retrieval_time": "2026-10-11T19:33:05Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -2106,8 +2187,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:02Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:02Z",
+                  "retrieval_time": "2026-10-11T19:33:05Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:05Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2140,7 +2221,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:02Z",
+                  "retrieval_time": "2026-10-11T19:33:05Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -2216,7 +2297,7 @@
               "label": "最後直射光",
               "geometric_time": "18:52"
             },
-            "score": 52,
+            "score": 48,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -2225,14 +2306,14 @@
             },
             "confidence": {
               "level": "低",
-              "cloud_spread": 100,
+              "cloud_spread": 90,
               "models": {
-                "best_match": 0,
+                "best_match": 100,
                 "ecmwf": 10,
                 "gfs": 100
               }
             },
-            "peak_window": "19:00–20:00"
+            "peak_window": "18:00–19:00"
           }
         }
       },
@@ -2250,18 +2331,18 @@
             "event": "sunrise",
             "centre_time": "08:07",
             "components": {
-              "cloud": 24,
+              "cloud": 13,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 80,
-              "mid_cloud_pct": 23,
-              "low_cloud_pct": 2,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 6,
+              "mid_cloud_pct": 0,
+              "low_cloud_pct": 73,
+              "precip_probability_pct": 7,
+              "wind_kmh": 4,
+              "gust_kmh": 31,
+              "visibility_km": 54.5,
               "pm2_5": 1.1,
               "us_aqi": 34.0,
               "horizon_low_pct": 2,
@@ -2270,29 +2351,49 @@
               "horizon_azimuth_deg": 102.2
             },
             "notes": [
-              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
-              "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "低雲偏多，山體與低空色彩可能被遮擋",
+              "太陽方向地平線雲量偏高，霞光難以照射雲底"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 2.9,
-              "ecmwf_gust": 22,
+              "best_mean": 4.4,
+              "best_gust": 31,
+              "ecmwf_mean": 3.2,
+              "ecmwf_gust": 21,
               "range": [
-                2.9,
-                2.9
+                3.2,
+                4.4
               ],
-              "gust_range": null,
+              "gust_range": [
+                21,
+                31
+              ],
               "divergent": false,
               "scoring": "conservative",
-              "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_best": "08:00",
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 3.4,
+                  "ecmwf": 3.1
+                },
+                {
+                  "t": "09:00",
+                  "best": 5.4,
+                  "ecmwf": 3.3
+                },
+                {
+                  "t": "10:00",
+                  "best": 5.0,
+                  "ecmwf": 3.8
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -2321,7 +2422,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:03Z",
+                  "retrieval_time": "2026-10-11T19:33:06Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -2346,8 +2447,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:03Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:03Z",
+                  "retrieval_time": "2026-10-11T19:33:06Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:06Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2380,7 +2481,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:03Z",
+                  "retrieval_time": "2026-10-11T19:33:06Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -2456,7 +2557,7 @@
               "label": "首束直射光",
               "geometric_time": "08:07"
             },
-            "score": 62,
+            "score": 56,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -2464,32 +2565,32 @@
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
-              "level": "高",
-              "cloud_spread": 16,
+              "level": "中",
+              "cloud_spread": 26,
               "models": {
-                "best_match": 84,
+                "best_match": 74,
                 "ecmwf": 86,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "09:00–08:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:53",
             "components": {
               "cloud": 5,
-              "wind": 82,
+              "wind": 100,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 1,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 6,
+              "precip_probability_pct": 0,
+              "wind_kmh": 2,
+              "gust_kmh": 32,
+              "visibility_km": 64.4,
               "pm2_5": 1.2,
               "us_aqi": 36.0,
               "horizon_low_pct": 100,
@@ -2499,35 +2600,52 @@
             },
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
-              "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 4 vs ECMWF 6 km/h），風分採較保守值"
+              "太陽方向地平線雲量偏高，霞光難以照射雲底"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.6,
-              "best_gust": null,
-              "ecmwf_mean": 6.2,
-              "ecmwf_gust": 38,
+              "best_mean": 2.5,
+              "best_gust": 32,
+              "ecmwf_mean": 5.2,
+              "ecmwf_gust": 39,
               "range": [
-                3.6,
-                6.2
+                2.5,
+                5.2
               ],
-              "gust_range": null,
-              "divergent": true,
+              "gust_range": [
+                32,
+                39
+              ],
+              "divergent": false,
               "scoring": "conservative",
               "calm_best": "18:00",
-              "calm_ecmwf": null,
+              "calm_ecmwf": "19:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 3.6,
+                  "best": 3.8,
                   "ecmwf": 6.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 1.2,
+                  "ecmwf": 4.1
+                },
+                {
+                  "t": "20:00",
+                  "best": 0.5,
+                  "ecmwf": 1.3
+                },
+                {
+                  "t": "21:00",
+                  "best": 0.9,
+                  "ecmwf": 0.5
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -2556,7 +2674,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:04Z",
+                  "retrieval_time": "2026-10-11T19:33:07Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -2581,8 +2699,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:04Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:04Z",
+                  "retrieval_time": "2026-10-11T19:33:07Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:07Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2615,7 +2733,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:04Z",
+                  "retrieval_time": "2026-10-11T19:33:07Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -2691,7 +2809,7 @@
               "label": "最後直射光",
               "geometric_time": "18:53"
             },
-            "score": 49,
+            "score": 52,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -2700,14 +2818,14 @@
             },
             "confidence": {
               "level": "低",
-              "cloud_spread": 99,
+              "cloud_spread": 94,
               "models": {
-                "best_match": 1,
+                "best_match": 6,
                 "ecmwf": 18,
                 "gfs": 100
               }
             },
-            "peak_window": "19:00–20:00"
+            "peak_window": "18:00–19:00"
           }
         }
       },
@@ -2725,18 +2843,18 @@
             "event": "sunrise",
             "centre_time": "08:09",
             "components": {
-              "cloud": 24,
+              "cloud": 11,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 76,
-              "mid_cloud_pct": 25,
-              "low_cloud_pct": 8,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 8,
+              "mid_cloud_pct": 2,
+              "low_cloud_pct": 96,
+              "precip_probability_pct": 9,
+              "wind_kmh": 3,
+              "gust_kmh": 27,
+              "visibility_km": 27.5,
               "pm2_5": 1.1,
               "us_aqi": 34.0,
               "horizon_low_pct": 0,
@@ -2745,29 +2863,49 @@
               "horizon_azimuth_deg": 102.4
             },
             "notes": [
-              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
-              "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "低雲偏多，山體與低空色彩可能被遮擋",
+              "太陽方向地平線雲量偏高，霞光難以照射雲底"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.6,
-              "best_gust": null,
-              "ecmwf_mean": 5.7,
-              "ecmwf_gust": 35,
+              "best_mean": 3.4,
+              "best_gust": 27,
+              "ecmwf_mean": 4.8,
+              "ecmwf_gust": 31,
               "range": [
-                3.6,
-                5.7
+                3.4,
+                4.8
               ],
-              "gust_range": null,
+              "gust_range": [
+                27,
+                31
+              ],
               "divergent": false,
               "scoring": "conservative",
-              "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_best": "08:00",
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 3.1,
+                  "ecmwf": 5.0
+                },
+                {
+                  "t": "09:00",
+                  "best": 3.6,
+                  "ecmwf": 4.7
+                },
+                {
+                  "t": "10:00",
+                  "best": 3.7,
+                  "ecmwf": 5.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -2796,7 +2934,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:05Z",
+                  "retrieval_time": "2026-10-11T19:33:08Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -2821,8 +2959,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:05Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:05Z",
+                  "retrieval_time": "2026-10-11T19:33:08Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:08Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2855,7 +2993,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:05Z",
+                  "retrieval_time": "2026-10-11T19:33:08Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -2931,7 +3069,7 @@
               "label": "首束直射光",
               "geometric_time": "08:09"
             },
-            "score": 62,
+            "score": 56,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -2942,29 +3080,29 @@
               "level": "高",
               "cloud_spread": 18,
               "models": {
-                "best_match": 83,
+                "best_match": 96,
                 "ecmwf": 82,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–11:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:54",
             "components": {
-              "cloud": 41,
+              "cloud": 40,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 2,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 6,
+              "precip_probability_pct": 0,
+              "wind_kmh": 1,
+              "gust_kmh": 22,
+              "visibility_km": 68.0,
               "pm2_5": 1.2,
               "us_aqi": 36.0,
               "horizon_low_pct": 24,
@@ -2973,20 +3111,22 @@
               "horizon_azimuth_deg": 257.4
             },
             "notes": [
-              "高／中雲極少：天空可乾淨，但火燒雲機會低",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "高／中雲極少：天空可乾淨，但火燒雲機會低"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 4.7,
-              "ecmwf_gust": 36,
+              "best_mean": 1.2,
+              "best_gust": 22,
+              "ecmwf_mean": 4.0,
+              "ecmwf_gust": 37,
               "range": [
-                2.9,
-                4.7
+                1.2,
+                4.0
               ],
-              "gust_range": null,
+              "gust_range": [
+                22,
+                37
+              ],
               "divergent": false,
               "scoring": "conservative",
               "calm_best": "18:00",
@@ -2994,13 +3134,29 @@
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 2.9,
+                  "best": 1.6,
                   "ecmwf": 4.7
+                },
+                {
+                  "t": "19:00",
+                  "best": 0.9,
+                  "ecmwf": 3.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 0.7,
+                  "ecmwf": 2.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 0.8,
+                  "ecmwf": 2.5
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -3029,7 +3185,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:06Z",
+                  "retrieval_time": "2026-10-11T19:33:09Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -3054,8 +3210,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:06Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:06Z",
+                  "retrieval_time": "2026-10-11T19:33:09Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:09Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3088,7 +3244,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:06Z",
+                  "retrieval_time": "2026-10-11T19:33:09Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -3173,14 +3329,14 @@
             },
             "confidence": {
               "level": "低",
-              "cloud_spread": 98,
+              "cloud_spread": 94,
               "models": {
-                "best_match": 2,
+                "best_match": 6,
                 "ecmwf": 22,
                 "gfs": 100
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -3198,18 +3354,18 @@
             "event": "sunrise",
             "centre_time": "08:03",
             "components": {
-              "cloud": 76,
-              "wind": 82,
+              "cloud": 46,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 76,
-              "mid_cloud_pct": 71,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 6,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 2,
+              "precip_probability_pct": 0,
+              "wind_kmh": 13,
+              "gust_kmh": 17,
+              "visibility_km": 24.1,
               "pm2_5": 1.8,
               "us_aqi": 26.0,
               "horizon_low_pct": 0,
@@ -3219,28 +3375,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 6 vs ECMWF 8 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 13 vs ECMWF 7 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 5.8,
-              "best_gust": null,
-              "ecmwf_mean": 7.5,
-              "ecmwf_gust": 38,
+              "best_mean": 12.7,
+              "best_gust": 17,
+              "ecmwf_mean": 7.4,
+              "ecmwf_gust": 39,
               "range": [
-                5.8,
-                7.5
+                7.4,
+                12.7
               ],
-              "gust_range": null,
+              "gust_range": [
+                17,
+                39
+              ],
               "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
               "calm_ecmwf": null,
-              "curve": []
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 12.7,
+                  "ecmwf": 7.4
+                },
+                {
+                  "t": "09:00",
+                  "best": 12.1,
+                  "ecmwf": 7.1
+                },
+                {
+                  "t": "10:00",
+                  "best": 13.7,
+                  "ecmwf": 6.4
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -3269,7 +3446,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:07Z",
+                  "retrieval_time": "2026-10-11T19:33:10Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -3294,8 +3471,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:07Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:07Z",
+                  "retrieval_time": "2026-10-11T19:33:10Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:10Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3328,7 +3505,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:07Z",
+                  "retrieval_time": "2026-10-11T19:33:10Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -3404,40 +3581,40 @@
               "label": "首束直射光",
               "geometric_time": "08:03"
             },
-            "score": 79,
+            "score": 65,
             "label": "可嘗試",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 12,
+              "cloud_spread": 1,
               "models": {
-                "best_match": 88,
+                "best_match": 100,
                 "ecmwf": 99,
                 "gfs": 100
               }
             },
-            "peak_window": "09:00–10:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 82,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
               "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 5,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "precip_probability_pct": 2,
+              "wind_kmh": 11,
+              "gust_kmh": 17,
+              "visibility_km": 24.1,
               "pm2_5": 1.0,
               "us_aqi": 38.0,
               "horizon_low_pct": 100,
@@ -3448,34 +3625,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 5 vs ECMWF 7 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 11 vs ECMWF 7 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.7,
-              "best_gust": null,
-              "ecmwf_mean": 7.0,
+              "best_mean": 11.3,
+              "best_gust": 17,
+              "ecmwf_mean": 6.7,
               "ecmwf_gust": 31,
               "range": [
-                4.7,
-                7.0
+                6.7,
+                11.3
               ],
-              "gust_range": null,
+              "gust_range": [
+                17,
+                31
+              ],
               "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
-              "calm_ecmwf": null,
+              "calm_best": null,
+              "calm_ecmwf": "20:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.7,
+                  "best": 10.3,
                   "ecmwf": 7.0
+                },
+                {
+                  "t": "19:00",
+                  "best": 12.3,
+                  "ecmwf": 6.4
+                },
+                {
+                  "t": "20:00",
+                  "best": 12.1,
+                  "ecmwf": 5.7
+                },
+                {
+                  "t": "21:00",
+                  "best": 11.3,
+                  "ecmwf": 5.4
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -3504,7 +3700,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:09Z",
+                  "retrieval_time": "2026-10-11T19:33:11Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -3529,8 +3725,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:09Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:09Z",
+                  "retrieval_time": "2026-10-11T19:33:11Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:11Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3563,7 +3759,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:09Z",
+                  "retrieval_time": "2026-10-11T19:33:11Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -3639,8 +3835,8 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 49,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -3655,7 +3851,7 @@
                 "gfs": 0
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -3673,18 +3869,18 @@
             "event": "sunrise",
             "centre_time": "08:07",
             "components": {
-              "cloud": 22,
-              "wind": 100,
+              "cloud": 18,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 69,
-              "mid_cloud_pct": 11,
-              "low_cloud_pct": 1,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 44,
+              "low_cloud_pct": 10,
+              "precip_probability_pct": 1,
+              "wind_kmh": 7,
+              "gust_kmh": 10,
+              "visibility_km": 24.1,
               "pm2_5": 1.5,
               "us_aqi": 32.0,
               "horizon_low_pct": 0,
@@ -3695,27 +3891,47 @@
             "notes": [
               "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "兩模型風速預報分歧（預設 7 vs ECMWF 6 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.6,
-              "best_gust": null,
-              "ecmwf_mean": 4.9,
-              "ecmwf_gust": 24,
+              "best_mean": 6.8,
+              "best_gust": 10,
+              "ecmwf_mean": 5.7,
+              "ecmwf_gust": 23,
               "range": [
-                3.6,
-                4.9
+                5.7,
+                6.8
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                10,
+                23
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 7.1,
+                  "ecmwf": 5.6
+                },
+                {
+                  "t": "09:00",
+                  "best": 6.5,
+                  "ecmwf": 5.8
+                },
+                {
+                  "t": "10:00",
+                  "best": 7.3,
+                  "ecmwf": 6.0
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -3744,7 +3960,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:10Z",
+                  "retrieval_time": "2026-10-11T19:33:12Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -3769,8 +3985,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:10Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:10Z",
+                  "retrieval_time": "2026-10-11T19:33:12Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:12Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3803,7 +4019,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:10Z",
+                  "retrieval_time": "2026-10-11T19:33:12Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -3879,7 +4095,7 @@
               "label": "首束直射光",
               "geometric_time": "08:07"
             },
-            "score": 61,
+            "score": 55,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -3887,32 +4103,32 @@
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
-              "level": "中",
-              "cloud_spread": 27,
+              "level": "高",
+              "cloud_spread": 12,
               "models": {
-                "best_match": 73,
+                "best_match": 100,
                 "ecmwf": 88,
                 "gfs": 100
               }
             },
-            "peak_window": "09:00–10:00"
+            "peak_window": "10:00–11:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:53",
             "components": {
-              "cloud": 5,
-              "wind": 100,
+              "cloud": 3,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 0,
+              "high_cloud_pct": 2,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 1,
-              "precip_probability_pct": null,
-              "wind_kmh": 5,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 100,
+              "precip_probability_pct": 6,
+              "wind_kmh": 8,
+              "gust_kmh": 10,
+              "visibility_km": 24.1,
               "pm2_5": 1.2,
               "us_aqi": 37.0,
               "horizon_low_pct": 100,
@@ -3922,34 +4138,54 @@
             },
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
+              "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "兩模型風速預報分歧（預設 8 vs ECMWF 4 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.7,
-              "best_gust": null,
-              "ecmwf_mean": 4.3,
-              "ecmwf_gust": 30,
+              "best_mean": 7.6,
+              "best_gust": 10,
+              "ecmwf_mean": 4.0,
+              "ecmwf_gust": 34,
               "range": [
-                4.3,
-                4.7
+                4.0,
+                7.6
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                10,
+                34
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.7,
+                  "best": 7.5,
                   "ecmwf": 4.3
+                },
+                {
+                  "t": "19:00",
+                  "best": 7.7,
+                  "ecmwf": 3.7
+                },
+                {
+                  "t": "20:00",
+                  "best": 6.8,
+                  "ecmwf": 3.6
+                },
+                {
+                  "t": "21:00",
+                  "best": 7.1,
+                  "ecmwf": 3.3
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -3978,7 +4214,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:11Z",
+                  "retrieval_time": "2026-10-11T19:33:13Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -4003,8 +4239,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:11Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:11Z",
+                  "retrieval_time": "2026-10-11T19:33:13Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:13Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4037,7 +4273,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:11Z",
+                  "retrieval_time": "2026-10-11T19:33:13Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -4113,7 +4349,7 @@
               "label": "最後直射光",
               "geometric_time": "18:53"
             },
-            "score": 52,
+            "score": 48,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -4122,14 +4358,14 @@
             },
             "confidence": {
               "level": "低",
-              "cloud_spread": 99,
+              "cloud_spread": 84,
               "models": {
-                "best_match": 1,
+                "best_match": 100,
                 "ecmwf": 16,
                 "gfs": 100
               }
             },
-            "peak_window": "19:00–20:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -4147,18 +4383,18 @@
             "event": "sunrise",
             "centre_time": "08:04",
             "components": {
-              "cloud": 61,
-              "wind": 100,
+              "cloud": 36,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 74,
-              "mid_cloud_pct": 69,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 3,
+              "precip_probability_pct": 0,
+              "wind_kmh": 11,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.8,
               "us_aqi": 29.0,
               "horizon_low_pct": 0,
@@ -4168,27 +4404,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 11 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 2.8,
+              "best_mean": 10.8,
+              "best_gust": 14,
+              "ecmwf_mean": 3.2,
               "ecmwf_gust": 29,
               "range": [
-                2.8,
-                2.9
+                3.2,
+                10.8
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                29
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 10.9,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 10.2,
+                  "ecmwf": 3.4
+                },
+                {
+                  "t": "10:00",
+                  "best": 10.7,
+                  "ecmwf": 3.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -4217,7 +4475,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:12Z",
+                  "retrieval_time": "2026-10-11T19:33:14Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -4242,8 +4500,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:12Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:12Z",
+                  "retrieval_time": "2026-10-11T19:33:14Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:14Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4276,7 +4534,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:12Z",
+                  "retrieval_time": "2026-10-11T19:33:14Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -4352,40 +4610,40 @@
               "label": "首束直射光",
               "geometric_time": "08:04"
             },
-            "score": 79,
-            "label": "可嘗試",
+            "score": 60,
+            "label": "條件普通",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 13,
+              "cloud_spread": 4,
               "models": {
-                "best_match": 87,
+                "best_match": 100,
                 "ecmwf": 96,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–11:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 100,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 2,
+              "wind_kmh": 10,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.1,
               "us_aqi": 38.0,
               "horizon_low_pct": 93,
@@ -4396,33 +4654,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 10 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 3.2,
-              "ecmwf_gust": 23,
+              "best_mean": 10.1,
+              "best_gust": 14,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 28,
               "range": [
-                3.2,
-                4.0
+                2.8,
+                10.1
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                28
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 10.0,
                   "ecmwf": 3.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 10.2,
+                  "ecmwf": 2.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 9.5,
+                  "ecmwf": 1.6
+                },
+                {
+                  "t": "21:00",
+                  "best": 9.2,
+                  "ecmwf": 1.8
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -4451,7 +4729,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:13Z",
+                  "retrieval_time": "2026-10-11T19:33:15Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -4476,8 +4754,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:13Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:13Z",
+                  "retrieval_time": "2026-10-11T19:33:15Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:15Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4510,7 +4788,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:13Z",
+                  "retrieval_time": "2026-10-11T19:33:15Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -4586,8 +4864,8 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 52,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -4597,12 +4875,12 @@
               "level": "高",
               "cloud_spread": 6,
               "models": {
-                "best_match": 0,
+                "best_match": 6,
                 "ecmwf": 0,
                 "gfs": 6
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -4620,18 +4898,18 @@
             "event": "sunrise",
             "centre_time": "08:07",
             "components": {
-              "cloud": 22,
-              "wind": 100,
+              "cloud": 18,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 77,
-              "mid_cloud_pct": 15,
-              "low_cloud_pct": 1,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 44,
+              "low_cloud_pct": 10,
+              "precip_probability_pct": 1,
+              "wind_kmh": 7,
+              "gust_kmh": 10,
+              "visibility_km": 24.1,
               "pm2_5": 1.1,
               "us_aqi": 34.0,
               "horizon_low_pct": 2,
@@ -4642,27 +4920,47 @@
             "notes": [
               "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "兩模型風速預報分歧（預設 7 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 2.9,
-              "ecmwf_gust": 22,
+              "best_mean": 7.3,
+              "best_gust": 10,
+              "ecmwf_mean": 3.2,
+              "ecmwf_gust": 21,
               "range": [
-                2.9,
-                2.9
+                3.2,
+                7.3
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                10,
+                21
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 7.9,
+                  "ecmwf": 3.1
+                },
+                {
+                  "t": "09:00",
+                  "best": 6.8,
+                  "ecmwf": 3.3
+                },
+                {
+                  "t": "10:00",
+                  "best": 7.7,
+                  "ecmwf": 3.8
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -4691,7 +4989,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:14Z",
+                  "retrieval_time": "2026-10-11T19:33:16Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -4716,8 +5014,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:14Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:14Z",
+                  "retrieval_time": "2026-10-11T19:33:16Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:16Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4750,7 +5048,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:14Z",
+                  "retrieval_time": "2026-10-11T19:33:16Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -4826,7 +5124,7 @@
               "label": "首束直射光",
               "geometric_time": "08:07"
             },
-            "score": 61,
+            "score": 55,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -4835,31 +5133,31 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 20,
+              "cloud_spread": 14,
               "models": {
-                "best_match": 80,
+                "best_match": 100,
                 "ecmwf": 86,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "09:00–10:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:53",
             "components": {
-              "cloud": 5,
+              "cloud": 3,
               "wind": 82,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 0,
+              "high_cloud_pct": 2,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 1,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 100,
+              "precip_probability_pct": 6,
+              "wind_kmh": 8,
+              "gust_kmh": 13,
+              "visibility_km": 24.1,
               "pm2_5": 1.2,
               "us_aqi": 36.0,
               "horizon_low_pct": 100,
@@ -4869,35 +5167,54 @@
             },
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
+              "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 4 vs ECMWF 6 km/h），風分採較保守值"
+              "兩模型風速預報分歧（預設 8 vs ECMWF 5 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.3,
-              "best_gust": null,
-              "ecmwf_mean": 6.2,
-              "ecmwf_gust": 38,
+              "best_mean": 8.2,
+              "best_gust": 13,
+              "ecmwf_mean": 5.2,
+              "ecmwf_gust": 39,
               "range": [
-                4.3,
-                6.2
+                5.2,
+                8.2
               ],
-              "gust_range": null,
+              "gust_range": [
+                13,
+                39
+              ],
               "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
-              "calm_ecmwf": null,
+              "calm_best": null,
+              "calm_ecmwf": "19:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.3,
+                  "best": 7.9,
                   "ecmwf": 6.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 8.4,
+                  "ecmwf": 4.1
+                },
+                {
+                  "t": "20:00",
+                  "best": 7.4,
+                  "ecmwf": 1.3
+                },
+                {
+                  "t": "21:00",
+                  "best": 7.8,
+                  "ecmwf": 0.5
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -4926,7 +5243,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:15Z",
+                  "retrieval_time": "2026-10-11T19:33:17Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -4951,8 +5268,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:15Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:15Z",
+                  "retrieval_time": "2026-10-11T19:33:17Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:17Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4985,7 +5302,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:15Z",
+                  "retrieval_time": "2026-10-11T19:33:17Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -5061,7 +5378,7 @@
               "label": "最後直射光",
               "geometric_time": "18:53"
             },
-            "score": 49,
+            "score": 48,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -5070,9 +5387,9 @@
             },
             "confidence": {
               "level": "低",
-              "cloud_spread": 99,
+              "cloud_spread": 82,
               "models": {
-                "best_match": 1,
+                "best_match": 100,
                 "ecmwf": 18,
                 "gfs": 100
               }
@@ -5095,18 +5412,18 @@
             "event": "sunrise",
             "centre_time": "08:04",
             "components": {
-              "cloud": 61,
-              "wind": 100,
+              "cloud": 36,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 74,
-              "mid_cloud_pct": 69,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 3,
+              "precip_probability_pct": 0,
+              "wind_kmh": 11,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.9,
               "us_aqi": 28.0,
               "horizon_low_pct": 0,
@@ -5116,27 +5433,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 11 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 2.8,
+              "best_mean": 10.8,
+              "best_gust": 14,
+              "ecmwf_mean": 3.2,
               "ecmwf_gust": 29,
               "range": [
-                2.8,
-                2.9
+                3.2,
+                10.8
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                29
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 10.9,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 10.2,
+                  "ecmwf": 3.4
+                },
+                {
+                  "t": "10:00",
+                  "best": 10.7,
+                  "ecmwf": 3.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -5165,7 +5504,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:16Z",
+                  "retrieval_time": "2026-10-11T19:33:18Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -5190,8 +5529,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:16Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:16Z",
+                  "retrieval_time": "2026-10-11T19:33:18Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:18Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5224,7 +5563,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:16Z",
+                  "retrieval_time": "2026-10-11T19:33:18Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -5300,40 +5639,40 @@
               "label": "首束直射光",
               "geometric_time": "08:04"
             },
-            "score": 79,
-            "label": "可嘗試",
+            "score": 60,
+            "label": "條件普通",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 13,
+              "cloud_spread": 4,
               "models": {
-                "best_match": 87,
+                "best_match": 100,
                 "ecmwf": 96,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 100,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 2,
+              "wind_kmh": 10,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.1,
               "us_aqi": 38.0,
               "horizon_low_pct": 93,
@@ -5344,33 +5683,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 10 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 3.2,
-              "ecmwf_gust": 23,
+              "best_mean": 10.1,
+              "best_gust": 14,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 28,
               "range": [
-                3.2,
-                4.0
+                2.8,
+                10.1
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                28
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 10.0,
                   "ecmwf": 3.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 10.2,
+                  "ecmwf": 2.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 9.5,
+                  "ecmwf": 1.6
+                },
+                {
+                  "t": "21:00",
+                  "best": 9.2,
+                  "ecmwf": 1.8
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -5399,7 +5758,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:17Z",
+                  "retrieval_time": "2026-10-11T19:33:19Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -5424,8 +5783,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:17Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:17Z",
+                  "retrieval_time": "2026-10-11T19:33:19Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:19Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5458,7 +5817,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:17Z",
+                  "retrieval_time": "2026-10-11T19:33:19Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -5534,8 +5893,8 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 52,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -5545,12 +5904,12 @@
               "level": "高",
               "cloud_spread": 6,
               "models": {
-                "best_match": 0,
+                "best_match": 6,
                 "ecmwf": 0,
                 "gfs": 6
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -5568,18 +5927,18 @@
             "event": "sunrise",
             "centre_time": "08:03",
             "components": {
-              "cloud": 76,
-              "wind": 82,
+              "cloud": 45,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 72,
-              "mid_cloud_pct": 66,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 0,
+              "wind_kmh": 11,
+              "gust_kmh": 17,
+              "visibility_km": 24.1,
               "pm2_5": 1.8,
               "us_aqi": 26.0,
               "horizon_low_pct": 0,
@@ -5589,28 +5948,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 3 vs ECMWF 8 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 11 vs ECMWF 7 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.2,
-              "best_gust": null,
-              "ecmwf_mean": 7.5,
-              "ecmwf_gust": 38,
+              "best_mean": 10.8,
+              "best_gust": 17,
+              "ecmwf_mean": 7.4,
+              "ecmwf_gust": 39,
               "range": [
-                3.2,
-                7.5
+                7.4,
+                10.8
               ],
-              "gust_range": null,
+              "gust_range": [
+                17,
+                39
+              ],
               "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
               "calm_ecmwf": null,
-              "curve": []
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 10.8,
+                  "ecmwf": 7.4
+                },
+                {
+                  "t": "09:00",
+                  "best": 10.4,
+                  "ecmwf": 7.1
+                },
+                {
+                  "t": "10:00",
+                  "best": 11.1,
+                  "ecmwf": 6.4
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -5639,7 +6019,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:18Z",
+                  "retrieval_time": "2026-10-11T19:33:21Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -5664,8 +6044,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:18Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:18Z",
+                  "retrieval_time": "2026-10-11T19:33:21Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:21Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5698,7 +6078,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:18Z",
+                  "retrieval_time": "2026-10-11T19:33:21Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -5774,40 +6154,40 @@
               "label": "首束直射光",
               "geometric_time": "08:03"
             },
-            "score": 79,
-            "label": "可嘗試",
+            "score": 64,
+            "label": "條件普通",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 16,
+              "cloud_spread": 1,
               "models": {
-                "best_match": 84,
+                "best_match": 100,
                 "ecmwf": 99,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "07:00–10:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 82,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 2,
+              "wind_kmh": 10,
+              "gust_kmh": 17,
+              "visibility_km": 24.1,
               "pm2_5": 1.0,
               "us_aqi": 38.0,
               "horizon_low_pct": 100,
@@ -5818,34 +6198,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 4 vs ECMWF 7 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 10 vs ECMWF 7 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 7.0,
+              "best_mean": 10.1,
+              "best_gust": 17,
+              "ecmwf_mean": 6.7,
               "ecmwf_gust": 31,
               "range": [
-                4.0,
-                7.0
+                6.7,
+                10.1
               ],
-              "gust_range": null,
+              "gust_range": [
+                17,
+                31
+              ],
               "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
-              "calm_ecmwf": null,
+              "calm_best": null,
+              "calm_ecmwf": "20:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 9.4,
                   "ecmwf": 7.0
+                },
+                {
+                  "t": "19:00",
+                  "best": 10.7,
+                  "ecmwf": 6.4
+                },
+                {
+                  "t": "20:00",
+                  "best": 10.4,
+                  "ecmwf": 5.7
+                },
+                {
+                  "t": "21:00",
+                  "best": 10.0,
+                  "ecmwf": 5.4
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -5874,7 +6273,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:19Z",
+                  "retrieval_time": "2026-10-11T19:33:22Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -5899,8 +6298,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:19Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:19Z",
+                  "retrieval_time": "2026-10-11T19:33:22Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:22Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5933,7 +6332,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:19Z",
+                  "retrieval_time": "2026-10-11T19:33:22Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -6009,8 +6408,8 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 49,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -6018,9 +6417,9 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 5,
+              "cloud_spread": 4,
               "models": {
-                "best_match": 0,
+                "best_match": 5,
                 "ecmwf": 0,
                 "gfs": 5
               }
@@ -6043,18 +6442,18 @@
             "event": "sunrise",
             "centre_time": "08:08",
             "components": {
-              "cloud": 24,
+              "cloud": 11,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 76,
-              "mid_cloud_pct": 25,
-              "low_cloud_pct": 8,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 6,
+              "mid_cloud_pct": 2,
+              "low_cloud_pct": 98,
+              "precip_probability_pct": 9,
+              "wind_kmh": 5,
+              "gust_kmh": 30,
+              "visibility_km": 29.9,
               "pm2_5": 1.1,
               "us_aqi": 34.0,
               "horizon_low_pct": 0,
@@ -6063,29 +6462,49 @@
               "horizon_azimuth_deg": 102.2
             },
             "notes": [
-              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
-              "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "低雲偏多，山體與低空色彩可能被遮擋",
+              "太陽方向地平線雲量偏高，霞光難以照射雲底"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.6,
-              "best_gust": null,
-              "ecmwf_mean": 5.7,
-              "ecmwf_gust": 35,
+              "best_mean": 4.7,
+              "best_gust": 30,
+              "ecmwf_mean": 4.8,
+              "ecmwf_gust": 31,
               "range": [
-                3.6,
-                5.7
+                4.7,
+                4.8
               ],
-              "gust_range": null,
+              "gust_range": [
+                30,
+                31
+              ],
               "divergent": false,
               "scoring": "conservative",
-              "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_best": "08:00",
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 4.2,
+                  "ecmwf": 5.0
+                },
+                {
+                  "t": "09:00",
+                  "best": 5.2,
+                  "ecmwf": 4.7
+                },
+                {
+                  "t": "10:00",
+                  "best": 5.7,
+                  "ecmwf": 5.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -6114,7 +6533,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:20Z",
+                  "retrieval_time": "2026-10-11T19:33:23Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -6139,8 +6558,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:20Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:20Z",
+                  "retrieval_time": "2026-10-11T19:33:23Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:23Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6173,7 +6592,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:20Z",
+                  "retrieval_time": "2026-10-11T19:33:23Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -6249,7 +6668,7 @@
               "label": "首束直射光",
               "geometric_time": "08:08"
             },
-            "score": 62,
+            "score": 56,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -6260,51 +6679,53 @@
               "level": "高",
               "cloud_spread": 18,
               "models": {
-                "best_match": 83,
+                "best_match": 98,
                 "ecmwf": 82,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
-            "centre_time": "18:53",
+            "centre_time": "18:54",
             "components": {
-              "cloud": 41,
+              "cloud": 40,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 2,
-              "precip_probability_pct": null,
+              "low_cloud_pct": 4,
+              "precip_probability_pct": 0,
               "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "gust_kmh": 26,
+              "visibility_km": 67.5,
               "pm2_5": 1.2,
               "us_aqi": 36.0,
               "horizon_low_pct": 17,
               "horizon_mid_pct": 0,
               "horizon_gap": 80,
-              "horizon_azimuth_deg": 257.2
+              "horizon_azimuth_deg": 257.4
             },
             "notes": [
-              "高／中雲極少：天空可乾淨，但火燒雲機會低",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "高／中雲極少：天空可乾淨，但火燒雲機會低"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 4.7,
-              "ecmwf_gust": 36,
+              "best_mean": 3.0,
+              "best_gust": 26,
+              "ecmwf_mean": 4.0,
+              "ecmwf_gust": 37,
               "range": [
-                2.9,
-                4.7
+                3.0,
+                4.0
               ],
-              "gust_range": null,
+              "gust_range": [
+                26,
+                37
+              ],
               "divergent": false,
               "scoring": "conservative",
               "calm_best": "18:00",
@@ -6312,13 +6733,29 @@
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 2.9,
+                  "best": 3.7,
                   "ecmwf": 4.7
+                },
+                {
+                  "t": "19:00",
+                  "best": 2.3,
+                  "ecmwf": 3.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 1.7,
+                  "ecmwf": 2.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 1.8,
+                  "ecmwf": 2.5
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -6326,8 +6763,8 @@
                 "lon": -116.466488
               },
               "window_local": {
-                "start": "2026-10-14T17:38:00-06:00",
-                "end": "2026-10-14T19:38:00-06:00",
+                "start": "2026-10-14T17:39:00-06:00",
+                "end": "2026-10-14T19:39:00-06:00",
                 "timezone": "America/Edmonton"
               },
               "observed_now": {
@@ -6347,7 +6784,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:21Z",
+                  "retrieval_time": "2026-10-11T19:33:24Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -6372,8 +6809,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:21Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:21Z",
+                  "retrieval_time": "2026-10-11T19:33:24Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:24Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6406,7 +6843,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:21Z",
+                  "retrieval_time": "2026-10-11T19:33:24Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -6476,11 +6913,11 @@
                 "source": "AWS Terrain Tiles / SRTM 1 arc-second"
               },
               "window": {
-                "start": "17:38",
-                "end": "19:38"
+                "start": "17:39",
+                "end": "19:39"
               },
               "label": "最後直射光",
-              "geometric_time": "18:53"
+              "geometric_time": "18:54"
             },
             "score": 70,
             "label": "可嘗試",
@@ -6491,14 +6928,14 @@
             },
             "confidence": {
               "level": "低",
-              "cloud_spread": 98,
+              "cloud_spread": 96,
               "models": {
-                "best_match": 2,
+                "best_match": 4,
                 "ecmwf": 22,
                 "gfs": 100
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -6516,18 +6953,18 @@
             "event": "sunrise",
             "centre_time": "08:04",
             "components": {
-              "cloud": 61,
-              "wind": 100,
+              "cloud": 36,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 74,
-              "mid_cloud_pct": 69,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 3,
+              "precip_probability_pct": 0,
+              "wind_kmh": 11,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.9,
               "us_aqi": 28.0,
               "horizon_low_pct": 0,
@@ -6537,27 +6974,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 11 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 2.8,
+              "best_mean": 10.8,
+              "best_gust": 14,
+              "ecmwf_mean": 3.2,
               "ecmwf_gust": 29,
               "range": [
-                2.8,
-                2.9
+                3.2,
+                10.8
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                29
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 10.9,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 10.2,
+                  "ecmwf": 3.4
+                },
+                {
+                  "t": "10:00",
+                  "best": 10.7,
+                  "ecmwf": 3.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -6586,7 +7045,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:22Z",
+                  "retrieval_time": "2026-10-11T19:33:25Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -6611,8 +7070,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:22Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:22Z",
+                  "retrieval_time": "2026-10-11T19:33:25Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:25Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6645,7 +7104,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:22Z",
+                  "retrieval_time": "2026-10-11T19:33:25Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -6721,40 +7180,40 @@
               "label": "首束直射光",
               "geometric_time": "08:04"
             },
-            "score": 79,
-            "label": "可嘗試",
+            "score": 60,
+            "label": "條件普通",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 13,
+              "cloud_spread": 4,
               "models": {
-                "best_match": 87,
+                "best_match": 100,
                 "ecmwf": 96,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 100,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 2,
+              "wind_kmh": 10,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.1,
               "us_aqi": 38.0,
               "horizon_low_pct": 100,
@@ -6765,33 +7224,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 10 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 3.2,
-              "ecmwf_gust": 23,
+              "best_mean": 10.1,
+              "best_gust": 14,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 28,
               "range": [
-                3.2,
-                4.0
+                2.8,
+                10.1
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                28
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 10.0,
                   "ecmwf": 3.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 10.2,
+                  "ecmwf": 2.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 9.5,
+                  "ecmwf": 1.6
+                },
+                {
+                  "t": "21:00",
+                  "best": 9.2,
+                  "ecmwf": 1.8
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -6820,7 +7299,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:23Z",
+                  "retrieval_time": "2026-10-11T19:33:26Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -6845,8 +7324,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:23Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:23Z",
+                  "retrieval_time": "2026-10-11T19:33:26Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:26Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6879,7 +7358,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:23Z",
+                  "retrieval_time": "2026-10-11T19:33:26Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -6955,8 +7434,8 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 52,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -6966,12 +7445,12 @@
               "level": "高",
               "cloud_spread": 6,
               "models": {
-                "best_match": 0,
+                "best_match": 6,
                 "ecmwf": 0,
                 "gfs": 6
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -6989,18 +7468,18 @@
             "event": "sunrise",
             "centre_time": "08:04",
             "components": {
-              "cloud": 61,
-              "wind": 100,
+              "cloud": 36,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 74,
-              "mid_cloud_pct": 69,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 0,
+              "wind_kmh": 13,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.8,
               "us_aqi": 29.0,
               "horizon_low_pct": 0,
@@ -7010,27 +7489,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 13 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 2.9,
-              "best_gust": null,
-              "ecmwf_mean": 2.8,
+              "best_mean": 12.8,
+              "best_gust": 14,
+              "ecmwf_mean": 3.2,
               "ecmwf_gust": 29,
               "range": [
-                2.8,
-                2.9
+                3.2,
+                12.8
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                29
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 13.0,
+                  "ecmwf": 3.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 12.4,
+                  "ecmwf": 3.4
+                },
+                {
+                  "t": "10:00",
+                  "best": 13.5,
+                  "ecmwf": 3.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -7059,7 +7560,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:24Z",
+                  "retrieval_time": "2026-10-11T19:33:27Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -7084,8 +7585,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:24Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:24Z",
+                  "retrieval_time": "2026-10-11T19:33:27Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:27Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7118,7 +7619,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:24Z",
+                  "retrieval_time": "2026-10-11T19:33:27Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -7194,40 +7695,40 @@
               "label": "首束直射光",
               "geometric_time": "08:04"
             },
-            "score": 79,
-            "label": "可嘗試",
+            "score": 60,
+            "label": "條件普通",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 13,
+              "cloud_spread": 4,
               "models": {
-                "best_match": 87,
+                "best_match": 100,
                 "ecmwf": 96,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–11:00"
+            "peak_window": "10:00–11:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 100,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 2,
+              "wind_kmh": 11,
+              "gust_kmh": 14,
+              "visibility_km": 24.1,
               "pm2_5": 1.1,
               "us_aqi": 38.0,
               "horizon_low_pct": 93,
@@ -7238,33 +7739,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 11 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 3.2,
-              "ecmwf_gust": 23,
+              "best_mean": 11.3,
+              "best_gust": 14,
+              "ecmwf_mean": 2.8,
+              "ecmwf_gust": 28,
               "range": [
-                3.2,
-                4.0
+                2.8,
+                11.3
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                14,
+                28
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 11.2,
                   "ecmwf": 3.2
+                },
+                {
+                  "t": "19:00",
+                  "best": 11.4,
+                  "ecmwf": 2.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 11.2,
+                  "ecmwf": 1.6
+                },
+                {
+                  "t": "21:00",
+                  "best": 11.2,
+                  "ecmwf": 1.8
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -7293,7 +7814,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:25Z",
+                  "retrieval_time": "2026-10-11T19:33:28Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -7318,8 +7839,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:25Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:25Z",
+                  "retrieval_time": "2026-10-11T19:33:28Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:28Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7352,7 +7873,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:25Z",
+                  "retrieval_time": "2026-10-11T19:33:28Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -7428,8 +7949,8 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 52,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -7437,14 +7958,14 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 6,
+              "cloud_spread": 5,
               "models": {
-                "best_match": 0,
+                "best_match": 6,
                 "ecmwf": 0,
                 "gfs": 6
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -7462,18 +7983,18 @@
             "event": "sunrise",
             "centre_time": "08:03",
             "components": {
-              "cloud": 76,
-              "wind": 82,
+              "cloud": 45,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 72,
-              "mid_cloud_pct": 66,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 3,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 0,
+              "wind_kmh": 11,
+              "gust_kmh": 13,
+              "visibility_km": 24.1,
               "pm2_5": 1.8,
               "us_aqi": 26.0,
               "horizon_low_pct": 0,
@@ -7483,28 +8004,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 3 vs ECMWF 10 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 11 vs ECMWF 9 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.2,
-              "best_gust": null,
-              "ecmwf_mean": 9.7,
+              "best_mean": 10.8,
+              "best_gust": 13,
+              "ecmwf_mean": 9.2,
               "ecmwf_gust": 37,
               "range": [
-                3.2,
-                9.7
+                9.2,
+                10.8
               ],
-              "gust_range": null,
+              "gust_range": [
+                13,
+                37
+              ],
               "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
               "calm_ecmwf": null,
-              "curve": []
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 10.8,
+                  "ecmwf": 9.2
+                },
+                {
+                  "t": "09:00",
+                  "best": 10.4,
+                  "ecmwf": 8.7
+                },
+                {
+                  "t": "10:00",
+                  "best": 11.1,
+                  "ecmwf": 8.5
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -7533,7 +8075,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:26Z",
+                  "retrieval_time": "2026-10-11T19:33:29Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -7558,8 +8100,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:26Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:26Z",
+                  "retrieval_time": "2026-10-11T19:33:29Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:29Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7592,7 +8134,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:26Z",
+                  "retrieval_time": "2026-10-11T19:33:29Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -7668,40 +8210,40 @@
               "label": "首束直射光",
               "geometric_time": "08:03"
             },
-            "score": 79,
-            "label": "可嘗試",
+            "score": 64,
+            "label": "條件普通",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 16,
+              "cloud_spread": 6,
               "models": {
-                "best_match": 84,
+                "best_match": 100,
                 "ecmwf": 94,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "07:00–10:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 82,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 2,
+              "wind_kmh": 10,
+              "gust_kmh": 11,
+              "visibility_km": 24.1,
               "pm2_5": 1.0,
               "us_aqi": 38.0,
               "horizon_low_pct": 100,
@@ -7712,34 +8254,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "兩模型風速預報分歧（預設 4 vs ECMWF 6 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 10 vs ECMWF 6 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": null,
-              "ecmwf_mean": 6.5,
-              "ecmwf_gust": 30,
+              "best_mean": 10.1,
+              "best_gust": 11,
+              "ecmwf_mean": 6.0,
+              "ecmwf_gust": 32,
               "range": [
-                4.0,
-                6.5
+                6.0,
+                10.1
               ],
-              "gust_range": null,
+              "gust_range": [
+                11,
+                32
+              ],
               "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
-              "calm_ecmwf": null,
+              "calm_best": null,
+              "calm_ecmwf": "19:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 9.4,
                   "ecmwf": 6.5
+                },
+                {
+                  "t": "19:00",
+                  "best": 10.7,
+                  "ecmwf": 5.6
+                },
+                {
+                  "t": "20:00",
+                  "best": 10.4,
+                  "ecmwf": 5.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 10.0,
+                  "ecmwf": 5.1
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -7768,7 +8329,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:27Z",
+                  "retrieval_time": "2026-10-11T19:33:30Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -7793,8 +8354,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:27Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:27Z",
+                  "retrieval_time": "2026-10-11T19:33:30Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:30Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7827,7 +8388,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:27Z",
+                  "retrieval_time": "2026-10-11T19:33:30Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -7903,8 +8464,8 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 49,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -7912,9 +8473,9 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 5,
+              "cloud_spread": 4,
               "models": {
-                "best_match": 0,
+                "best_match": 5,
                 "ecmwf": 0,
                 "gfs": 5
               }
@@ -7937,18 +8498,18 @@
             "event": "sunrise",
             "centre_time": "08:01",
             "components": {
-              "cloud": 62,
-              "wind": 100,
+              "cloud": 55,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 92,
-              "mid_cloud_pct": 52,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 68,
+              "low_cloud_pct": 5,
+              "precip_probability_pct": 0,
+              "wind_kmh": 12,
+              "gust_kmh": 12,
+              "visibility_km": 24.1,
               "pm2_5": 2.1,
               "us_aqi": 36.0,
               "horizon_low_pct": 0,
@@ -7957,28 +8518,50 @@
               "horizon_azimuth_deg": 101.9
             },
             "notes": [
-              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 12 vs ECMWF 5 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.3,
-              "best_gust": null,
-              "ecmwf_mean": 4.3,
-              "ecmwf_gust": 24,
+              "best_mean": 11.6,
+              "best_gust": 12,
+              "ecmwf_mean": 4.5,
+              "ecmwf_gust": 26,
               "range": [
-                4.3,
-                4.3
+                4.5,
+                11.6
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                12,
+                26
+              ],
+              "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 11.6,
+                  "ecmwf": 4.3
+                },
+                {
+                  "t": "09:00",
+                  "best": 11.4,
+                  "ecmwf": 4.7
+                },
+                {
+                  "t": "10:00",
+                  "best": 11.8,
+                  "ecmwf": 4.7
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -8007,7 +8590,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:28Z",
+                  "retrieval_time": "2026-10-11T19:33:31Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -8032,8 +8615,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:28Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:28Z",
+                  "retrieval_time": "2026-10-11T19:33:31Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:31Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8066,7 +8649,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:28Z",
+                  "retrieval_time": "2026-10-11T19:33:31Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -8142,10 +8725,10 @@
               "label": "首束直射光",
               "geometric_time": "08:01"
             },
-            "score": 79,
+            "score": 69,
             "label": "可嘗試",
             "condition_cap": {
-              "applied": true,
+              "applied": false,
               "max_score": 79,
               "reason": "煙霧模型覆蓋不足 1/3"
             },
@@ -8153,29 +8736,29 @@
               "level": "高",
               "cloud_spread": 15,
               "models": {
-                "best_match": 94,
+                "best_match": 100,
                 "ecmwf": 85,
                 "gfs": 100
               }
             },
-            "peak_window": "09:00–10:00"
+            "peak_window": "07:00–10:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:50",
             "components": {
               "cloud": 5,
-              "wind": 100,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 2,
-              "precip_probability_pct": null,
-              "wind_kmh": 4,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 0,
+              "precip_probability_pct": 2,
+              "wind_kmh": 10,
+              "gust_kmh": 13,
+              "visibility_km": 24.1,
               "pm2_5": 1.2,
               "us_aqi": 40.0,
               "horizon_low_pct": 82,
@@ -8186,33 +8769,52 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "兩模型風速預報分歧（預設 10 vs ECMWF 3 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.6,
-              "best_gust": null,
-              "ecmwf_mean": 3.3,
-              "ecmwf_gust": 21,
+              "best_mean": 9.5,
+              "best_gust": 13,
+              "ecmwf_mean": 2.9,
+              "ecmwf_gust": 23,
               "range": [
-                3.3,
-                3.6
+                2.9,
+                9.5
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                13,
+                23
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 3.6,
+                  "best": 9.2,
                   "ecmwf": 3.3
+                },
+                {
+                  "t": "19:00",
+                  "best": 9.8,
+                  "ecmwf": 2.5
+                },
+                {
+                  "t": "20:00",
+                  "best": 10.0,
+                  "ecmwf": 1.8
+                },
+                {
+                  "t": "21:00",
+                  "best": 9.8,
+                  "ecmwf": 1.1
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -8241,7 +8843,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:29Z",
+                  "retrieval_time": "2026-10-11T19:33:32Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -8266,8 +8868,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:29Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:29Z",
+                  "retrieval_time": "2026-10-11T19:33:32Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:32Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8300,7 +8902,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:29Z",
+                  "retrieval_time": "2026-10-11T19:33:32Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -8376,7 +8978,7 @@
               "label": "最後直射光",
               "geometric_time": "18:50"
             },
-            "score": 52,
+            "score": 49,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -8385,14 +8987,14 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 2,
+              "cloud_spread": 0,
               "models": {
-                "best_match": 2,
+                "best_match": 0,
                 "ecmwf": 0,
                 "gfs": 0
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -8410,18 +9012,18 @@
             "event": "sunrise",
             "centre_time": "08:08",
             "components": {
-              "cloud": 24,
+              "cloud": 11,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 75,
-              "mid_cloud_pct": 33,
-              "low_cloud_pct": 7,
-              "precip_probability_pct": null,
+              "high_cloud_pct": 6,
+              "mid_cloud_pct": 2,
+              "low_cloud_pct": 98,
+              "precip_probability_pct": 9,
               "wind_kmh": 5,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "gust_kmh": 30,
+              "visibility_km": 29.9,
               "pm2_5": 1.1,
               "us_aqi": 34.0,
               "horizon_low_pct": 0,
@@ -8430,29 +9032,49 @@
               "horizon_azimuth_deg": 102.2
             },
             "notes": [
-              "雲層高度與低空開口具天空色彩潛力；仍須現場確認雲的位置與厚度",
-              "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "低雲偏多，山體與低空色彩可能被遮擋",
+              "太陽方向地平線雲量偏高，霞光難以照射雲底"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 5.0,
-              "best_gust": null,
-              "ecmwf_mean": 5.7,
-              "ecmwf_gust": 35,
+              "best_mean": 4.7,
+              "best_gust": 30,
+              "ecmwf_mean": 4.8,
+              "ecmwf_gust": 31,
               "range": [
-                5.0,
-                5.7
+                4.7,
+                4.8
               ],
-              "gust_range": null,
+              "gust_range": [
+                30,
+                31
+              ],
               "divergent": false,
               "scoring": "conservative",
-              "calm_best": null,
-              "calm_ecmwf": null,
-              "curve": []
+              "calm_best": "08:00",
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 4.2,
+                  "ecmwf": 5.0
+                },
+                {
+                  "t": "09:00",
+                  "best": 5.2,
+                  "ecmwf": 4.7
+                },
+                {
+                  "t": "10:00",
+                  "best": 5.7,
+                  "ecmwf": 5.3
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -8481,7 +9103,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:30Z",
+                  "retrieval_time": "2026-10-11T19:33:33Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -8506,8 +9128,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:30Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:30Z",
+                  "retrieval_time": "2026-10-11T19:33:33Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:33Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8540,7 +9162,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:30Z",
+                  "retrieval_time": "2026-10-11T19:33:33Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -8616,7 +9238,7 @@
               "label": "首束直射光",
               "geometric_time": "08:08"
             },
-            "score": 62,
+            "score": 56,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -8627,51 +9249,53 @@
               "level": "高",
               "cloud_spread": 18,
               "models": {
-                "best_match": 84,
+                "best_match": 98,
                 "ecmwf": 82,
                 "gfs": 100
               }
             },
-            "peak_window": "08:00–10:00"
+            "peak_window": "07:00–08:00"
           },
           "sunset": {
             "event": "sunset",
-            "centre_time": "18:53",
+            "centre_time": "18:54",
             "components": {
-              "cloud": 41,
+              "cloud": 40,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
-              "low_cloud_pct": 1,
-              "precip_probability_pct": null,
-              "wind_kmh": 5,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "low_cloud_pct": 4,
+              "precip_probability_pct": 0,
+              "wind_kmh": 3,
+              "gust_kmh": 26,
+              "visibility_km": 67.5,
               "pm2_5": 1.2,
               "us_aqi": 36.0,
               "horizon_low_pct": 17,
               "horizon_mid_pct": 0,
               "horizon_gap": 80,
-              "horizon_azimuth_deg": 257.2
+              "horizon_azimuth_deg": 257.4
             },
             "notes": [
-              "高／中雲極少：天空可乾淨，但火燒雲機會低",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "高／中雲極少：天空可乾淨，但火燒雲機會低"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.7,
-              "best_gust": null,
-              "ecmwf_mean": 4.7,
-              "ecmwf_gust": 36,
+              "best_mean": 3.0,
+              "best_gust": 26,
+              "ecmwf_mean": 4.0,
+              "ecmwf_gust": 37,
               "range": [
-                4.7,
-                4.7
+                3.0,
+                4.0
               ],
-              "gust_range": null,
+              "gust_range": [
+                26,
+                37
+              ],
               "divergent": false,
               "scoring": "conservative",
               "calm_best": "18:00",
@@ -8679,13 +9303,29 @@
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.7,
+                  "best": 3.7,
                   "ecmwf": 4.7
+                },
+                {
+                  "t": "19:00",
+                  "best": 2.3,
+                  "ecmwf": 3.3
+                },
+                {
+                  "t": "20:00",
+                  "best": 1.7,
+                  "ecmwf": 2.4
+                },
+                {
+                  "t": "21:00",
+                  "best": 1.8,
+                  "ecmwf": 2.5
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -8693,8 +9333,8 @@
                 "lon": -116.449885
               },
               "window_local": {
-                "start": "2026-10-14T17:38:00-06:00",
-                "end": "2026-10-14T19:38:00-06:00",
+                "start": "2026-10-14T17:39:00-06:00",
+                "end": "2026-10-14T19:39:00-06:00",
                 "timezone": "America/Edmonton"
               },
               "observed_now": {
@@ -8714,7 +9354,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:31Z",
+                  "retrieval_time": "2026-10-11T19:33:34Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -8739,8 +9379,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:31Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:31Z",
+                  "retrieval_time": "2026-10-11T19:33:34Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:34Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8773,7 +9413,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:31Z",
+                  "retrieval_time": "2026-10-11T19:33:34Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -8843,11 +9483,11 @@
                 "source": "AWS Terrain Tiles / SRTM 1 arc-second"
               },
               "window": {
-                "start": "17:38",
-                "end": "19:38"
+                "start": "17:39",
+                "end": "19:39"
               },
               "label": "最後直射光",
-              "geometric_time": "18:53"
+              "geometric_time": "18:54"
             },
             "score": 70,
             "label": "可嘗試",
@@ -8858,14 +9498,14 @@
             },
             "confidence": {
               "level": "低",
-              "cloud_spread": 99,
+              "cloud_spread": 96,
               "models": {
-                "best_match": 1,
+                "best_match": 4,
                 "ecmwf": 22,
                 "gfs": 100
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -8883,18 +9523,18 @@
             "event": "sunrise",
             "centre_time": "08:02",
             "components": {
-              "cloud": 62,
-              "wind": 58,
+              "cloud": 46,
+              "wind": 32,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 85,
-              "mid_cloud_pct": 59,
-              "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 11,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 2,
+              "precip_probability_pct": 0,
+              "wind_kmh": 15,
+              "gust_kmh": 13,
+              "visibility_km": 24.1,
               "pm2_5": 2.1,
               "us_aqi": 36.0,
               "horizon_low_pct": 0,
@@ -8904,29 +9544,49 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
               "風速偏高，倒影成功率下降",
-              "兩模型風速預報分歧（預設 11 vs ECMWF 8 km/h），風分採較保守值"
+              "兩模型風速預報分歧（預設 15 vs ECMWF 7 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 11.2,
-              "best_gust": null,
-              "ecmwf_mean": 8.2,
+              "best_mean": 15.2,
+              "best_gust": 13,
+              "ecmwf_mean": 7.0,
               "ecmwf_gust": 36,
               "range": [
-                8.2,
-                11.2
+                7.0,
+                15.2
               ],
-              "gust_range": null,
+              "gust_range": [
+                13,
+                36
+              ],
               "divergent": true,
               "scoring": "conservative",
               "calm_best": null,
               "calm_ecmwf": null,
-              "curve": []
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 15.2,
+                  "ecmwf": 7.0
+                },
+                {
+                  "t": "09:00",
+                  "best": 14.4,
+                  "ecmwf": 6.3
+                },
+                {
+                  "t": "10:00",
+                  "best": 16.0,
+                  "ecmwf": 6.1
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -8955,7 +9615,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:32Z",
+                  "retrieval_time": "2026-10-11T19:33:35Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -8980,8 +9640,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:32Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:32Z",
+                  "retrieval_time": "2026-10-11T19:33:35Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:35Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9014,7 +9674,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:32Z",
+                  "retrieval_time": "2026-10-11T19:33:35Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -9090,8 +9750,8 @@
               "label": "首束直射光",
               "geometric_time": "08:02"
             },
-            "score": 73,
-            "label": "可嘗試",
+            "score": 59,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -9099,31 +9759,31 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 9,
+              "cloud_spread": 3,
               "models": {
-                "best_match": 91,
+                "best_match": 100,
                 "ecmwf": 97,
                 "gfs": 100
               }
             },
-            "peak_window": "09:00–10:00"
+            "peak_window": "07:00–10:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:49",
             "components": {
               "cloud": 5,
-              "wind": 100,
+              "wind": 58,
               "smoke": 100
             },
             "weather": {
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
               "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 5,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "precip_probability_pct": 2,
+              "wind_kmh": 12,
+              "gust_kmh": 13,
+              "visibility_km": 24.1,
               "pm2_5": 1.2,
               "us_aqi": 40.0,
               "horizon_low_pct": 100,
@@ -9134,33 +9794,53 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風"
+              "風速偏高，倒影成功率下降",
+              "兩模型風速預報分歧（預設 12 vs ECMWF 4 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.7,
-              "best_gust": null,
-              "ecmwf_mean": 4.9,
-              "ecmwf_gust": 27,
+              "best_mean": 12.4,
+              "best_gust": 13,
+              "ecmwf_mean": 4.5,
+              "ecmwf_gust": 30,
               "range": [
-                4.7,
-                4.9
+                4.5,
+                12.4
               ],
-              "gust_range": null,
-              "divergent": false,
+              "gust_range": [
+                13,
+                30
+              ],
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "18:00",
+              "calm_best": null,
               "calm_ecmwf": "18:00",
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.7,
+                  "best": 11.4,
                   "ecmwf": 4.9
+                },
+                {
+                  "t": "19:00",
+                  "best": 13.5,
+                  "ecmwf": 4.1
+                },
+                {
+                  "t": "20:00",
+                  "best": 13.3,
+                  "ecmwf": 3.0
+                },
+                {
+                  "t": "21:00",
+                  "best": 13.0,
+                  "ecmwf": 2.2
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -9189,7 +9869,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:33Z",
+                  "retrieval_time": "2026-10-11T19:33:36Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -9214,8 +9894,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:33Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:33Z",
+                  "retrieval_time": "2026-10-11T19:33:36Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:36Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9248,7 +9928,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:33Z",
+                  "retrieval_time": "2026-10-11T19:33:36Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -9324,8 +10004,8 @@
               "label": "最後直射光",
               "geometric_time": "18:49"
             },
-            "score": 52,
-            "label": "條件普通",
+            "score": 44,
+            "label": "不建議專程前往",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -9340,7 +10020,7 @@
                 "gfs": 0
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -9358,18 +10038,18 @@
             "event": "sunrise",
             "centre_time": "08:02",
             "components": {
-              "cloud": 76,
+              "cloud": 46,
               "wind": 32,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 80,
-              "mid_cloud_pct": 64,
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
               "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 14,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "precip_probability_pct": 0,
+              "wind_kmh": 15,
+              "gust_kmh": 23,
+              "visibility_km": 24.1,
               "pm2_5": 2.0,
               "us_aqi": 36.0,
               "horizon_low_pct": 0,
@@ -9379,29 +10059,48 @@
             },
             "notes": [
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "風速偏高，倒影成功率下降",
-              "兩模型風速預報分歧（預設 14 vs ECMWF 19 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 13.7,
-              "best_gust": null,
-              "ecmwf_mean": 18.9,
-              "ecmwf_gust": 52,
+              "best_mean": 15.3,
+              "best_gust": 23,
+              "ecmwf_mean": 19.9,
+              "ecmwf_gust": 55,
               "range": [
-                13.7,
-                18.9
+                15.3,
+                19.9
               ],
-              "gust_range": null,
-              "divergent": true,
+              "gust_range": [
+                23,
+                55
+              ],
+              "divergent": false,
               "scoring": "conservative",
               "calm_best": null,
               "calm_ecmwf": null,
-              "curve": []
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 14.0,
+                  "ecmwf": 20.1
+                },
+                {
+                  "t": "09:00",
+                  "best": 17.1,
+                  "ecmwf": 20.2
+                },
+                {
+                  "t": "10:00",
+                  "best": 18.1,
+                  "ecmwf": 19.6
+                }
+              ]
             },
             "window_hours": [
-              "06:00"
+              "07:00",
+              "08:00",
+              "09:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -9430,7 +10129,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:34Z",
+                  "retrieval_time": "2026-10-11T19:33:37Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -9455,8 +10154,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:34Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:34Z",
+                  "retrieval_time": "2026-10-11T19:33:37Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:37Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9489,7 +10188,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:34Z",
+                  "retrieval_time": "2026-10-11T19:33:37Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -9565,8 +10264,8 @@
               "label": "首束直射光",
               "geometric_time": "08:02"
             },
-            "score": 74,
-            "label": "可嘗試",
+            "score": 59,
+            "label": "條件普通",
             "condition_cap": {
               "applied": false,
               "max_score": 79,
@@ -9574,14 +10273,14 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 12,
+              "cloud_spread": 1,
               "models": {
-                "best_match": 88,
+                "best_match": 100,
                 "ecmwf": 99,
                 "gfs": 100
               }
             },
-            "peak_window": "09:00–11:00"
+            "peak_window": "07:00–11:00"
           },
           "sunset": {
             "event": "sunset",
@@ -9595,10 +10294,10 @@
               "high_cloud_pct": 0,
               "mid_cloud_pct": 0,
               "low_cloud_pct": 0,
-              "precip_probability_pct": null,
-              "wind_kmh": 8,
-              "gust_kmh": null,
-              "visibility_km": null,
+              "precip_probability_pct": 2,
+              "wind_kmh": 12,
+              "gust_kmh": 19,
+              "visibility_km": 24.1,
               "pm2_5": 1.2,
               "us_aqi": 40.0,
               "horizon_low_pct": 100,
@@ -9609,35 +10308,52 @@
             "notes": [
               "高／中雲極少：天空可乾淨，但火燒雲機會低",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "陣風資料暫缺（後備數據源），大風日子請自行留意陣風",
-              "風速偏高，倒影成功率下降",
-              "兩模型風速預報分歧（預設 8 vs ECMWF 14 km/h），風分採較保守值"
+              "風速偏高，倒影成功率下降"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 7.6,
-              "best_gust": null,
-              "ecmwf_mean": 13.7,
+              "best_mean": 11.8,
+              "best_gust": 19,
+              "ecmwf_mean": 13.3,
               "ecmwf_gust": 41,
               "range": [
-                7.6,
-                13.7
+                11.8,
+                13.3
               ],
-              "gust_range": null,
-              "divergent": true,
+              "gust_range": [
+                19,
+                41
+              ],
+              "divergent": false,
               "scoring": "conservative",
               "calm_best": null,
               "calm_ecmwf": null,
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 7.6,
+                  "best": 10.5,
                   "ecmwf": 13.7
+                },
+                {
+                  "t": "19:00",
+                  "best": 13.0,
+                  "ecmwf": 12.9
+                },
+                {
+                  "t": "20:00",
+                  "best": 13.3,
+                  "ecmwf": 12.5
+                },
+                {
+                  "t": "21:00",
+                  "best": 12.8,
+                  "ecmwf": 12.0
                 }
               ]
             },
             "window_hours": [
-              "18:00"
+              "18:00",
+              "19:00"
             ],
             "smoke_assessment": {
               "shooting_point": {
@@ -9666,7 +10382,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-11T19:08:35Z",
+                  "retrieval_time": "2026-10-11T19:33:38Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T12:00:00Z",
                   "cycle_status": null,
@@ -9691,8 +10407,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-11T19:08:35Z",
-                  "provider_retrieval_time": "2026-10-11T19:08:35Z",
+                  "retrieval_time": "2026-10-11T19:33:38Z",
+                  "provider_retrieval_time": "2026-10-11T19:33:38Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9725,7 +10441,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-11T19:08:35Z",
+                  "retrieval_time": "2026-10-11T19:33:38Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-11T14:00:00Z",
                   "cycle_status": null,
@@ -9822,7 +10538,7 @@
         }
       }
     ],
-    "sources": "MET Norway Locationforecast（後備模式：ECMWF IFS 9km；缺陣風／能見度／降水機率）＋ECCC FireWork／CAMS global／BlueSky Canada 獨立煙霧模型共識（AQI 僅健康脈絡）＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"
+    "sources": "Open-Meteo（各拍攝點天氣＋太陽方向 100km 地平線雲量）＋Open-Meteo ECMWF IFS 風速對比＋ECCC FireWork／CAMS global／BlueSky Canada 獨立煙霧模型共識（AQI 僅健康脈絡）＋Skyfield 太陽位置＋AWS Terrain Tiles SRTM DEM"
   },
   "far": true
 }
