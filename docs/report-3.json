@@ -1,9 +1,9 @@
 {
   "version": "2.30.2",
   "night_date": "2026-10-28",
-  "generated_at": "2026-10-25 14:32:10 MDT",
-  "generated_utc": "2026-10-25T20:32:10+00:00",
-  "elapsed_seconds": 14.3,
+  "generated_at": "2026-10-25 15:33:18 MDT",
+  "generated_utc": "2026-10-25T21:33:18+00:00",
+  "elapsed_seconds": 33.4,
   "locations": [],
   "best_location_id": null,
   "failed_count": 0,
@@ -1286,7 +1286,7 @@
   ],
   "daylight": {
     "date": "2026-10-28",
-    "generated_at": "2026-10-25 14:32 美加山區日光節約時間",
+    "generated_at": "2026-10-25 15:33 美加山區日光節約時間",
     "method": "雲 50%（色彩雲層×地平線開口）／煙 30%（ECCC FireWork＋CAMS global＋BlueSky Canada PM2.5 模型共識；健康 AQI 分列）／風 20%（倒影，best_match 與 ECMWF 雙模型對比取保守值）",
     "terrain_disclaimer": "火燒雲機率為條件估算，無法保證。列入日出／日落評估只代表天氣條件可比較，不代表該機位構圖或山體受光已核實。DEM 直射光為地形模型，精確腳架點、樹木與現場實測優先。",
     "points": [
@@ -1302,8 +1302,253 @@
         "events": {
           "sunrise": {
             "event": "sunrise",
-            "error": true,
-            "message": "無法計算地形直射光：'function' object has no attribute 'target'"
+            "centre_time": "08:28",
+            "components": {
+              "cloud": 0,
+              "wind": 82,
+              "smoke": 100
+            },
+            "weather": {
+              "high_cloud_pct": 100,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 98,
+              "precip_probability_pct": 78,
+              "wind_kmh": 7,
+              "gust_kmh": 8,
+              "visibility_km": 0.5,
+              "pm2_5": 0.7,
+              "us_aqi": 28.0,
+              "horizon_low_pct": 100,
+              "horizon_mid_pct": 88,
+              "horizon_gap": 10,
+              "horizon_azimuth_deg": 110.2
+            },
+            "notes": [
+              "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
+              "低雲偏多，山體與低空色彩可能被遮擋",
+              "太陽方向地平線雲量偏高，霞光難以照射雲底",
+              "降水機率偏高，先以安全與能見度為優先",
+              "兩模型風速預報分歧（預設 7 vs ECMWF 4 km/h），風分採較保守值"
+            ],
+            "wind_detail": {
+              "ecmwf_missing": false,
+              "best_mean": 6.7,
+              "best_gust": 8,
+              "ecmwf_mean": 4.2,
+              "ecmwf_gust": 17,
+              "range": [
+                4.2,
+                6.7
+              ],
+              "gust_range": [
+                8,
+                17
+              ],
+              "divergent": true,
+              "scoring": "conservative",
+              "calm_best": null,
+              "calm_ecmwf": "08:00",
+              "curve": [
+                {
+                  "t": "08:00",
+                  "best": 6.5,
+                  "ecmwf": 4.0
+                },
+                {
+                  "t": "09:00",
+                  "best": 6.9,
+                  "ecmwf": 4.3
+                },
+                {
+                  "t": "10:00",
+                  "best": 6.5,
+                  "ecmwf": 4.3
+                }
+              ]
+            },
+            "window_hours": [
+              "08:00",
+              "09:00"
+            ],
+            "smoke_assessment": {
+              "shooting_point": {
+                "lat": 51.181417,
+                "lon": -115.603486
+              },
+              "window_local": {
+                "start": "2026-10-28T07:13:00-06:00",
+                "end": "2026-10-28T10:00:00-06:00",
+                "timezone": "America/Edmonton"
+              },
+              "observed_now": {
+                "aqhi": null,
+                "station": null,
+                "observation_time_utc": null,
+                "visual_visibility": null
+              },
+              "pollutants": {
+                "pm2_5": 0.65,
+                "pm10": 0.7,
+                "ozone": 59.5,
+                "nitrogen_dioxide": 4.725,
+                "us_aqi_health_context": 28.0,
+                "dominant_pollutant": "ozone"
+              },
+              "models": {
+                "eccc_firework": {
+                  "source": "ECCC FireWork RAQDPS WCS",
+                  "retrieval_time": "2026-10-25T21:32:46Z",
+                  "provider_retrieval_time": null,
+                  "reference_time": "2026-10-25T12:00:00Z",
+                  "cycle_status": null,
+                  "valid_range": [
+                    "2026-10-25T12:00:00Z",
+                    "2026-10-28T12:00:00Z"
+                  ],
+                  "status": "FireWork does not cover the full window",
+                  "units": null,
+                  "uncertainties": [],
+                  "valid": false,
+                  "window_avg_pm2_5": null,
+                  "window_range": [
+                    null,
+                    null
+                  ],
+                  "neighbor_range": [
+                    null,
+                    null
+                  ],
+                  "class": "NO_DATA"
+                },
+                "cams_global": {
+                  "source": "CAMS global via Open-Meteo",
+                  "retrieval_time": "2026-10-25T21:32:46Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:46Z",
+                  "reference_time": null,
+                  "cycle_status": "not_exposed_by_open_meteo",
+                  "valid_range": [
+                    "2026-10-25T00:00:00Z",
+                    "2026-10-29T23:00:00Z"
+                  ],
+                  "status": "ok",
+                  "units": "µg/m³",
+                  "uncertainties": [
+                    "Open-Meteo does not expose the CAMS model cycle/reference time."
+                  ],
+                  "valid": true,
+                  "window_avg_pm2_5": 0.65,
+                  "window_range": [
+                    0.4,
+                    0.9
+                  ],
+                  "neighbor_range": [
+                    0.2,
+                    6.3
+                  ],
+                  "class": "CLEAN"
+                },
+                "bluesky_canada": {
+                  "forecast_id": "BSC06CA12-07",
+                  "raw_tflag_range": [
+                    "2026-10-25T15:00:00Z",
+                    "2026-10-27T17:00:00Z"
+                  ],
+                  "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
+                  "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
+                  "source": "BlueSky Canada HYSPLIT dispersion.nc",
+                  "retrieval_time": "2026-10-25T21:32:46Z",
+                  "provider_retrieval_time": null,
+                  "reference_time": "2026-10-25T14:00:00Z",
+                  "cycle_status": null,
+                  "valid_range": [
+                    "2026-10-25T14:00:00Z",
+                    "2026-10-27T16:00:00Z"
+                  ],
+                  "status": "BlueSky does not cover the full window",
+                  "units": null,
+                  "uncertainties": [],
+                  "valid": false,
+                  "window_avg_pm2_5": null,
+                  "window_range": [
+                    null,
+                    null
+                  ],
+                  "neighbor_range": [
+                    null,
+                    null
+                  ],
+                  "class": "NO_DATA"
+                }
+              },
+              "consensus": {
+                "status": "SINGLE_MODEL_ONLY",
+                "confidence": "low",
+                "consensus_pm2_5": 0.65,
+                "photography_smoke_score": 100,
+                "veto": false,
+                "reason": "Model classes: CLEAN.",
+                "coverage": {
+                  "valid": 1,
+                  "total": 3
+                },
+                "partial": true,
+                "uncertain": true,
+                "uncertainties": [
+                  "Partial model coverage: 1/3 valid models."
+                ]
+              },
+              "source_support": {
+                "classification": "SATELLITE_HOTSPOT_ONLY",
+                "nearest_confirmed_fire_km": null,
+                "nearest_satellite_hotspot_km": 169.1,
+                "transport_supported": null,
+                "notes": [
+                  "BlueSky cycle includes satellite hotspots; these do not confirm a wildfire incident or transport."
+                ]
+              },
+              "uncertainties": [
+                "FireWork does not cover the full window",
+                "BlueSky does not cover the full window",
+                "Partial model coverage: 1/3 valid models."
+              ]
+            },
+            "light": {
+              "time": "09:30",
+              "basis": "SRTM 1 arc-second DEM terrain model（須以精確腳架點與現場實測校準）",
+              "confidence": "model",
+              "model": {
+                "time": "09:30",
+                "sun_altitude_deg": 7.8,
+                "sun_azimuth_deg": 122.6,
+                "terrain_horizon_deg": 7.7,
+                "observer_elevation_m": 1377,
+                "basis": "SRTM 1 arc-second DEM terrain model（須以精確腳架點與現場實測校準）",
+                "source": "AWS Terrain Tiles / SRTM 1 arc-second"
+              },
+              "window": {
+                "start": "07:13",
+                "end": "10:00"
+              },
+              "label": "首束直射光",
+              "geometric_time": "08:28"
+            },
+            "score": 46,
+            "label": "條件普通",
+            "condition_cap": {
+              "applied": false,
+              "max_score": 79,
+              "reason": "煙霧模型覆蓋不足 1/3"
+            },
+            "confidence": {
+              "level": "高",
+              "cloud_spread": 0,
+              "models": {
+                "best_match": 100,
+                "ecmwf": 100,
+                "gfs": 100
+              }
+            },
+            "peak_window": "08:00–10:00"
           },
           "sunset": {
             "event": "sunset",
@@ -1317,7 +1562,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 70,
+              "precip_probability_pct": 68,
               "wind_kmh": 6,
               "gust_kmh": 7,
               "visibility_km": 0.5,
@@ -1402,7 +1647,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:56Z",
+                  "retrieval_time": "2026-10-25T21:32:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -1427,8 +1672,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:56Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:56Z",
+                  "retrieval_time": "2026-10-25T21:32:47Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:47Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -1461,7 +1706,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:56Z",
+                  "retrieval_time": "2026-10-25T21:32:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -1579,7 +1824,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 92,
-              "precip_probability_pct": 67,
+              "precip_probability_pct": 78,
               "wind_kmh": 6,
               "gust_kmh": 8,
               "visibility_km": 0.2,
@@ -1669,7 +1914,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:57Z",
+                  "retrieval_time": "2026-10-25T21:32:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -1694,8 +1939,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:57Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:57Z",
+                  "retrieval_time": "2026-10-25T21:32:47Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:47Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -1728,7 +1973,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:57Z",
+                  "retrieval_time": "2026-10-25T21:32:47Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -1834,7 +2079,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 74,
+              "precip_probability_pct": 68,
               "wind_kmh": 6,
               "gust_kmh": 7,
               "visibility_km": 0.4,
@@ -1919,7 +2164,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:57Z",
+                  "retrieval_time": "2026-10-25T21:32:48Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -1944,8 +2189,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:57Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:57Z",
+                  "retrieval_time": "2026-10-25T21:32:48Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:48Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -1978,7 +2223,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:57Z",
+                  "retrieval_time": "2026-10-25T21:32:48Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -2088,18 +2333,18 @@
             "event": "sunrise",
             "centre_time": "08:31",
             "components": {
-              "cloud": 2,
-              "wind": 100,
+              "cloud": 3,
+              "wind": 82,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 80,
+              "high_cloud_pct": 50,
               "mid_cloud_pct": 100,
-              "low_cloud_pct": 100,
+              "low_cloud_pct": 94,
               "precip_probability_pct": 90,
-              "wind_kmh": 3,
-              "gust_kmh": 14,
-              "visibility_km": 2.9,
+              "wind_kmh": 6,
+              "gust_kmh": 22,
+              "visibility_km": 8.3,
               "pm2_5": 0.9,
               "us_aqi": 34.0,
               "horizon_low_pct": 100,
@@ -2111,45 +2356,46 @@
               "雲層結構未達理想火燒雲型態，較可能是漫射光或平淡天空",
               "低雲偏多，山體與低空色彩可能被遮擋",
               "太陽方向地平線雲量偏高，霞光難以照射雲底",
-              "降水機率偏高，先以安全與能見度為優先"
+              "降水機率偏高，先以安全與能見度為優先",
+              "兩模型風速預報分歧（預設 6 vs ECMWF 4 km/h），風分採較保守值"
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.2,
-              "best_gust": 14,
+              "best_mean": 6.1,
+              "best_gust": 22,
               "ecmwf_mean": 4.0,
               "ecmwf_gust": 17,
               "range": [
-                3.2,
-                4.0
+                4.0,
+                6.1
               ],
               "gust_range": [
-                14,
-                17
+                17,
+                22
               ],
-              "divergent": false,
+              "divergent": true,
               "scoring": "conservative",
-              "calm_best": "08:00",
+              "calm_best": "09:00",
               "calm_ecmwf": "08:00",
               "curve": [
                 {
                   "t": "08:00",
-                  "best": 2.3,
+                  "best": 6.4,
                   "ecmwf": 3.4
                 },
                 {
                   "t": "09:00",
-                  "best": 4.1,
+                  "best": 5.8,
                   "ecmwf": 4.7
                 },
                 {
                   "t": "10:00",
-                  "best": 4.9,
+                  "best": 4.0,
                   "ecmwf": 5.4
                 },
                 {
                   "t": "11:00",
-                  "best": 4.5,
+                  "best": 3.4,
                   "ecmwf": 5.4
                 }
               ]
@@ -2185,7 +2431,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -2210,8 +2456,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:49Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:49Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2244,7 +2490,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:49Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -2320,7 +2566,7 @@
               "label": "首束直射光",
               "geometric_time": "08:31"
             },
-            "score": 51,
+            "score": 48,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -2336,24 +2582,24 @@
                 "gfs": 100
               }
             },
-            "peak_window": "09:00–09:00"
+            "peak_window": "08:00–09:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:24",
             "components": {
-              "cloud": 4,
+              "cloud": 3,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 28,
-              "mid_cloud_pct": 79,
+              "high_cloud_pct": 38,
+              "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
               "precip_probability_pct": 67,
               "wind_kmh": 3,
-              "gust_kmh": 16,
-              "visibility_km": 27.8,
+              "gust_kmh": 14,
+              "visibility_km": 11.8,
               "pm2_5": 0.1,
               "us_aqi": 30.0,
               "horizon_low_pct": 95,
@@ -2369,16 +2615,16 @@
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.0,
-              "best_gust": 16,
+              "best_mean": 3.1,
+              "best_gust": 14,
               "ecmwf_mean": 3.9,
               "ecmwf_gust": 19,
               "range": [
-                3.0,
+                3.1,
                 3.9
               ],
               "gust_range": [
-                16,
+                14,
                 19
               ],
               "divergent": false,
@@ -2393,12 +2639,12 @@
                 },
                 {
                   "t": "19:00",
-                  "best": 2.9,
+                  "best": 3.1,
                   "ecmwf": 3.9
                 },
                 {
                   "t": "20:00",
-                  "best": 2.9,
+                  "best": 3.4,
                   "ecmwf": 3.8
                 }
               ]
@@ -2434,7 +2680,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -2459,8 +2705,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:50Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:50Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2493,7 +2739,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:50Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -2585,7 +2831,7 @@
                 "gfs": 100
               }
             },
-            "peak_window": "18:00–20:00"
+            "peak_window": "19:00–20:00"
           }
         }
       },
@@ -2603,18 +2849,18 @@
             "event": "sunrise",
             "centre_time": "08:33",
             "components": {
-              "cloud": 3,
+              "cloud": 0,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 23,
+              "high_cloud_pct": 84,
               "mid_cloud_pct": 100,
-              "low_cloud_pct": 100,
+              "low_cloud_pct": 94,
               "precip_probability_pct": 86,
-              "wind_kmh": 4,
-              "gust_kmh": 14,
-              "visibility_km": 4.5,
+              "wind_kmh": 5,
+              "gust_kmh": 18,
+              "visibility_km": 4.7,
               "pm2_5": 0.8,
               "us_aqi": 34.0,
               "horizon_low_pct": 100,
@@ -2630,17 +2876,17 @@
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 3.9,
-              "best_gust": 14,
+              "best_mean": 5.1,
+              "best_gust": 18,
               "ecmwf_mean": 4.8,
               "ecmwf_gust": 16,
               "range": [
-                3.9,
-                4.8
+                4.8,
+                5.1
               ],
               "gust_range": [
-                14,
-                16
+                16,
+                18
               ],
               "divergent": false,
               "scoring": "conservative",
@@ -2649,22 +2895,22 @@
               "curve": [
                 {
                   "t": "08:00",
-                  "best": 3.8,
+                  "best": 5.3,
                   "ecmwf": 4.6
                 },
                 {
                   "t": "09:00",
-                  "best": 4.1,
+                  "best": 4.9,
                   "ecmwf": 5.1
                 },
                 {
                   "t": "10:00",
-                  "best": 5.4,
+                  "best": 4.7,
                   "ecmwf": 5.6
                 },
                 {
                   "t": "11:00",
-                  "best": 5.8,
+                  "best": 5.5,
                   "ecmwf": 5.9
                 }
               ]
@@ -2700,7 +2946,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:51Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -2725,8 +2971,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:51Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:51Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -2759,7 +3005,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:58Z",
+                  "retrieval_time": "2026-10-25T21:32:51Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -2835,7 +3081,7 @@
               "label": "首束直射光",
               "geometric_time": "08:33"
             },
-            "score": 52,
+            "score": 50,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -2851,28 +3097,28 @@
                 "gfs": 100
               }
             },
-            "peak_window": "10:00–10:00"
+            "peak_window": "09:00–10:00"
           },
           "sunset": {
             "event": "sunset",
             "centre_time": "18:25",
             "components": {
-              "cloud": 0,
+              "cloud": 2,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 81,
-              "mid_cloud_pct": 94,
-              "low_cloud_pct": 93,
+              "high_cloud_pct": 68,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 88,
               "precip_probability_pct": 67,
               "wind_kmh": 4,
-              "gust_kmh": 17,
-              "visibility_km": 6.8,
+              "gust_kmh": 14,
+              "visibility_km": 8.3,
               "pm2_5": 0.1,
               "us_aqi": 30.0,
-              "horizon_low_pct": 100,
-              "horizon_mid_pct": 100,
+              "horizon_low_pct": 69,
+              "horizon_mid_pct": 46,
               "horizon_gap": 10,
               "horizon_azimuth_deg": 249.1
             },
@@ -2884,16 +3130,16 @@
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.0,
-              "best_gust": 17,
+              "best_mean": 3.5,
+              "best_gust": 14,
               "ecmwf_mean": 4.3,
               "ecmwf_gust": 18,
               "range": [
-                4.0,
+                3.5,
                 4.3
               ],
               "gust_range": [
-                17,
+                14,
                 18
               ],
               "divergent": false,
@@ -2903,17 +3149,17 @@
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.0,
+                  "best": 3.5,
                   "ecmwf": 4.5
                 },
                 {
                   "t": "19:00",
-                  "best": 3.9,
+                  "best": 3.6,
                   "ecmwf": 4.2
                 },
                 {
                   "t": "20:00",
-                  "best": 3.9,
+                  "best": 3.6,
                   "ecmwf": 3.7
                 }
               ]
@@ -2949,7 +3195,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:59Z",
+                  "retrieval_time": "2026-10-25T21:32:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -2974,8 +3220,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:59Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:59Z",
+                  "retrieval_time": "2026-10-25T21:32:52Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:52Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3008,7 +3254,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:59Z",
+                  "retrieval_time": "2026-10-25T21:32:52Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -3084,7 +3330,7 @@
               "label": "最後直射光",
               "geometric_time": "18:25"
             },
-            "score": 50,
+            "score": 51,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -3126,7 +3372,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 88,
               "low_cloud_pct": 97,
-              "precip_probability_pct": 58,
+              "precip_probability_pct": 79,
               "wind_kmh": 6,
               "gust_kmh": 6,
               "visibility_km": 0.3,
@@ -3210,7 +3456,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:31:59Z",
+                  "retrieval_time": "2026-10-25T21:32:53Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -3235,8 +3481,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:31:59Z",
-                  "provider_retrieval_time": "2026-10-25T20:31:59Z",
+                  "retrieval_time": "2026-10-25T21:32:53Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:53Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3269,7 +3515,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:31:59Z",
+                  "retrieval_time": "2026-10-25T21:32:53Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -3375,7 +3621,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 68,
+              "precip_probability_pct": 75,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.4,
@@ -3459,7 +3705,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:00Z",
+                  "retrieval_time": "2026-10-25T21:32:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -3484,8 +3730,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:00Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:00Z",
+                  "retrieval_time": "2026-10-25T21:32:54Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:54Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3518,7 +3764,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:00Z",
+                  "retrieval_time": "2026-10-25T21:32:54Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -3641,7 +3887,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 99,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 71,
+              "precip_probability_pct": 75,
               "wind_kmh": 5,
               "gust_kmh": 4,
               "visibility_km": 0.2,
@@ -3725,7 +3971,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:00Z",
+                  "retrieval_time": "2026-10-25T21:32:56Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -3750,8 +3996,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:00Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:00Z",
+                  "retrieval_time": "2026-10-25T21:32:56Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:56Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -3784,7 +4030,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:00Z",
+                  "retrieval_time": "2026-10-25T21:32:56Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -3902,7 +4148,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 90,
               "low_cloud_pct": 96,
-              "precip_probability_pct": 61,
+              "precip_probability_pct": 78,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.5,
@@ -3987,7 +4233,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:01Z",
+                  "retrieval_time": "2026-10-25T21:32:56Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -4012,8 +4258,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:01Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:01Z",
+                  "retrieval_time": "2026-10-25T21:32:56Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:56Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4046,7 +4292,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:01Z",
+                  "retrieval_time": "2026-10-25T21:32:56Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -4152,7 +4398,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 66,
+              "precip_probability_pct": 64,
               "wind_kmh": 6,
               "gust_kmh": 7,
               "visibility_km": 0.5,
@@ -4237,7 +4483,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:01Z",
+                  "retrieval_time": "2026-10-25T21:32:57Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -4262,8 +4508,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:01Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:01Z",
+                  "retrieval_time": "2026-10-25T21:32:57Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:57Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4296,7 +4542,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:01Z",
+                  "retrieval_time": "2026-10-25T21:32:57Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -4414,7 +4660,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 65,
+              "precip_probability_pct": 74,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.2,
@@ -4504,7 +4750,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:32:58Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -4529,8 +4775,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:32:58Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:58Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4563,7 +4809,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:32:58Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -4669,7 +4915,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 99,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 66,
+              "precip_probability_pct": 70,
               "wind_kmh": 6,
               "gust_kmh": 8,
               "visibility_km": 2.2,
@@ -4753,7 +4999,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:32:59Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -4778,8 +5024,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:32:59Z",
+                  "provider_retrieval_time": "2026-10-25T21:32:59Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -4812,7 +5058,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:32:59Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -4930,7 +5176,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 90,
               "low_cloud_pct": 96,
-              "precip_probability_pct": 60,
+              "precip_probability_pct": 78,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.5,
@@ -5015,7 +5261,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:33:00Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -5040,8 +5286,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:33:00Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:00Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5074,7 +5320,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:02Z",
+                  "retrieval_time": "2026-10-25T21:33:00Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -5180,7 +5426,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 67,
+              "precip_probability_pct": 65,
               "wind_kmh": 6,
               "gust_kmh": 7,
               "visibility_km": 0.5,
@@ -5265,7 +5511,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:03Z",
+                  "retrieval_time": "2026-10-25T21:33:01Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -5290,8 +5536,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:03Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:03Z",
+                  "retrieval_time": "2026-10-25T21:33:01Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:01Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5324,7 +5570,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:03Z",
+                  "retrieval_time": "2026-10-25T21:33:01Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -5442,7 +5688,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 98,
               "low_cloud_pct": 94,
-              "precip_probability_pct": 58,
+              "precip_probability_pct": 79,
               "wind_kmh": 6,
               "gust_kmh": 6,
               "visibility_km": 0.3,
@@ -5527,7 +5773,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:03Z",
+                  "retrieval_time": "2026-10-25T21:33:02Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -5552,8 +5798,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:03Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:03Z",
+                  "retrieval_time": "2026-10-25T21:33:02Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:02Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5586,7 +5832,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:03Z",
+                  "retrieval_time": "2026-10-25T21:33:02Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -5692,7 +5938,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 68,
+              "precip_probability_pct": 73,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.4,
@@ -5776,7 +6022,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:03Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -5801,8 +6047,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:03Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:03Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -5835,7 +6081,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:03Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -5945,18 +6191,18 @@
             "event": "sunrise",
             "centre_time": "08:33",
             "components": {
-              "cloud": 3,
+              "cloud": 2,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 28,
+              "high_cloud_pct": 77,
               "mid_cloud_pct": 100,
-              "low_cloud_pct": 98,
+              "low_cloud_pct": 94,
               "precip_probability_pct": 86,
-              "wind_kmh": 5,
-              "gust_kmh": 16,
-              "visibility_km": 4.5,
+              "wind_kmh": 6,
+              "gust_kmh": 19,
+              "visibility_km": 7.6,
               "pm2_5": 0.9,
               "us_aqi": 34.0,
               "horizon_low_pct": 100,
@@ -5972,17 +6218,17 @@
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.8,
-              "best_gust": 16,
+              "best_mean": 5.5,
+              "best_gust": 19,
               "ecmwf_mean": 4.8,
               "ecmwf_gust": 16,
               "range": [
                 4.8,
-                4.8
+                5.5
               ],
               "gust_range": [
                 16,
-                16
+                19
               ],
               "divergent": false,
               "scoring": "conservative",
@@ -5991,22 +6237,22 @@
               "curve": [
                 {
                   "t": "08:00",
-                  "best": 4.4,
+                  "best": 5.6,
                   "ecmwf": 4.6
                 },
                 {
                   "t": "09:00",
-                  "best": 5.1,
+                  "best": 5.4,
                   "ecmwf": 5.1
                 },
                 {
                   "t": "10:00",
-                  "best": 5.3,
+                  "best": 4.8,
                   "ecmwf": 5.6
                 },
                 {
                   "t": "11:00",
-                  "best": 5.2,
+                  "best": 4.6,
                   "ecmwf": 5.9
                 }
               ]
@@ -6042,7 +6288,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:04Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -6067,8 +6313,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:04Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:04Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6101,7 +6347,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:04Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -6177,7 +6423,7 @@
               "label": "首束直射光",
               "geometric_time": "08:33"
             },
-            "score": 52,
+            "score": 51,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -6199,22 +6445,22 @@
             "event": "sunset",
             "centre_time": "18:25",
             "components": {
-              "cloud": 4,
+              "cloud": 3,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 40,
-              "mid_cloud_pct": 68,
-              "low_cloud_pct": 94,
+              "high_cloud_pct": 32,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 74,
               "precip_probability_pct": 67,
               "wind_kmh": 5,
-              "gust_kmh": 16,
-              "visibility_km": 17.2,
+              "gust_kmh": 13,
+              "visibility_km": 14.7,
               "pm2_5": 0.1,
               "us_aqi": 30.0,
-              "horizon_low_pct": 100,
-              "horizon_mid_pct": 100,
+              "horizon_low_pct": 69,
+              "horizon_mid_pct": 46,
               "horizon_gap": 10,
               "horizon_azimuth_deg": 249.1
             },
@@ -6226,16 +6472,16 @@
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.8,
-              "best_gust": 16,
+              "best_mean": 4.6,
+              "best_gust": 13,
               "ecmwf_mean": 4.3,
               "ecmwf_gust": 18,
               "range": [
                 4.3,
-                4.8
+                4.6
               ],
               "gust_range": [
-                16,
+                13,
                 18
               ],
               "divergent": false,
@@ -6245,17 +6491,17 @@
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.8,
+                  "best": 4.4,
                   "ecmwf": 4.5
                 },
                 {
                   "t": "19:00",
-                  "best": 4.8,
+                  "best": 4.7,
                   "ecmwf": 4.2
                 },
                 {
                   "t": "20:00",
-                  "best": 4.9,
+                  "best": 4.4,
                   "ecmwf": 3.7
                 }
               ]
@@ -6291,7 +6537,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:05Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -6316,8 +6562,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:05Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:05Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6350,7 +6596,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:04Z",
+                  "retrieval_time": "2026-10-25T21:33:05Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -6435,14 +6681,14 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 2,
+              "cloud_spread": 0,
               "models": {
-                "best_match": 98,
+                "best_match": 100,
                 "ecmwf": 100,
                 "gfs": 100
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -6468,7 +6714,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 90,
               "low_cloud_pct": 96,
-              "precip_probability_pct": 59,
+              "precip_probability_pct": 78,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.5,
@@ -6553,7 +6799,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:05Z",
+                  "retrieval_time": "2026-10-25T21:33:06Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -6578,8 +6824,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:05Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:05Z",
+                  "retrieval_time": "2026-10-25T21:33:06Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:06Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6612,7 +6858,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:05Z",
+                  "retrieval_time": "2026-10-25T21:33:06Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -6718,7 +6964,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 68,
+              "precip_probability_pct": 66,
               "wind_kmh": 6,
               "gust_kmh": 7,
               "visibility_km": 0.5,
@@ -6803,7 +7049,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:05Z",
+                  "retrieval_time": "2026-10-25T21:33:07Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -6828,8 +7074,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:05Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:05Z",
+                  "retrieval_time": "2026-10-25T21:33:07Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:07Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -6862,7 +7108,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:05Z",
+                  "retrieval_time": "2026-10-25T21:33:07Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -6980,7 +7226,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 61,
+              "precip_probability_pct": 78,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.5,
@@ -7065,7 +7311,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:07Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -7090,8 +7336,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:07Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:07Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7124,7 +7370,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:07Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -7230,7 +7476,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 66,
+              "precip_probability_pct": 64,
               "wind_kmh": 7,
               "gust_kmh": 7,
               "visibility_km": 0.5,
@@ -7315,7 +7561,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:08Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -7340,8 +7586,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:08Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:08Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7374,7 +7620,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:08Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -7492,7 +7738,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 98,
               "low_cloud_pct": 94,
-              "precip_probability_pct": 58,
+              "precip_probability_pct": 79,
               "wind_kmh": 6,
               "gust_kmh": 6,
               "visibility_km": 0.2,
@@ -7577,7 +7823,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:09Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -7602,8 +7848,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:09Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:09Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7636,7 +7882,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:06Z",
+                  "retrieval_time": "2026-10-25T21:33:09Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -7742,7 +7988,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 68,
+              "precip_probability_pct": 73,
               "wind_kmh": 7,
               "gust_kmh": 7,
               "visibility_km": 0.2,
@@ -7826,7 +8072,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:07Z",
+                  "retrieval_time": "2026-10-25T21:33:10Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -7851,8 +8097,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:07Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:07Z",
+                  "retrieval_time": "2026-10-25T21:33:10Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:10Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -7885,7 +8131,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:07Z",
+                  "retrieval_time": "2026-10-25T21:33:10Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -8003,7 +8249,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 71,
+              "precip_probability_pct": 82,
               "wind_kmh": 5,
               "gust_kmh": 6,
               "visibility_km": 0.2,
@@ -8088,7 +8334,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:07Z",
+                  "retrieval_time": "2026-10-25T21:33:11Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -8113,8 +8359,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:07Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:07Z",
+                  "retrieval_time": "2026-10-25T21:33:11Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:11Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8147,7 +8393,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:07Z",
+                  "retrieval_time": "2026-10-25T21:33:11Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -8253,7 +8499,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 87,
+              "precip_probability_pct": 90,
               "wind_kmh": 6,
               "gust_kmh": 7,
               "visibility_km": 0.2,
@@ -8338,7 +8584,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:12Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -8363,8 +8609,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:12Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:12Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8397,7 +8643,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:12Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -8507,18 +8753,18 @@
             "event": "sunrise",
             "centre_time": "08:33",
             "components": {
-              "cloud": 3,
+              "cloud": 2,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 28,
+              "high_cloud_pct": 77,
               "mid_cloud_pct": 100,
-              "low_cloud_pct": 98,
+              "low_cloud_pct": 94,
               "precip_probability_pct": 86,
-              "wind_kmh": 5,
-              "gust_kmh": 16,
-              "visibility_km": 4.5,
+              "wind_kmh": 6,
+              "gust_kmh": 19,
+              "visibility_km": 7.6,
               "pm2_5": 0.9,
               "us_aqi": 34.0,
               "horizon_low_pct": 100,
@@ -8534,17 +8780,17 @@
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.8,
-              "best_gust": 16,
+              "best_mean": 5.5,
+              "best_gust": 19,
               "ecmwf_mean": 4.8,
               "ecmwf_gust": 16,
               "range": [
                 4.8,
-                4.8
+                5.5
               ],
               "gust_range": [
                 16,
-                16
+                19
               ],
               "divergent": false,
               "scoring": "conservative",
@@ -8553,22 +8799,22 @@
               "curve": [
                 {
                   "t": "08:00",
-                  "best": 4.4,
+                  "best": 5.6,
                   "ecmwf": 4.6
                 },
                 {
                   "t": "09:00",
-                  "best": 5.1,
+                  "best": 5.4,
                   "ecmwf": 5.1
                 },
                 {
                   "t": "10:00",
-                  "best": 5.3,
+                  "best": 4.8,
                   "ecmwf": 5.6
                 },
                 {
                   "t": "11:00",
-                  "best": 5.2,
+                  "best": 4.6,
                   "ecmwf": 5.9
                 }
               ]
@@ -8604,7 +8850,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:13Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -8629,8 +8875,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:13Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:13Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8663,7 +8909,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:13Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -8739,7 +8985,7 @@
               "label": "首束直射光",
               "geometric_time": "08:33"
             },
-            "score": 52,
+            "score": 51,
             "label": "條件普通",
             "condition_cap": {
               "applied": false,
@@ -8761,22 +9007,22 @@
             "event": "sunset",
             "centre_time": "18:25",
             "components": {
-              "cloud": 4,
+              "cloud": 3,
               "wind": 100,
               "smoke": 100
             },
             "weather": {
-              "high_cloud_pct": 40,
-              "mid_cloud_pct": 68,
-              "low_cloud_pct": 94,
+              "high_cloud_pct": 32,
+              "mid_cloud_pct": 100,
+              "low_cloud_pct": 74,
               "precip_probability_pct": 67,
               "wind_kmh": 5,
-              "gust_kmh": 16,
-              "visibility_km": 17.2,
+              "gust_kmh": 13,
+              "visibility_km": 14.7,
               "pm2_5": 0.1,
               "us_aqi": 30.0,
-              "horizon_low_pct": 100,
-              "horizon_mid_pct": 100,
+              "horizon_low_pct": 69,
+              "horizon_mid_pct": 46,
               "horizon_gap": 10,
               "horizon_azimuth_deg": 249.2
             },
@@ -8788,16 +9034,16 @@
             ],
             "wind_detail": {
               "ecmwf_missing": false,
-              "best_mean": 4.8,
-              "best_gust": 16,
+              "best_mean": 4.6,
+              "best_gust": 13,
               "ecmwf_mean": 4.3,
               "ecmwf_gust": 18,
               "range": [
                 4.3,
-                4.8
+                4.6
               ],
               "gust_range": [
-                16,
+                13,
                 18
               ],
               "divergent": false,
@@ -8807,17 +9053,17 @@
               "curve": [
                 {
                   "t": "18:00",
-                  "best": 4.8,
+                  "best": 4.4,
                   "ecmwf": 4.5
                 },
                 {
                   "t": "19:00",
-                  "best": 4.8,
+                  "best": 4.7,
                   "ecmwf": 4.2
                 },
                 {
                   "t": "20:00",
-                  "best": 4.9,
+                  "best": 4.4,
                   "ecmwf": 3.7
                 }
               ]
@@ -8853,7 +9099,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:14Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -8878,8 +9124,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:14Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:14Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -8912,7 +9158,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:08Z",
+                  "retrieval_time": "2026-10-25T21:33:14Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -8997,14 +9243,14 @@
             },
             "confidence": {
               "level": "高",
-              "cloud_spread": 2,
+              "cloud_spread": 0,
               "models": {
-                "best_match": 98,
+                "best_match": 100,
                 "ecmwf": 100,
                 "gfs": 100
               }
             },
-            "peak_window": "18:00–19:00"
+            "peak_window": "18:00–20:00"
           }
         }
       },
@@ -9030,7 +9276,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 90,
               "low_cloud_pct": 92,
-              "precip_probability_pct": 63,
+              "precip_probability_pct": 81,
               "wind_kmh": 5,
               "gust_kmh": 6,
               "visibility_km": 0.1,
@@ -9114,7 +9360,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:09Z",
+                  "retrieval_time": "2026-10-25T21:33:15Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -9139,8 +9385,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:09Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:09Z",
+                  "retrieval_time": "2026-10-25T21:33:15Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:15Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9173,7 +9419,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:09Z",
+                  "retrieval_time": "2026-10-25T21:33:15Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -9279,7 +9525,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 76,
+              "precip_probability_pct": 84,
               "wind_kmh": 7,
               "gust_kmh": 8,
               "visibility_km": 0.2,
@@ -9363,7 +9609,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:09Z",
+                  "retrieval_time": "2026-10-25T21:33:16Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -9388,8 +9634,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:09Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:09Z",
+                  "retrieval_time": "2026-10-25T21:33:16Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:16Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9422,7 +9668,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:09Z",
+                  "retrieval_time": "2026-10-25T21:33:16Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -9540,7 +9786,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 81,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 62,
+              "precip_probability_pct": 78,
               "wind_kmh": 5,
               "gust_kmh": 6,
               "visibility_km": 0.3,
@@ -9624,7 +9870,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:10Z",
+                  "retrieval_time": "2026-10-25T21:33:17Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -9649,8 +9895,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:10Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:10Z",
+                  "retrieval_time": "2026-10-25T21:33:17Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:17Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9683,7 +9929,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:10Z",
+                  "retrieval_time": "2026-10-25T21:33:17Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
@@ -9789,7 +10035,7 @@
               "high_cloud_pct": 100,
               "mid_cloud_pct": 100,
               "low_cloud_pct": 100,
-              "precip_probability_pct": 68,
+              "precip_probability_pct": 78,
               "wind_kmh": 6,
               "gust_kmh": 9,
               "visibility_km": 0.3,
@@ -9873,7 +10119,7 @@
               "models": {
                 "eccc_firework": {
                   "source": "ECCC FireWork RAQDPS WCS",
-                  "retrieval_time": "2026-10-25T20:32:10Z",
+                  "retrieval_time": "2026-10-25T21:33:18Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T12:00:00Z",
                   "cycle_status": null,
@@ -9898,8 +10144,8 @@
                 },
                 "cams_global": {
                   "source": "CAMS global via Open-Meteo",
-                  "retrieval_time": "2026-10-25T20:32:10Z",
-                  "provider_retrieval_time": "2026-10-25T20:32:10Z",
+                  "retrieval_time": "2026-10-25T21:33:18Z",
+                  "provider_retrieval_time": "2026-10-25T21:33:18Z",
                   "reference_time": null,
                   "cycle_status": "not_exposed_by_open_meteo",
                   "valid_range": [
@@ -9932,7 +10178,7 @@
                   "tflag_semantics": "interval_end; valid_time = TFLAG - PT1H",
                   "fire_locations_url": "https://firesmoke.ca/forecasts/current/fire_locations.kml",
                   "source": "BlueSky Canada HYSPLIT dispersion.nc",
-                  "retrieval_time": "2026-10-25T20:32:10Z",
+                  "retrieval_time": "2026-10-25T21:33:18Z",
                   "provider_retrieval_time": null,
                   "reference_time": "2026-10-25T14:00:00Z",
                   "cycle_status": null,
